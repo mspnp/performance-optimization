@@ -13,7 +13,7 @@ for (var i = 0; i < 99999; i++) {
  someSynchronousOperation(); // <- this is blocking and could be parallelized!
 }
 ```
-[Link to the related sample][codeWithProblem]
+[Link to the related sample][fullDemonstrationOfProblem]
 
 ## How to detect the problem
 
@@ -24,4 +24,4 @@ for (var i = 0; i < 99999; i++) {
 ## What problems will this uncover?
 
 
-[codeWithProblem]: http://github.com/mspnp/performance-optimization/xyz
+[fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
