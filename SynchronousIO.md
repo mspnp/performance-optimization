@@ -14,52 +14,56 @@ This anti-pattern typically occurs because:
 
 **C#**
 
-    // Create a QueueClient object to connect to the queue
-    QueueClient client = ...;
-    // Create a message to post on the queue
-    BrokeredMessage message = ...;
-    // Post the message
-    client.Send(message);
-
+``` C#
+// Create a QueueClient object to connect to the queue
+QueueClient client = ...;
+// Create a message to post on the queue
+BrokeredMessage message = ...;
+// Post the message
+client.Send(message);
+```
 
 - The application requires a response from the request, as shown by the following code example which sends an HTTP GET request to a web service and then displays the result:
-  
+
 **C#**
 
-    // Construct an HTTP web request
-    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri("..."));
-    request.Method = "GET";
-    request.ContentType = "application/json";
-    
-    // Send the request and wait for the response
-    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-    
-    // Process the response
-    if (response.StatusCode == HttpStatusCode.OK)
+``` C#
+// Construct an HTTP web request
+HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri("..."));
+request.Method = "GET";
+request.ContentType = "application/json";
+
+// Send the request and wait for the response
+HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+// Process the response
+if (response.StatusCode == HttpStatusCode.OK)
+{
+    using (var responseStream = response.GetResponseStream())
     {
-        using (var responseStream = response.GetResponseStream())
+        if (responseStream != null)
         {
-            if (responseStream != null)
+            using (var responseReader = new StreamReader(responseStream))
             {
-                using (var responseReader = new StreamReader(responseStream))
-                {
-                    string result = responseReader.ReadToEnd();
-                    Console.WriteLine("{0}", result);
-                }
+                string result = responseReader.ReadToEnd();
+                Console.WriteLine("{0}", result);
             }
         }
     }
+}
+```
 
 
 - The application uses a library which performs I/O and that does not provide asynchronous operations. For example:
 
 **C#**
 
-    var result = LibraryIOOperation();
-    // Wait while the method completes
+``` C#
+var result = LibraryIOOperation();
+// Wait while the method completes
 
-    Console.WriteLine("{0}", result);
-
+Console.WriteLine("{0}", result);
+```
 
 [Link to the related sample][fullDemonstrationOfProblem]
 
@@ -83,94 +87,100 @@ Some libraries provide asynchronous versions of the available I/O operations. Fo
 
 **C#**
 
-    // Create a QueueClient object to connect to the queue
-    QueueClient client = ...;
-    // Create a message to post on the queue
-    BrokeredMessage message = ...;
-    // Post the message asynchrously
-    client.SendAsync(message);
+``` C#
+// Create a QueueClient object to connect to the queue
+QueueClient client = ...;
+// Create a message to post on the queue
+BrokeredMessage message = ...;
+// Post the message asynchrously
+client.SendAsync(message);
 
-    // Processing continues while the Send operation is performed asynchronously
-    Console.WriteLine("Processing while message is sent");
-    ...
-
+// Processing continues while the Send operation is performed asynchronously
+Console.WriteLine("Processing while message is sent");
+...
+```
 
 The `SendAsync` method creates a new `Task` on which to perform the Send operation. This task can run asynchronously on a seperate thread from the code that called it. The use of the `SendAsync` method shown in this example is an illustration of the fire-and-forget technique;  the application invokes the `SendAsync` method but does not know whether the task has succeeded. To capture this information, use a continuation that runs when the task completes and has access to state information about the task:
 
 **C#**
 
-    ...
-    Task sendTask = client.SendAsync(message);
+``` C#
+...
+Task sendTask = client.SendAsync(message);
 
-    // Specify a continuation that runs when the task completes
-    sendTask.ContinueWith((task) =>
-    {
-        // Processing that runs when the task is complete.
-        Console.WriteLine("SendAsync task status is {0}", task.Status);
-    });
-    ...
+// Specify a continuation that runs when the task completes
+sendTask.ContinueWith((task) =>
+{
+    // Processing that runs when the task is complete.
+    Console.WriteLine("SendAsync task status is {0}", task.Status);
+});
+...
+```
 
 The `HttpWebResponse` class used to obtain a response to a web request in the example shown earlier provides similar functionality. The `GetResponseAsync` method is an asynchronous version of the `GetResponse` method that also runs by creating a new task. You can use a continuation to capture and process the information returned by the web response:
 
 **C#**
 
-    // Construct an HTTP web request
-    HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri("..."));
-    request.Method = "GET";
-    request.ContentType = "application/json";
-    
-    // Send the request asynchronously
-    var responseTask = request.GetResponseAsync();
-    
-    // Create a continuation to handle the information returned by the response
-    responseTask.ContinueWith((task) =>
+``` C#
+// Construct an HTTP web request
+HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri("..."));
+request.Method = "GET";
+request.ContentType = "application/json";
+
+// Send the request asynchronously
+var responseTask = request.GetResponseAsync();
+
+// Create a continuation to handle the information returned by the response
+responseTask.ContinueWith((task) =>
+{
+    HttpWebResponse response = (HttpWebResponse)task.Result;
+    if (response.StatusCode == HttpStatusCode.OK)
     {
-        HttpWebResponse response = (HttpWebResponse)task.Result;
-        if (response.StatusCode == HttpStatusCode.OK)
+        var responseStream = response.GetResponseStream();
+        if (responseStream != null)
         {
-            var responseStream = response.GetResponseStream();
-            if (responseStream != null)
+            using (var responseReader = new StreamReader(responseStream))
             {
-                using (var responseReader = new StreamReader(responseStream))
-                {
-                    string result = responseReader.ReadToEnd();
-                    Console.WriteLine("{0}", result);
-                }
+                string result = responseReader.ReadToEnd();
+                Console.WriteLine("{0}", result);
             }
         }
-    });
-    
-    // Processing continues while the request is sent, and the response is received and processed
-    Console.WriteLine("Processing while request is handled");
+    }
+});
+
+// Processing continues while the request is sent, and the response is received and processed
+Console.WriteLine("Processing while request is handled");
+```
 
 For libraries that do not provide asynchronous versions of operations, you can create asynchronous wrappers around synchronous methods, as shown in the following example:
 
 **C#**
 
+``` C#
+// Asynchronous wrapper around synchronous library method
+private async Task<int> LibraryIOOperationAsync()
+{
+    return await Task.Run(() => LibraryIOOperation());
+}
 
-    // Asynchronous wrapper around synchronous library method
-    private async Task<int> LibraryIOOperationAsync()
-    {
-        return await Task.Run(() => LibraryIOOperation());
-    }
+...
+// Invoke the asynchronous wrapper using a task
+var libraryTask = LibraryIOOperationAsync();
 
-    ...
-    // Invoke the asynchronous wrapper using a task
-    var libraryTask = LibraryIOOperationAsync();
+// Use a continuation to handle the result of the LibraryIOOperation method
+libraryTask.ContinueWith((task) =>
+{
+    Console.WriteLine("Result from LibraryIOOperation is {0}", task.Result);
+});
 
-    // Use a continuation to handle the result of the LibraryIOOperation method
-    libraryTask.ContinueWith((task) =>
-    {
-        Console.WriteLine("Result from LibraryIOOperation is {0}", task.Result);
-    });
-
-    // Processing continues while the LibraryIOOperation method is run asynchronously
-    Console.WriteLine("Work performed while LibraryIOOperation is running asynchronously");
+// Processing continues while the LibraryIOOperation method is run asynchronously
+Console.WriteLine("Work performed while LibraryIOOperation is running asynchronously");
+```
 
 
 **Note 1:** Only use the asynchronous wrapper strategy for methods that are I/O bound. Following this approach for CPU bound operations offers little benefit, and is likely to actually decrease the overall throughput of the system due to the additional overhead of creating and managing tasks.
 
-**Note 2:** Some recent libraries only provide asynchronous versions of certain methods, to prevent the issue of synchronous I/O from arising in the first place. It may be preferable to switch to one of these libraries rather than adding asynchronous wrappers around inherently synchronous code. An example is the `HttpClient` class in the `System.Net.Http` namespace. This method provides methods such as `GetAsync`, `PostAsync`, `PutAsync`, and `DeleteAsync` for interacting with a REST web service. It can be used as an asynchronous alternative to the `HttpWebRequest` class shown in the earlier examples. 
+**Note 2:** Some recent libraries only provide asynchronous versions of certain methods, to prevent the issue of synchronous I/O from arising in the first place. It may be preferable to switch to one of these libraries rather than adding asynchronous wrappers around inherently synchronous code. An example is the `HttpClient` class in the `System.Net.Http` namespace. This method provides methods such as `GetAsync`, `PostAsync`, `PutAsync`, and `DeleteAsync` for interacting with a REST web service. It can be used as an asynchronous alternative to the `HttpWebRequest` class shown in the earlier examples.
 
 [Link to the related sample][fullDemonstrationOfSolution]
 
