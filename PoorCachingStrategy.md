@@ -1,10 +1,8 @@
 # Poor Caching Strategy
 
-The purpose of caching is to buffer data locally, to prevent the same information from being retrieved repeatedly from a remote data store, and/or to reduce the need to expend processing resources constructing the same items when they are required by multiple requests.
+The purpose of caching is to avoid repeatedly retrieving the same information from a resource that is expensive to access, and/or to reduce the need to expend processing resources constructing the same items when they are required by multiple requests. In a cloud service that has to handle many concurrent requests, the overhead associated with repeated operations can impact the performance and scalability of the system. Additionally, if the resource becomes unavailable, then the cloud service may fail when it attempts to retrieve information; using a cache to buffer data can help to ensure that cached data remains available even if the resource is not.
 
-A poor caching strategy that fails to adequately cache data can lead to repeated requests to fetch the same data from a slow, expensive, or high-latency resource. In a cloud service that has to handle many concurrent requests, this overhead can impact the performance and scalability of the system. Additionally, if the data store becomes unavailable, then the cloud service may fail when it attempts to retrieve information; using a cache to buffer data can help to ensure that cached data remains available even if the data store is not.
-
-The following code snippet shows an example method that uses the Entity Framework to connect to a database implemented by using Azure SQL Database. The method then fetches an item specified by the `productID` parameter. If this snippet forms part of a web role handling many concurrent users, mutiple requests might retrieve the same item from the database. If the web role is unable to connect to the database for some reason then the request will fail:
+The following code snippet shows an example method that uses the Entity Framework to connect to a database implemented by using Azure SQL Database. The method then fetches an item specified by the `productID` parameter. Each time this method runs, it incurs the expense of communicating with the database. In a system designed to support multiple concurrent users, separate requests might retrieve the same information from the database. The costs associated with repeated requests can accumulate quickly. Additionally, if the system is unable to connect to the database for some reason then requests will fail:
 
 
 **C#**
@@ -31,11 +29,11 @@ You should also be aware that in many situations a caching strategy that attempt
 
 This anti-pattern typically occurs because:
 
-- It is easier for a developer to write code that reads and writes data directly to a data store. 
+- It is easier to write code that reads and writes data directly to a data store. 
 - There is a perception that users always demand to be presented with the most recent data, and caching  may lead to them being presented with out-of-date information.
-- The developer may be concerned about the overhead of maintaining the accuracy and freshness of cached data and the coding complications that this might entail.
+- There is a concern over the overhead of maintaining the accuracy and freshness of cached data and the coding complications that this might entail.
 - Direct access to data might form part of a functional prototype that operates in-house, but is not addressed (or is forgotten) when the system is further developed and deployed to the cloud.
-- The developer is not aware that caching is a possibility in a given scenario. A common example concerns the use of etags when implementing a web API. This scenario is described further in the section **How to correct the problem** later in this pattern
+- A lack of awareness that caching is a possibility in a given scenario. A common example concerns the use of etags when implementing a web API. This scenario is described further in the section **How to correct the problem** later in this pattern
 - The benefits (and sometimes the drawbacks) of using a cache are misunderstood.
 - *OTHERS?*
 
@@ -55,7 +53,7 @@ An operator monitoring a system that implements a poor (or non-existent) caching
 ## How to correct the problem
 You can use several strategies to implement caching. The most popular are:
 
-- The *on-demand* or [*cache-aside*](https://msdn.microsoft.com/library/dn589799.aspx) strategy. The application attempts to retrieve data from the cache. If the data is not present, the application retrieves it from the data store and adds it to the cache so it will be found next time. To prevent the data from becoming stale, many caching solutions support configurable timeouts, allowing data to automatically expire and be removed from the cache after a specified interval. If the application modifies data, it should write the change directly to the data store and remove the old value from the cache; it will be retrieved and added to the cache the next time it is required. This approach is suitable for data that may change regularly, although there may be a window of opportunity during which an application might be served with out-of-date information. The following code snippet shows the `RetrieveAsync` method presented earlier but now including the cache-aside pattern.
+- The *on-demand* or [*cache-aside*][cache-aside] strategy. The application attempts to retrieve data from the cache. If the data is not present, the application retrieves it from the data store and adds it to the cache so it will be found next time. To prevent the data from becoming stale, many caching solutions support configurable timeouts, allowing data to automatically expire and be removed from the cache after a specified interval. If the application modifies data, it should write the change directly to the data store and remove the old value from the cache; it will be retrieved and added to the cache the next time it is required. This approach is suitable for data that may change regularly, although there may be a window of opportunity during which an application might be served with out-of-date information. The following code snippet shows the `RetrieveAsync` method presented earlier but now including the cache-aside pattern.
 
     **Note:** For simplicity, this example uses the `MemoryCache` class which stores data in process memory, but the same technique is applicable to other caching technologies.
 
@@ -96,12 +94,12 @@ If you are building REST web services, you should understand that caching is an 
 
 You should consider the following points when determining how and whether to implement caching:
 
-- Your application code should not be totally reliant on the availability of the cache. If it is inaccessible your code should not fail, but instead it should fetch data from the the original data store.
-- You don't have to cache entire entities. If the bulk of an entity is static but only a small piece is subject to regular changes, then cache the static elements and  retrieve only the dynamic pieces from the data store. This approach can help to reduce the volume of I/O being performed on the data store.
-- The possible differences between cached data and data held in the underlying data store mean that applications that use caching should be designed to support [eventual consistency](http://LINK TO CONSISTENCY GUIDANCE). For this reason, caching is ideally suited to data where the ratio of read to write operations is large.
+- Your application code should not rely on the availability of the cache. If it is inaccessible your code should not fail, but instead it should fetch data from the the original data source.
+- You don't have to cache entire entities. If the bulk of an entity is static but only a small piece is subject to regular changes, then cache the static elements and  retrieve only the dynamic pieces from the data source. This approach can help to reduce the volume of I/O being performed against the data source.
+- The possible differences between cached data and data held in the underlying data source mean that applications that use caching for non-static data should be designed to support [eventual consistency][eventual-consistency].
 - In some cases caching volatile information can prove to be helpful if this information is temporary in nature. For example, consider a device that continually reports status information or some other measurement. If an application chooses not to cache this data on the basis that the cached information will nearly always be outdated, then the same consideration could be true when storing and retrieving this information from a data store; in the time taken to save and fetch this data it may have changed. In a situation such as this, consider the benefits of storing the dynamic information directly in the cache instead of a persistent data store. If the data is non-critical and does not require to be audited, then it does not matter if the occasional change is lost.
-- Caching doesn't just apply to data held in a remote data store. You can use caching to save the results of complex computations that are performed regularly. In this way, rather than expending processing resources (and time) repeating such a calculation, an application might be able to retrieve results computed earlier.
-- Use an appropriate caching technology. If you are building Azure cloud services or web applications, then using an in-memory cache may not be appropriate because client requests might not always be routed to the same server. This approach also has limited scalability (governed by the available memory on the server). Instead, use a shared caching solution such as [Azure Redis Cache](http://azure.microsoft.com/documentation/services/cache/).
+- Caching doesn't just apply to data held in a remote data source. You can use caching to save the results of complex computations that are performed regularly. In this way, rather than expending processing resources (and time) repeating such a calculation, an application might be able to retrieve results computed earlier.
+- Use an appropriate caching technology. If you are building Azure cloud services or web applications, then using an in-memory cache may not be appropriate because client requests might not always be routed to the same server. This approach also has limited scalability (governed by the available memory on the server). Instead, use a shared caching solution such as [Azure Redis Cache][Azure-Redis-Cache].
 - Falling back to the original data store if the cache is temporarily unavailable may have a scalability impact on the system; while the cache is being recovered, the original data store could be swamped with requests for data, resulting in timeouts and failed connections. A strategy that you should consider is to implement a local, private cache in each instance of an application together with the shared cache that all application instances access. When the application retrieves an item, it can check first in its local cache, then the shared cache, and finally the original data store. The local cache can be populated using the data in the shared cache, or the database if the shared cache is unavailable. This approach requires careful configuration to prevent the local cache becoming too stale with respect to the shared cache, but it acts as a buffer if the shared cache is unreachable.
 
 [Link to the related sample][fullDemonstrationOfSolution]
@@ -117,3 +115,6 @@ TBD.
 
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
+[cache-aside]: https://msdn.microsoft.com/library/dn589799.aspx
+[eventual-consistency]: http://LINK TO CONSISTENCY GUIDANCE
+[Azure-Redis-Cache]: http://azure.microsoft.com/documentation/services/cache/

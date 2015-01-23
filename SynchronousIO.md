@@ -4,13 +4,14 @@ A synchronous I/O operation blocks the calling thread while the I/O completes. T
 
 Common examples of synchronous I/O include:
 
-- Writing data to a local file and waiting for the data to be saved.
+- Writing to a local file and waiting for the data to be saved.
+- Retrieving or persisting data to a database.
 - Posting a message to a message queue and waiting for the message queue to acknowledge receipt of the message.
 - Sending a request to a web service and waiting for a response.
 
 This anti-pattern typically occurs because:
 
-- It appears to be the most natural means to perform an operation. For example, the following code looks to be the obvious way to post a message to an Azure Service Bus queue:
+- It appears to be the most intuitive way to perform an operation. For example, the following code looks to be the obvious way to post a message to an Azure Service Bus queue:
 
 **C#**
 
@@ -29,7 +30,7 @@ client.Send(message);
 
 ``` C#
 // Construct an HTTP web request
-HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri("..."));
+HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri("http://..."));
 request.Method = "GET";
 request.ContentType = "application/json";
 
@@ -100,7 +101,7 @@ Console.WriteLine("Processing while message is sent");
 ...
 ```
 
-The `SendAsync` method creates a new `Task` on which to perform the Send operation. This task can run asynchronously on a seperate thread from the code that called it. The use of the `SendAsync` method shown in this example is an illustration of the fire-and-forget technique;  the application invokes the `SendAsync` method but does not know whether the task has succeeded. To capture this information, use a continuation that runs when the task completes and has access to state information about the task:
+The `SendAsync` method creates a new `Task` on which to perform the send operation. This task can run asynchronously on a separate thread from the code that called it. The use of the `SendAsync` method shown in this example is an illustration of the fire-and-forget technique;  the application invokes the `SendAsync` method but does not know whether the task has succeeded. To capture this information, use a continuation that runs when the task completes and has access to state information about the task:
 
 **C#**
 
@@ -117,40 +118,27 @@ sendTask.ContinueWith((task) =>
 ...
 ```
 
-The `HttpWebResponse` class used to obtain a response to a web request in the example shown earlier provides similar functionality. The `GetResponseAsync` method is an asynchronous version of the `GetResponse` method that also runs by creating a new task. You can use a continuation to capture and process the information returned by the web response:
+The `HttpWebResponse` class used to obtain a response to a web request in the example shown earlier provides similar functionality. The `GetResponseAsync` method is an asynchronous version of the `GetResponse` method that also runs by creating a new task. You can use a continuation to capture and process the information returned by the web response in the same way as the previous example. However, note that some recent libraries only provide asynchronous versions of certain methods. These libraries are usually highly optimized for the asynchronous approach (as opposed to being asynchronous extensions of inherently synchronous methods). If possible, you should consider replacing code your synchronous code with these calls to these methods. An example is the `HttpClient` class in the `System.Net.Http` namespace. This class provides methods such as `GetAsync`, `PostAsync`, `PutAsync`, and `DeleteAsync` for interacting with a REST web service. The following code snippet could be used to replace the synchronous example shown earlier:
 
 **C#**
 
 ``` C#
-// Construct an HTTP web request
-HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri("..."));
-request.Method = "GET";
-request.ContentType = "application/json";
-
-// Send the request asynchronously
-var responseTask = request.GetResponseAsync();
-
-// Create a continuation to handle the information returned by the response
-responseTask.ContinueWith((task) =>
+using (HttpClient client = new HttpClient())
 {
-    HttpWebResponse response = (HttpWebResponse)task.Result;
-    if (response.StatusCode == HttpStatusCode.OK)
+    client.BaseAddress = new Uri("http://...");
+    client.DefaultRequestHeaders.Accept.Clear();
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    
+    HttpResponseMessage response = await client.GetAsync(...);
+    if (response.IsSuccessStatusCode)
     {
-        var responseStream = response.GetResponseStream();
-        if (responseStream != null)
-        {
-            using (var responseReader = new StreamReader(responseStream))
-            {
-                string result = responseReader.ReadToEnd();
-                Console.WriteLine("{0}", result);
-            }
-        }
+        var result = await response.Content.ReadAsStringAsync();
+        Console.WriteLine("{0}", result);
     }
-});
-
-// Processing continues while the request is sent, and the response is received and processed
-Console.WriteLine("Processing while request is handled");
+}
 ```
+
+Note that this code uses the `await` operator to return control to the calling environment while the asynchronous operation is performed. The subsequent code effectively acts as a continuation that runs when the asynchronous operation has completed.
 
 For libraries that do not provide asynchronous versions of operations, you can create asynchronous wrappers around synchronous methods, as shown in the following example:
 
@@ -178,9 +166,7 @@ Console.WriteLine("Work performed while LibraryIOOperation is running asynchrono
 ```
 
 
-**Note 1:** Only use the asynchronous wrapper strategy for methods that are I/O bound. Following this approach for CPU bound operations offers little benefit, and is likely to actually decrease the overall throughput of the system due to the additional overhead of creating and managing tasks.
-
-**Note 2:** Some recent libraries only provide asynchronous versions of certain methods, to prevent the issue of synchronous I/O from arising in the first place. It may be preferable to switch to one of these libraries rather than adding asynchronous wrappers around inherently synchronous code. An example is the `HttpClient` class in the `System.Net.Http` namespace. This method provides methods such as `GetAsync`, `PostAsync`, `PutAsync`, and `DeleteAsync` for interacting with a REST web service. It can be used as an asynchronous alternative to the `HttpWebRequest` class shown in the earlier examples.
+**Note:** Only use the asynchronous wrapper strategy for methods that are I/O bound. Following this approach for CPU bound operations offers little benefit, and is likely to actually decrease the overall throughput of the system due to the additional overhead of creating and managing tasks.
 
 [Link to the related sample][fullDemonstrationOfSolution]
 
