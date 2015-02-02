@@ -3,7 +3,7 @@
 A synchronous I/O operation blocks the calling thread while the I/O completes. The calling thread is effectively suspended and unable to perform useful work during this interval. The result is that processing resources are wasted. In a cloud-based web application or service which serves multiple concurrent requests, this approach can adversely affect the scalability of the system.
 
 Common examples of synchronous I/O include:
-
+!
 - Writing to a local file and waiting for the data to be saved.
 - Retrieving or persisting data to a database.
 - Posting a message to a message queue and waiting for the message queue to acknowledge receipt of the message.
