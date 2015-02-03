@@ -46,9 +46,10 @@ Conversely, over-eager caching (caching data that is highly volatile or that is 
 
 An operator monitoring a system that implements a poor (or non-existent) caching strategy may observe the following phenomena:
 
-- *Notes on key perf counters and metrics - high network latency with idle threads blocked waiting for the results. Lots of I/O into the cache. Lots of data expiring in the cache, or the cache being flushed very frequently.*
-
-*Notes on what to look for when profiling an application*.
+- Profiling the system may indicate a large number of requests to a data store or service. You can sort the profile data by the number of requests to help identify candidate information for caching. In a system that is not caching data sufficiently, you might see a large number of requests for reference data.
+- Examining data access statistics and other information provided by a data store might show the same queries being repeated frequently.
+- *Further notes on what to look for when profiling an application*.
+- *Notes on key perf counters and metrics - e.g. high network latency with idle threads blocked waiting for the results. Lots of I/O into the cache. Lots of data expiring in the cache, or the cache being flushed very frequently.*
 
 ## How to correct the problem
 You can use several strategies to implement caching. The most popular are:
@@ -74,10 +75,17 @@ public async Task<Product> RetrieveAsync(int productID)
     // If the item is not currently in the cache, then retrieve it from the database and add it to the cache
     if (product == null)
     {
-        using (var productsModelContext = new AdventureWorks2012Entities())
+        try
         {
-            product = await productsModelContext.Products.Where(p => p.ProductID == productID).FirstAsync();
-            cache[productID.ToString()] = product;
+            using (var productsModelContext = new AdventureWorks2012Entities())
+            {
+                product = await productsModelContext.Products.Where(p => p.ProductID == productID).FirstAsync();
+                cache[productID.ToString()] = product;
+            }
+        }
+        catch(Exception e)
+        {
+            ...
         }
     }
 
@@ -85,7 +93,7 @@ public async Task<Product> RetrieveAsync(int productID)
 }
 ```
 
-- The *background data-push* strategy. A background service populates the cache and pushes modified data into the cache on a regular schedule. An application reading data always retrieves it from the cache. Modifications are written directly back to the data store. This approach is most suitable for very static data or for situations that don't always require the most recent information.
+- The *background data-push* strategy. A background service populates the cache and pushes modified data into the cache on a regular schedule. An application reading data always retrieves it from the cache. Modifications are written directly back to the data store. This approach is most suitable for very static data or for situations that don't always require the most recent information. This strategy is useful for priming a cache when it is first created or whan an application that is likely to use this data starts running.
 **QUESTION: SHOULD WE INCLUDE SOME CODE FOR THIS STRATEGY?**
 
 If you are building REST web services, you should understand that caching is an important part of the HTTP protocol that can greatly improve service performance When a client application requests an object from a REST web service, the response message can include an ETag (Entity Tag). An ETag is an opaque string that indicates the version of an object; each time an object changes the Etag is also modified (how the ETag is generated and updated is an implementation detail ofthe web service). This ETag should be saved locally by the client application. If the client issues a subsquent request for the same item, it should include the ETag as part of the request. The web service can then determine whether the object has changed since it was last retrieved. If the current ETag for the object is the same as that specified by the client, then the web service can simply return a response that indicates that the data is unchanged. However, if the current ETag is different, the web service can return the new data together with the new ETag. In this way, if an object is large, using ETags can save the time and resources required to transmit the object back to the client.
@@ -94,13 +102,15 @@ If you are building REST web services, you should understand that caching is an 
 
 You should consider the following points when determining how and whether to implement caching:
 
-- Your application code should not rely on the availability of the cache. If it is inaccessible your code should not fail, but instead it should fetch data from the the original data source.
+- Your application code should not depend on the availability of the cache. If it is inaccessible your code should not fail, but instead it should fetch data from the the original data source. **REFERENCE THE INCORRECT SERVICE FAILURE HANDLING ANTI-PATTERN?**
 - You don't have to cache entire entities. If the bulk of an entity is static but only a small piece is subject to regular changes, then cache the static elements and  retrieve only the dynamic pieces from the data source. This approach can help to reduce the volume of I/O being performed against the data source.
 - The possible differences between cached data and data held in the underlying data source mean that applications that use caching for non-static data should be designed to support [eventual consistency][eventual-consistency].
 - In some cases caching volatile information can prove to be helpful if this information is temporary in nature. For example, consider a device that continually reports status information or some other measurement. If an application chooses not to cache this data on the basis that the cached information will nearly always be outdated, then the same consideration could be true when storing and retrieving this information from a data store; in the time taken to save and fetch this data it may have changed. In a situation such as this, consider the benefits of storing the dynamic information directly in the cache instead of a persistent data store. If the data is non-critical and does not require to be audited, then it does not matter if the occasional change is lost.
+- Use a portable serialization format for cached data that is independent of an specific application.
 - Caching doesn't just apply to data held in a remote data source. You can use caching to save the results of complex computations that are performed regularly. In this way, rather than expending processing resources (and time) repeating such a calculation, an application might be able to retrieve results computed earlier.
-- Use an appropriate caching technology. If you are building Azure cloud services or web applications, then using an in-memory cache may not be appropriate because client requests might not always be routed to the same server. This approach also has limited scalability (governed by the available memory on the server). Instead, use a shared caching solution such as [Azure Redis Cache][Azure-Redis-Cache].
+- Use an appropriate caching technology. If you are building Azure cloud services or web applications, then using an in-memory cache may not be appropriate because client requests might not always be routed to the same server. This approach also has limited scalability (governed by the available memory on the server). Instead, use a shared caching solution such as [Azure Redis Cache][Azure-Redis-Cache].  Note that in some cases an application may benefit from using a combination of both techniques, with a local in-memory cache storing information that is retrieved from a shared cache. However, it is important to implement policies that reduce the chances of data cached locally from becoming stale with respect to data held in the shared cache.
 - Falling back to the original data store if the cache is temporarily unavailable may have a scalability impact on the system; while the cache is being recovered, the original data store could be swamped with requests for data, resulting in timeouts and failed connections. A strategy that you should consider is to implement a local, private cache in each instance of an application together with the shared cache that all application instances access. When the application retrieves an item, it can check first in its local cache, then the shared cache, and finally the original data store. The local cache can be populated using the data in the shared cache, or the database if the shared cache is unavailable. This approach requires careful configuration to prevent the local cache becoming too stale with respect to the shared cache, but it acts as a buffer if the shared cache is unreachable.
+- Always include instrumentation that detects cache hits and cache misses. This information can be used to tune caching policies (for example, what to cache, and how long to hold it in the cache before it expires).
 
 [Link to the related sample][fullDemonstrationOfSolution]
 
