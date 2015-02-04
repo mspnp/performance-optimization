@@ -12,7 +12,6 @@
       <InputEndpoint name="Endpoint1" protocol="http" port="8081" />
     </Endpoints>
     <Imports>
-      <Import moduleName="Diagnostics" />
     </Imports>
   </WebRole>
 </ServiceDefinition>
