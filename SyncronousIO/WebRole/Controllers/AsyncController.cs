@@ -13,9 +13,13 @@ namespace WebRole.Controllers
             _userProfileService = new UserProfileServiceProxy();
         }
 
-        public async Task<UserProfile> GetUserProfileAsync()
+        /// <summary>
+        /// This is an synchronous method that calls the Task based GetUserProfileAsync method.
+        /// </summary>
+        /// <returns>A UserProfile instance</returns>
+        public Task<UserProfile> GetUserProfileAsync()
         {
-            return await _userProfileService.GetUserProfileAsync();
+            return _userProfileService.GetUserProfileAsync();
         }
     }
 }
