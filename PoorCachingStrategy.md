@@ -48,15 +48,20 @@ An operator monitoring a system that implements a poor (or non-existent) caching
 
 - Profiling the system may indicate a large number of requests to a data store or service. You can sort the profile data by the number of requests to help identify candidate information for caching. In a system that is not caching data sufficiently, you might see a large number of requests for reference data.
 - Examining data access statistics and other information provided by a data store might show the same queries being repeated frequently.
-- *Further notes on what to look for when profiling an application*.
-- *Notes on key perf counters and metrics - e.g. high network latency with idle threads blocked waiting for the results. Lots of I/O into the cache. Lots of data expiring in the cache, or the cache being flushed very frequently.*
+- **Further notes on what to look for when profiling an application**.
+- **Notes on key perf counters and metrics - e.g. high network latency with idle threads blocked waiting for the results. Lots of I/O into the cache. Lots of data expiring in the cache, or the cache being flushed very frequently.**
 
 ## How to correct the problem
 You can use several strategies to implement caching. The most popular are:
 
 - The *on-demand* or [*cache-aside*][cache-aside] strategy. The application attempts to retrieve data from the cache. If the data is not present, the application retrieves it from the data store and adds it to the cache so it will be found next time. To prevent the data from becoming stale, many caching solutions support configurable timeouts, allowing data to automatically expire and be removed from the cache after a specified interval. If the application modifies data, it should write the change directly to the data store and remove the old value from the cache; it will be retrieved and added to the cache the next time it is required. This approach is suitable for data that may change regularly, although there may be a window of opportunity during which an application might be served with out-of-date information. The following code snippet shows the `RetrieveAsync` method presented earlier but now including the cache-aside pattern.
 
-    **Note:** For simplicity, this example uses the `MemoryCache` class which stores data in process memory, but the same technique is applicable to other caching technologies.
+----------
+
+**Note:** For simplicity, this example uses the `MemoryCache` class which stores data in process memory, but the same technique is applicable to other caching technologies.
+
+----------
+
 
 **C#**
 
@@ -126,5 +131,5 @@ TBD.
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
 [cache-aside]: https://msdn.microsoft.com/library/dn589799.aspx
-[eventual-consistency]: http://LINK TO CONSISTENCY GUIDANCE
+[eventual-consistency]: http://LINK-TO-CONSISTENCY-GUIDANCE
 [Azure-Redis-Cache]: http://azure.microsoft.com/documentation/services/cache/
