@@ -40,3 +40,6 @@ You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-u
 
 For more realistic results, configure the user load to simulate bursts of traffic with periods of low usage between bursts of high usage. In order to raise and lower the user load within a load test, you will need to create a [custom load test plugin](https://msdn.microsoft.com/en-us/library/ms243153.aspx).
 Carlos may have a load test plug that we could ship.
+
+## Dependencies
+Azure SDK 2.5
