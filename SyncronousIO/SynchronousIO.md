@@ -128,7 +128,7 @@ using (HttpClient client = new HttpClient())
     client.BaseAddress = new Uri("http://...");
     client.DefaultRequestHeaders.Accept.Clear();
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    
+
     HttpResponseMessage response = await client.GetAsync(...);
     if (response.IsSuccessStatusCode)
     {
@@ -173,6 +173,24 @@ Console.WriteLine("Work performed while LibraryIOOperation is running asynchrono
 
 ## How to validate the solution
 The system should be able to support more concurrent user requests than before, and as a result be more scalable. This can be determined by performing load testing before and after making any changes to the code and then comparing the results. Functionally, the system should remain unchanged. Monitoring the system and analyzing the key performance counters described earlier should indicate that the system spends less time blocked by synchronous I/O and the CPUs are more active. *(NOTE: NEED TO ADD SOME QUANTIFIABLE GUIDANCE)*
+
+## Perfomance Analysis
+
+A request is received initially by HTTP.SYS at kernel level, which then posts the request to an IIS IO completion port. IIS picks the request from its thread pool and calls into ASP.NET which posts the request to the CLR thread pool, where then the request will be executed.
+
+In synchronous operations where there is high latency and number of concurrent requests exceeds the CLR thread pool size low throughput and high response times will be observed. The following indicators can give the imbalance state of the system: .Net Clr Locks and Threads/# of Current Logical Threads/w3wp, Web service/Current Connections, Tests /sec, User Load, and Avg Test Time and Asp.net applications/Requests Executing. When user load and web connections out numbers the CLR physical threads or ASP.NET Requests Executing, then is an indication that operations are blocked in IIS thread pool waiting for a slot to be available in CLR thread pool where ASP.NET will post the request to be executed. Cloud Services Web sites will provision a mechanism to compensate such imbalance by allowing ASP.NET to increase the CLR thread pool gradually or at higher pace. The graph below depicts such behavior.
+
+![figure 1](images/figure01.png)
+
+Cascading Synchronous calls for services will result is ripple effect of high latency, degrading throughput and availability in workloads with higher concurrent operations than normal business volumes. Another problem with the adjustment of threads to accommodate the incoming requests is that when workloads phase out the collection of resources will bring system back to its initial state, and the next surge of user activity will cause the same problem. Below is the depiction of a Load test representing a paced workload with a surge and low requests level over a period of time:
+
+![figure 2](images/figure02.png)
+
+In asynchronous operations such resource allocation to satisfy the request is not required since the awaited call will relinquish the thread resource to the CLR thread pool, reducing the number of threads required to satisfy the request, increasing the throughput and increasing the requests executing. With this design the threads are shared among the requests. Below is the same representation comparing with Synchronous: with the average of CLR current Logical threads we have 3693 requests executing with throughput of 928 of completed tests / sec, versus
+
+![figure 3](images/figure03.png)
+
+The coarsest level of measuring a transaction is tests / sec, available from the load test metrics. A request from ASP.net view is any operation that is invoked, that including resources that are dependent on root level to another request, as an example images, JavaScript resources etc. If a test contains only one web test request, then tests /sec will match the readings from asp.net requests /sec.
 
 ## What problems will this uncover?
 *TBD - Need more input from the developers*.
