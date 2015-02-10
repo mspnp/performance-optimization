@@ -1,9 +1,10 @@
-﻿using WebRole.Models;
+﻿using System.Threading.Tasks;
+using WebRole.Models;
 
 namespace WebRole
 {
     public interface IProductRepository
     {
-        Product GetProductById(string productId);
+        Task<Product> GetProductByIdAsync(string productId);
     }
 }

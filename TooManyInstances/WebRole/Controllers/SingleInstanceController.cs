@@ -1,4 +1,5 @@
-﻿using System.Web.Http;
+﻿using System.Threading.Tasks;
+using System.Web.Http;
 using WebRole.Models;
 
 namespace WebRole.Controllers
@@ -12,9 +13,14 @@ namespace WebRole.Controllers
             ProductRepository = new ProductRepository();
         }
 
-        public Product GetProduct(string id)
+        /// <summary>
+        /// This method uses the shared instance of IProductRepository for every call to GetProductAsync.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public Task<Product> GetProductAsync(string id)
         {
-            return ProductRepository.GetProductById(id);
+            return ProductRepository.GetProductByIdAsync(id);
         }
     }
 }

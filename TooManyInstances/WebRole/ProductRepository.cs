@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using WebRole.Models;
 
 namespace WebRole
 {
+    /// <summary>
+    /// This ProductRepository represents a class that is meant to be long lived. 
+    /// The same instance is meant to be share by the classes that depend on it.
+    /// </summary>
     public class ProductRepository : IProductRepository, IDisposable
     {
         private bool disposed = false;
@@ -13,20 +18,22 @@ namespace WebRole
         public ProductRepository()
         {
             //Simulate delay due to setup and configuration of ProductRepository
-            Thread.Sleep(500);
+            Thread.Sleep(100);
 
+            //HttpClient is thread-safe in that you can submit many requests concurrently.
+            //HttpClient instances should be shared, otherwise you will run out of TCP sockets.
             httpClient = new HttpClient();
         }
 
-        public Product GetProductById(string productId)
+        public async Task<Product> GetProductByIdAsync(string productId)
         {
             //Opportunity to look for product in cache.
 
-            //var result = httpClient.GetStringAsync("http://www.microsoft.com");
+            var result = await httpClient.GetStringAsync("http://www.microsoft.com").ConfigureAwait(false);
             
             //opportunity to save result to cache
 
-            return new Product(){Name = "Bicycle"};
+            return new Product() { Name = result };
         }
 
         public void Dispose()
