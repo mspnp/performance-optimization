@@ -88,6 +88,12 @@ var parsedData = JsonConvert.DeserializeObject<List<ProductInfo>>(data);
 var roadBikes = parsedData.FindAll(product => string.Compare(product.SubCategory, "Road Bikes") == 0);
 ```
 
+----------
+
+**Note:** The `GetAllProducts` method of the `IProductInfoRepository` object is also indicative of poor practice. This method retrieves data for every product from the underlying data store, which can result in punishing amounts of I/O between the web service and the data store.
+
+----------
+
 - The application uses a framework that supports eager-retrieval of related data. This behavior is commonplace in Object-Relational Mapping (ORM) frameworks. The purpose is to anticipate requests for this data and improve response times, but if this feature is misused to retrieve data that is rarely used it actually imposes an I/O overhead rather being an advantage. If the Entity Model from the previous example is extended to include product review information, it could look like this:
 
 ![Entity Framework data model showing the Product and ProductReview tables][product-review-tables]
@@ -145,7 +151,7 @@ var query = from p in context.Products
             }; // Performs SELECT Name, Color, ListPrice, Size FROM Product
 ```
 
-- In the REST web service described earlier, you could implement pagination to limit the volume of data returned by a single request; the user might have requested to view all 50,000 products stocked by an organization, but the chances are that the user will stop browsing after the first few pages. The following code snippet shows the `GetProducts` method from the earlier example, but amended to support paging (the `GetAllProducts` method in the `ProductInfoRepository` class has been similarly changed):
+- In the REST web service described earlier, you could implement pagination to limit the volume of data returned by a single request; the user might have requested to view all 50,000 products stocked by an organization, but the chances are that the user will stop browsing after the first few pages. Furthermore the web service will likely have consumed considerable resources fetching this amount of data, so this approach is not scalable. The following code snippet shows the `GetProducts` method from the earlier example, but amended to support paging. The parameters specify a limit to the number of rows retrieved, and an offset into the dataset. Both of these parameters are optional, but the limit defaults to a reasonably small level. If necessary, the method could also check that the caller does not specify some ridiculously large value for the `limit` parameter to prevent a malicious waste of resources (for example, by an application performing a Denial of Service attack.) Note that the `GetAllProducts` method in the `ProductInfoRepository` class has been similarly changed to avoid retrieving copious amounts of information from the data store:
 
 **C# web API**
 
@@ -158,7 +164,7 @@ public class ProductsController : ApiController
     // GET: /Products
     [HttpGet]
     [Route("products")]
-    public HttpResponseMessage GetProducts(int limit=50, int offset=0)
+    public HttpResponseMessage GetProducts(int limit=20, int offset=0)
     {
         // Find the number of products specified by the limit parameter
         // starting with the product specified by the offset parameter
@@ -253,7 +259,7 @@ var data = await response.Content.ReadAsStringAsync();
 
 - Carefully monitor any use that your application makes of eager-retrieval. Although this is a common technique that can be used to fetch data in advance and improve response times, it can easily cascade to fetch large amounts of related data that is unlikely to be used. If you are using a framework such as an ORM to automatically fetch data (such as the `Includes` method of the Entity Framework), make sure that you understand how it operates and consider the effects that it might have on I/O.
 
-- Wherever possible, ensure that queries performed by using LINQ to Entities are resolved by using the `IQueryable` interface rather than `IEnumerable`. This may be a matter of rephrasing a query to use only the features and functions that can be mapped by LINQ to Entities to features available in the database, or adding user-defined functions to the database that can perform the required operations on the data before returning it. In the example shown earlier, the code can be refactored to remove the problematic `AddDays` function from the query, allowing filtering to be performed by the database:
+- Wherever possible, ensure that LINQ queries are resolved by using the `IQueryable` interface rather than `IEnumerable`. This may be a matter of rephrasing a query to use only the features and functions that can be mapped by LINQ to features available in the underlying data source, or adding user-defined functions to the data source that can perform the required operations on the data before returning it. In the example shown earlier, the code can be refactored to remove the problematic `AddDays` function from the query, allowing filtering to be performed by the database:
 
 
 **C# Entity Framework**
@@ -269,22 +275,6 @@ var query = from p in context.Products
 List<Product> products = query.ToList();
 ```
 
-----------
-**Note:** Another accidental use of `IEnumerable` can occur when a LINQ to Entities query uses the `AsParallel` method to try and retrieve data for multiple entity collections simultaneously.
-
-**C#**
-```C#
-var query = from p in context.Products.AsParallel()
-            where p.ListPrice > 100
-            join c in context.ProductSubcategories.AsParallel()
-            on p.ProductSubcategoryID equals c.ProductSubcategoryID
-            select ...
-```
-
-The `AsParallel` method effectively treats each entity collection as an `IEnumerable` source and causes LINQ to fetch the data for each collection independently. The join operation and any data filtering will be performed on the client after all the data has been retrieved. If you are using LINQ to Entities against a database such as SQL Server, it is better to let the database use its built in query optimization features to determine how best to run the query. Only use `AsParallel` for queries performed against in-memory collections.
- 
-----------
-
 
 [Link to the related sample][fullDemonstrationOfSolution]
 
@@ -295,8 +285,6 @@ The `AsParallel` method effectively treats each entity collection as an `IEnumer
 ## What problems will this uncover?
 *TBD - Need more input from the developers*.
 
-This section is very contextual and may not exist for every pattern. The idea is that fixing one problem in a system will likely reveal other problems that were not visible before. We want to give the reader a sense of what they can expect.
-For example, increasing the the throughput of your front-end web service may result in overwhelming a downstream service that was previously thought to "run fine".
 
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
