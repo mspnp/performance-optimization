@@ -24,13 +24,13 @@ This anti-pattern typically occurs because:
 
 - It is easier to write code that reads and writes data directly to a data store.
 
-- There is a perception that users always demand to be presented with the most recent data, and caching  may lead to them being presented with out-of-date information.
+- There is a perception that users always demand to see the most recent data, and caching  may lead to them being presented with out-of-date information.
 
 - There is a concern over the overhead of maintaining the accuracy and freshness of cached data and the coding complications that this might entail.
 
 - Direct access to data might form part of an on-premises system where network latency is not an issue, the system runs on expensive high-performance hardware, and caching is not considered. If this system is migrated to the cloud network latency is increased, and it is typically hosted on commodity hardware in a remote datacenter. An explicit decision needs to be made to explore the possible performance benefits of caching.
 
-- A lack of awareness that caching is a possibility in a given scenario. A common example concerns the use of etags when implementing a web API. This scenario is described further in the section [How to correct the problem](#HowToCorrectTheProblem) later in this pattern
+- A lack of awareness that caching is a possibility in a given scenario. A common example concerns the use of ETags when implementing a web API. 
 
 - The benefits (and sometimes the drawbacks) of using a cache are misunderstood.
 
@@ -72,7 +72,7 @@ public async Task<Person> GetByIdAsync(int id)
     IDatabase cache = ...;
 
     // Attempt to retrieve the product from the cache
-    string key = string.Format("{0}", id); // Azure Redis Cache expects the key to be passed as a string
+    string key = string.Format("{0}:{1}", ..., id); // Azure Redis Cache expects the key to be passed as a formatted string
     Person value = await cache.GetAsync<T>(key).ConfigureAwait(false);
 
     // If the item is not currently in the cache, then retrieve it from the database and add it to the cache
@@ -81,7 +81,7 @@ public async Task<Person> GetByIdAsync(int id)
         value = ...; // Retrieve the data from the database
         if (value != null)
         {
-            await cache.SetAsync(key, value).ConfigureAwait(false);
+            await cache.SetAsync(key, value).ConfigureAwait(false); // Add the data to the cache
         }
     }
 
