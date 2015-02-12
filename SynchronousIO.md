@@ -4,10 +4,13 @@ A synchronous I/O operation blocks the calling thread while the I/O completes. T
 
 Common examples of synchronous I/O include:
 
-- Writing to a local file and waiting for the data to be saved.
 - Retrieving or persisting data to a database.
-- Posting a message to a message queue and waiting for the message queue to acknowledge receipt of the message.
+
 - Sending a request to a web service and waiting for a response.
+
+- Posting a message to a message queue and waiting for the message queue to acknowledge receipt of the message.
+
+- Writing to a local file and waiting for the data to be saved.
 
 This anti-pattern typically occurs because:
 
@@ -118,7 +121,7 @@ sendTask.ContinueWith((task) =>
 ...
 ```
 
-The `HttpWebResponse` class used to obtain a response to a web request in the example shown earlier provides similar functionality. The `GetResponseAsync` method is an asynchronous version of the `GetResponse` method that also runs by creating a new task. You can use a continuation to capture and process the information returned by the web response in the same way as the previous example. However, note that some recent libraries only provide asynchronous versions of certain methods. These libraries are usually highly optimized for the asynchronous approach (as opposed to being asynchronous extensions of inherently synchronous methods). If possible, you should consider replacing code your synchronous code with these calls to these methods. An example is the `HttpClient` class in the `System.Net.Http` namespace. This class provides methods such as `GetAsync`, `PostAsync`, `PutAsync`, and `DeleteAsync` for interacting with a REST web service. The following code snippet could be used to replace the synchronous example shown earlier:
+The `HttpWebResponse` class used to obtain a response to a web request in the example shown earlier provides similar functionality. The `GetResponseAsync` method is an asynchronous version of the `GetResponse` method that also runs by creating a new task. You can use a continuation to capture and process the information returned by the web response in the same way as the previous example. However, note that some recent libraries only provide asynchronous versions of certain methods. These libraries are usually highly optimized for the asynchronous approach (as opposed to being asynchronous extensions of inherently synchronous methods). If possible, you should consider replacing your synchronous code with these calls to these methods. An example is the `HttpClient` class in the `System.Net.Http` namespace. This class provides methods such as `GetAsync`, `PostAsync`, `PutAsync`, and `DeleteAsync` for interacting with a REST web service. The following code snippet could be used to replace the synchronous example shown earlier:
 
 **C#**
 
@@ -140,7 +143,7 @@ using (HttpClient client = new HttpClient())
 
 Note that this code uses the `await` operator to return control to the calling environment while the asynchronous operation is performed. The subsequent code effectively acts as a continuation that runs when the asynchronous operation has completed.
 
-For libraries that do not provide asynchronous versions of operations, you can create asynchronous wrappers around synchronous methods, as shown in the following example:
+For libraries that do not provide asynchronous versions of operations, it may be possible to create asynchronous wrappers around selected synchronous methods. However, you should follow this approach with caution. While this strategy may improve responsiveness on the thread invoking the asynchronous wrapper (which is useful if the thread is handling the user interface), it actually consumes more resources; an additional thread may be created, and there is additional overhead associated with synchronizing the work performed by this thread. Consequently, this approach might not be scalable. For more information, see the article [Should I expose asynchronous wrappers for synchronous methods?][async-wrappers]:
 
 **C#**
 
@@ -166,19 +169,17 @@ Console.WriteLine("Work performed while LibraryIOOperation is running asynchrono
 ```
 
 
-**Note:** Only use the asynchronous wrapper strategy for methods that are I/O bound. Following this approach for CPU bound operations offers little benefit, and is likely to actually decrease the overall throughput of the system due to the additional overhead of creating and managing tasks.
-
 [Link to the related sample][fullDemonstrationOfSolution]
 
-
-## How to validate the solution
-The system should be able to support more concurrent user requests than before, and as a result be more scalable. This can be determined by performing load testing before and after making any changes to the code and then comparing the results. Functionally, the system should remain unchanged. Monitoring the system and analyzing the key performance counters described earlier should indicate that the system spends less time blocked by synchronous I/O and the CPUs are more active. *(NOTE: NEED TO ADD SOME QUANTIFIABLE GUIDANCE)*
-
-## What problems will this uncover?
+## Consequences of the solution
 *TBD - Need more input from the developers*.
 
-This section is very contextual and may not exist for every pattern. The idea is that fixing one problem in a system will likely reveal other problems that were not visible before. We want to give the reader a sense of what they can expect.
-For example, increasing the the throughput of your front-end web service may result in overwhelming a downstream service that was previously thought to "run fine".
+The system should be able to support more concurrent user requests than before, and as a result be more scalable. This can be determined by performing load testing before and after making any changes to the code and then comparing the results. Functionally, the system should remain unchanged. Monitoring the system and analyzing the key performance counters described earlier should indicate that the system spends less time blocked by synchronous I/O and the CPUs are more active. *(NOTE: NEED TO ADD SOME QUANTIFIABLE GUIDANCE)*
+
+## Related resources
+
+- [Should I expose asynchronous wrappers for synchronous methods?][async-wrappers]
 
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
+[async-wrappers]:http://blogs.msdn.com/b/pfxteam/archive/2012/03/24/10287244.aspx
