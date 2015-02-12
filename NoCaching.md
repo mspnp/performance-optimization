@@ -2,25 +2,20 @@
 
 The purpose of caching is to avoid repeatedly retrieving the same information from a resource that is expensive to access, and/or to reduce the need to expend processing resources constructing the same items when they are required by multiple requests. In a cloud service that has to handle many concurrent requests, the overhead associated with repeated operations can impact the performance and scalability of the system. Additionally, if the resource becomes unavailable, then the cloud service may fail when it attempts to retrieve information; using a cache to buffer data can help to ensure that cached data remains available even if the resource is not.
 
-The following code snippet shows an example method that uses the Entity Framework to connect to a database implemented by using Azure SQL Database. The method then fetches an item specified by the `productID` parameter. Each time this method runs, it incurs the expense of communicating with the database. In a system designed to support multiple concurrent users, separate requests might retrieve the same information from the database. The costs associated with repeated requests can accumulate quickly. Additionally, if the system is unable to connect to the database for some reason then requests will fail:
+The following code snippet shows an example method that uses the Entity Framework to connect to the [AdventureWorks2012][AdventureWorks2012] sample database implemented by using Azure SQL Database. The method then fetches the details of a customer (returned as a `Person` object) specified by the `id` parameter. Each time this method runs, it incurs the expense of communicating with the database. In a system designed to support multiple concurrent users, separate requests might retrieve the same information from the database. The costs associated with repeated requests can accumulate quickly. Additionally, if the system is unable to connect to the database for some reason then requests will fail:
 
 
-**C# - CODE BELOW TO BE REPLACED WITH CODE FROM SAMPLE**
+**C#**
 
 ```C#
-public async Task<Product> RetrieveAsync(int productID)
+public async Task<Person> GetByIdAsync(int id)
 {
-    try
+    using (AdventureWorksContext context = new AdventureWorksContext())
     {
-        using (var productsModelContext = new AdventureWorks2012Entities())
-        {
-            var product = await productsModelContext.Products.Where(p => p.ProductID == productID).FirstAsync();
-            return product;
-        }
-    }
-    catch(Exception e)
-    {
-        ...
+        return await context.People
+            .Where(p => p.BusinessEntityId == id)
+            .SingleOrDefaultAsync()
+            .ConfigureAwait(false);
     }
 }
 ```
@@ -58,47 +53,39 @@ An operator monitoring a system that implements a poor (or non-existent) caching
 ## <a name="HowToCorrectTheProblem"></a>How to correct the problem
 You can use several strategies to implement caching. The most popular is the *on-demand* or [*cache-aside*][cache-aside-pattern] strategy. In this strategy, the application attempts to retrieve data from the cache. If the data is not present, the application retrieves it from the data store and adds it to the cache so it will be found next time. To prevent the data from becoming stale, many caching solutions support configurable timeouts, allowing data to automatically expire and be removed from the cache after a specified interval. If the application modifies data, it should write the change directly to the data store and remove the old value from the cache; it will be retrieved and added to the cache the next time it is required. 
 
-This approach is suitable for data that may change regularly, although there may be a window of opportunity during which an application might be served with out-of-date information. The following code snippet shows the `RetrieveAsync` method presented earlier but now including the cache-aside pattern.
+This approach is suitable for data that may change regularly, although there may be a window of opportunity during which an application might be served with out-of-date information. The following code snippet shows the `GetByIdAsync` method presented earlier but now including the cache-aside pattern.
 
 ----------
 
-**Note:** For simplicity, this example uses the `MemoryCache` class which stores data in process memory, but the same technique is applicable to other caching technologies.
+**Note:** This snippet is taken from the [sample code][fullDemonstrationOfSolution] available with this anti-pattern. The sample code uses [Azure Redis Cache][Azure-cache] to store data and the [StackExchange.Redis][StackExchange] client library to communicate with the cache.
 
 ----------
 
 
-**C# - CODE BELOW TO BE REPLACED WITH CODE FROM SAMPLE**
+**C#**
 
 ```C#
 
-// Cache for holding product data
-private MemoryCache cache = MemoryCache.Default;
-
-...
-
-public async Task<Product> RetrieveAsync(int productID)
+public async Task<Person> GetByIdAsync(int id)
 {
+    // Connect to Azure Redis Cache
+    IDatabase cache = ...;
+
     // Attempt to retrieve the product from the cache
-    var product = cache[productID.ToString()] as Product;
+    string key = string.Format("{0}", id); // Azure Redis Cache expects the key to be passed as a string
+    Person value = await cache.GetAsync<T>(key).ConfigureAwait(false);
 
     // If the item is not currently in the cache, then retrieve it from the database and add it to the cache
-    if (product == null)
+    if (value == null)
     {
-        try
+        value = ...; // Retrieve the data from the database
+        if (value != null)
         {
-            using (var productsModelContext = new AdventureWorks2012Entities())
-            {
-                product = await productsModelContext.Products.Where(p => p.ProductID == productID).FirstAsync();
-                cache[productID.ToString()] = product;
-            }
-        }
-        catch(Exception e)
-        {
-            ...
+            await cache.SetAsync(key, value).ConfigureAwait(false);
         }
     }
 
-    return product;
+    return value;
 }
 ```
 
@@ -138,8 +125,12 @@ Implementing caching may lead to a lack of immediate consistency; applications m
 
 - [Azure Cache documentation][Azure-cache].
 
+- [The StackExchange.Redis Client Library][StackExchange]
+
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
+[AdventureWorks2012]:http://msftdbprodsamples.codeplex.com/releases/view/37304
+[StackExchange]: https://github.com/StackExchange/StackExchange.Redis
 [cache-aside-pattern]: https://msdn.microsoft.com/library/dn589799.aspx
 [data-consistency-guidance]: http://LINK-TO-CONSISTENCY-GUIDANCE
 [Azure-cache]: http://azure.microsoft.com/documentation/services/cache/
