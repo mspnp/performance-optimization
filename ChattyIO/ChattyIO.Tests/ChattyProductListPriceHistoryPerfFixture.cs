@@ -21,7 +21,6 @@
         private TestContext testContextInstance;
         static ChattyProductListPriceHistoryPerfFixture()
         {
-           
             httpClient = new HttpClient();
             httpClient.BaseAddress = new Uri(ConfigurationManager.AppSettings["endpointbaseaddress"]);
             httpClient.DefaultRequestHeaders.Accept.Clear();
