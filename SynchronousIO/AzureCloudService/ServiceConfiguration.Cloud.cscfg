@@ -3,6 +3,7 @@
   <Role name="WebRole">
     <Instances count="1" />
     <ConfigurationSettings>
+      <Setting name="StorageConnectionString" value="[Your connection string goes here]" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
