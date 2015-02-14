@@ -12,7 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{4816FC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChattyIO.DataAccess", "ChattyIO.DataAccess\ChattyIO.DataAccess.csproj", "{71798002-E345-4C51-A177-571FF9D71AB7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChattyIO.Web", "ChattyIO.Web\ChattyIO.Web.csproj", "{D0FD5682-3002-44C6-8834-2600F400C78E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChattyIO.Api.Web", "ChattyIO.Api.Web\ChattyIO.Api.Web.csproj", "{D0FD5682-3002-44C6-8834-2600F400C78E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

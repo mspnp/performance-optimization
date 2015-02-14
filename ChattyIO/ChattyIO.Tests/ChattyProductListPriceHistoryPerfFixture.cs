@@ -63,7 +63,7 @@
         }
 
         [TestMethod]
-        [AspNetDevelopmentServer("ChattyIO", "ChattyIO.Web")]
+        [AspNetDevelopmentServer("ChattyIO", "ChattyIO.Api.Web")]
         public async Task WhenUsingChunkyAPI_ToGet_AllProductListPriceHistory_ForCategories()
         {
             Stopwatch stopWatch = new Stopwatch();
