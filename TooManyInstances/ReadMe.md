@@ -6,10 +6,10 @@ The TooManyInstances sample code is composed of:
 * WebRole WebAPI project
 
 The WebRole WebAPI project has two controllers:
-* NewInstancePerRequestController
-* SingleInstanceController
+* `NewInstancePerRequestController`
+* `SingleInstanceController`
 
-These two WebAPI controllers both call the ProductRepository.GetProductByIdAsync method but handle the lifetime of the ProductRepository instance differently. The NewInstancePerRequestController creates a new instance of ProductRepository and disposes it for every call to NewInstancePerRequestController.GetProductAsync.
+These two WebAPI controllers both call the `ProductRepository.GetProductByIdAsync` method but handle the lifetime of the` `ProductRepository` instance differently. The `NewInstancePerRequestController` creates a new instance of `ProductRepository` and disposes it for every call to `NewInstancePerRequestController.GetProductAsync`.
 
 **C#**
 
@@ -23,7 +23,7 @@ public async Task<Product> GetProductAsync(string id)
 }
 ```
 
-The SingleInstanceController creates a static instance of ProductRepository and uses it during the lifetime of the process.
+The `SingleInstanceController` creates a static instance of `ProductRepository` and uses it during the lifetime of the process.
 
 **C#**
 
@@ -41,7 +41,7 @@ public Task<Product> GetProductAsync(string id)
 }
 ```
 
-The ProductRepository simulates a class who's instance is intended to be shared. This class has an instance member of type System.Net.Http.HttpClient and uses a delay to simulate setup and configuration. Instances of HttpClient should be shared, otherwise under load, you will run out of TCP sockets. 
+The `ProductRepository` simulates a class whose instance is intended to be shared. This class has an instance member of type `System.Net.Http.HttpClient` and uses a delay to simulate setup and configuration. Instances of `HttpClient` should be shared, otherwise under load, you will run out of TCP sockets.
 
 ## Deploying to Azure
 Right-click on the AzureCloudService and select "Publish" to deploy to Azure.

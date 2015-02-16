@@ -7,6 +7,8 @@ Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AzureCloudService", "AzureC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRole", "WebRole\WebRole.csproj", "{6653BDEB-7CC1-43A6-B88A-39C655696E6D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateFileToUpload", "CreateFileToUpload\CreateFileToUpload.csproj", "{7743E579-9EF1-42C5-BB11-2A54B1E0C6CE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{6653BDEB-7CC1-43A6-B88A-39C655696E6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6653BDEB-7CC1-43A6-B88A-39C655696E6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6653BDEB-7CC1-43A6-B88A-39C655696E6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7743E579-9EF1-42C5-BB11-2A54B1E0C6CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7743E579-9EF1-42C5-BB11-2A54B1E0C6CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7743E579-9EF1-42C5-BB11-2A54B1E0C6CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7743E579-9EF1-42C5-BB11-2A54B1E0C6CE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
