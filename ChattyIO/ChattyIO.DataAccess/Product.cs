@@ -1,8 +1,7 @@
 namespace ChattyIO.DataAccess
 {
-
     using System.Collections.Generic;
- 
+
     public class Product
     {
         public Product()

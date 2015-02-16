@@ -1,6 +1,5 @@
 ﻿namespace ChattyIO.Tests
 {
-
     using System;
     using System.Configuration;
     using System.Diagnostics;
@@ -11,9 +10,9 @@
     using System.Collections.Generic;
     using Microsoft.VisualStudio.TestTools.UnitTesting.Web;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    
+
     using ChattyIO.DataAccess;
-    
+
     [TestClass]
     public class ChattyProductListPriceHistoryPerfFixture
     {
@@ -26,15 +25,15 @@
             httpClient.DefaultRequestHeaders.Accept.Clear();
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
-        
+
         [TestMethod]
-      public async Task WhenUsingChattyAPI_ToGet_AllProductListPriceHistory_ForCategories()
+        public async Task WhenUsingChattyAPI_ToGet_AllProductListPriceHistory_ForCategories()
         {
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
             for (int i = 1; i < 5; i++)
             {
-                var categoryResponse = await httpClient.GetAsync("chattyproduct/"+ i.ToString());
+                var categoryResponse = await httpClient.GetAsync("chattyproduct/" + i.ToString());
                 var category = await categoryResponse.Content.ReadAsAsync<ProductCategory>();
 
                 var subCategoriesResponse =
@@ -58,7 +57,7 @@
                 }
             }
             stopWatch.Stop();
-            Console.WriteLine("Chatty-Time {0}",stopWatch.ElapsedMilliseconds);
+            Console.WriteLine("Chatty-Time {0}", stopWatch.ElapsedMilliseconds);
         }
 
         [TestMethod]
@@ -73,7 +72,7 @@
                 var category = await categoryResponse.Content.ReadAsAsync<ProductCategory>();
             }
             stopWatch.Stop();
-         Console.WriteLine("Chunky-Time {0}", stopWatch.ElapsedMilliseconds);
+            Console.WriteLine("Chunky-Time {0}", stopWatch.ElapsedMilliseconds);
 
         }
 
@@ -89,5 +88,5 @@
             }
         }
     }
-    
+
 }

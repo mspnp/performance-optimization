@@ -1,6 +1,5 @@
 ﻿namespace ChattyIO.UI.Web.App_Start
 {
-
     using System.Configuration;
 
     public static class Config

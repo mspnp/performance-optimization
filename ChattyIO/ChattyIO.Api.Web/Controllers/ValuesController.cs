@@ -1,9 +1,8 @@
 ﻿namespace ChattyIO.Api.Web.Controllers
 {
-
     using System.Collections.Generic;
     using System.Web.Http;
-   
+
     public class ValuesController : ApiController
     {
         // GET api/values

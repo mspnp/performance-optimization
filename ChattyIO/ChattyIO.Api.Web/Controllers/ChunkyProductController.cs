@@ -1,17 +1,16 @@
 ﻿namespace ChattyIO.Api.Web.Controllers
 {
-  
     using System.Linq;
     using System.Threading.Tasks;
     using System.Web.Http;
     using System.Data.Entity;
-  
+
     using ChattyIO.DataAccess;
-  
+
     public class ChunkyProductController : ApiController
     {
         [Route("chunkyproduct/{categoryId}")]
-        public async Task<ProductCategory> GetProductCategoryDetails(int categoryId)
+        public async Task<ProductCategory> GetProductCategoryDetailsAsync(int categoryId)
         {
             using (var context = GetContext())
             {
