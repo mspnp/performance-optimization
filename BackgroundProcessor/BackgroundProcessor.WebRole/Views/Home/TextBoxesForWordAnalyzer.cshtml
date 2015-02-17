@@ -1,0 +1,29 @@
+﻿@model BackgroundProcessor.WebRole.Models.TextBoxGenerationModel
+
+<h3>Please specify the numbers of words in each category to test against the computer word!</h3>
+@using (Html.BeginForm("AnalyzeDataAsync", "Home"))
+{
+    @Html.Hidden("lowerBound", Model.LowerBound)
+    @Html.Hidden("upperBound", Model.UpperBound)
+    <div class="row">
+        @{
+
+            var rand = new Random();
+        }
+
+        @for (var index = 0; index <= Model.UpperBound - Model.LowerBound; index++)
+        {
+            <div class="col-md-2">
+                @Html.Label(string.Format("{0} lettered words:", index + Model.LowerBound))
+                @Html.TextBox(string.Format("txtCnt{0}Letter", index + Model.LowerBound), rand.Next(100, 1000))
+            </div>
+        }
+    </div>
+    <div class="row">
+        <div class="col-md-4">
+            <h3>
+                <input type="submit" name="btnSubmitTest" value="Analyze words!" />
+            </h3>
+        </div>
+    </div>
+}

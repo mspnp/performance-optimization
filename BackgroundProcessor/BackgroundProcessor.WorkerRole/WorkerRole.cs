@@ -1,37 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Net;
-using System.Threading;
-using Microsoft.ServiceBus;
-using Microsoft.ServiceBus.Messaging;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.ServiceRuntime;
-
-namespace BackgroundProcessor.WorkerRole
+﻿namespace BackgroundProcessor.WorkerRole
 {
+    using System.Diagnostics;
+    using System.Net;
+    using System.Threading;
+
+    using BackgroundProcessor.Logic;
+
+    using Microsoft.ServiceBus.Messaging;
+    using Microsoft.WindowsAzure;
+    using Microsoft.WindowsAzure.ServiceRuntime;
+
     public class WorkerRole : RoleEntryPoint
     {
-        // The name of your queue
-        const string QueueName = "ProcessingQueue";
+        private const string AppSettingKeyServiceBusConnectionString = "Microsoft.ServiceBus.ConnectionString";
+
+        private const string AppSettingKeyServiceBusQueueName = "Microsoft.ServiceBus.QueueName";
 
         // QueueClient is thread-safe. Recommended that you cache 
         // rather than recreating it on every request
-        QueueClient Client;
-        ManualResetEvent CompletedEvent = new ManualResetEvent(false);
+        private QueueClient _queueClient;
+        private readonly ManualResetEvent _completedEvent = new ManualResetEvent(false);
 
         public override void Run()
         {
             Trace.WriteLine("Starting processing of messages");
 
             // Initiates the message pump and callback is invoked for each message that is received, calling close on the client will stop the pump.
-            Client.OnMessage((receivedMessage) =>
+            this._queueClient.OnMessage((receivedMessage) =>
                 {
                     try
                     {
                         // Process the message
                         Trace.WriteLine("Processing Service Bus message: " + receivedMessage.SequenceNumber.ToString());
+                        Trace.WriteLine(
+                            string.Format(
+                                "Message properties - Letter count: {0}, Word count: {1}",
+                                receivedMessage.Properties["LetterCount"],
+                                receivedMessage.Properties["WordCount"]));
                     }
                     catch
                     {
@@ -39,7 +44,7 @@ namespace BackgroundProcessor.WorkerRole
                     }
                 });
 
-            CompletedEvent.WaitOne();
+            this._completedEvent.WaitOne();
         }
 
         public override bool OnStart()
@@ -47,24 +52,19 @@ namespace BackgroundProcessor.WorkerRole
             // Set the maximum number of concurrent connections 
             ServicePointManager.DefaultConnectionLimit = 12;
 
-            // Create the queue if it does not exist already
-            string connectionString = CloudConfigurationManager.GetSetting("Microsoft.ServiceBus.ConnectionString");
-            var namespaceManager = NamespaceManager.CreateFromConnectionString(connectionString);
-            if (!namespaceManager.QueueExists(QueueName))
-            {
-                namespaceManager.CreateQueue(QueueName);
-            }
+            // Setup the reader
+            var storageConnectionString = CloudConfigurationManager.GetSetting(AppSettingKeyServiceBusConnectionString);
+            var queueName = CloudConfigurationManager.GetSetting(AppSettingKeyServiceBusQueueName);
+            this._queueClient = ServiceBusQueueHandler.GetQueueClientAsync(storageConnectionString, queueName).Result;
 
-            // Initialize the connection to Service Bus Queue
-            Client = QueueClient.CreateFromConnectionString(connectionString, QueueName);
             return base.OnStart();
         }
 
         public override void OnStop()
         {
             // Close the connection to Service Bus Queue
-            Client.Close();
-            CompletedEvent.Set();
+            this._queueClient.Close();
+            this._completedEvent.Set();
             base.OnStop();
         }
     }

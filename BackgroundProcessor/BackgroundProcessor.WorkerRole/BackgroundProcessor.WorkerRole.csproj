@@ -85,6 +85,12 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BackgroundProcessor.Logic\BackgroundProcessor.Logic.csproj">
+      <Project>{C8EE2AD5-3279-47E9-9B03-319C35EBA2ED}</Project>
+      <Name>BackgroundProcessor.Logic</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

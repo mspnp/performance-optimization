@@ -7,7 +7,8 @@
   <Role name="BackgroundProcessor.WorkerRole">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="Microsoft.ServiceBus.ConnectionString" value="Endpoint=sb://[your namespace].servicebus.windows.net;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=[your key]" />
+      <Setting name="Microsoft.ServiceBus.ConnectionString" value="Endpoint=sb://poltergeist-ns.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=2ZHpHbp0XH4OEIoolZoTRkLI0oeqcSiOruGsFLzkseE=" />
+      <Setting name="Microsoft.ServiceBus.QueueName" value="wordanalyzer"/>
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
