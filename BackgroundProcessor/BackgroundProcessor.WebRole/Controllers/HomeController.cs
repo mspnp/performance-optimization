@@ -6,9 +6,10 @@
     using System.Threading.Tasks;
     using System.Web.Mvc;
 
-    using BackgroundProcessor.Logic;
-    using BackgroundProcessor.WebRole.Models;
+    using BackgroundProcessor.Logic.QueueProcessor;
+    using BackgroundProcessor.Logic.WordProcessor;
     using BackgroundProcessor.WebRole.Attributes;
+    using BackgroundProcessor.WebRole.Models;
 
     public class HomeController : Controller
     {

@@ -45,11 +45,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LetterWordCount.cs" />
+    <Compile Include="WordProcessor\TimedWord.cs" />
+    <Compile Include="WordProcessor\LetterWordCount.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceBusQueueHandler.cs" />
-    <Compile Include="TimedWord.cs" />
-    <Compile Include="WordAnalyzer.cs" />
+    <Compile Include="QueueProcessor\ServiceBusQueueHandler.cs" />
+    <Compile Include="WordProcessor\WordAnalyzer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

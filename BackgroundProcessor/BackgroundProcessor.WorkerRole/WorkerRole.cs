@@ -6,7 +6,8 @@
     using System.Threading;
 
     using BackgroundProcessor.Logic;
-    using BackgroundProcessor.WebRole.Models;
+    using BackgroundProcessor.Logic.QueueProcessor;
+    using BackgroundProcessor.Logic.WordProcessor;
 
     using Microsoft.ServiceBus.Messaging;
     using Microsoft.WindowsAzure;

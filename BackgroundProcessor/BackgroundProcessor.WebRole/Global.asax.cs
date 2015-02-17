@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Http;
-namespace BackgroundProcessor.WebRole
+﻿namespace BackgroundProcessor.WebRole
 {
+    using System.Web;
     using System.Web.Mvc;
     using System.Web.Optimization;
     using System.Web.Routing;
 
-    using BackgroundProcessor.Logic;
+    using BackgroundProcessor.Logic.QueueProcessor;
 
-    using Microsoft.WindowsAzure;
     using Microsoft.ServiceBus.Messaging;
+    using Microsoft.WindowsAzure;
 
-    public class WebApiApplication : System.Web.HttpApplication
+    public class WebApiApplication : HttpApplication
     {
         private const string AppSettingKeyServiceBusConnectionString = "Microsoft.ServiceBus.ConnectionString";
 
@@ -31,7 +27,6 @@ namespace BackgroundProcessor.WebRole
             QueueClient = ServiceBusQueueHandler.GetQueueClientAsync(storageConnectionString, QueueName).Result;
             
             AreaRegistration.RegisterAllAreas();
-            GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);

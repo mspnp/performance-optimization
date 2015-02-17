@@ -1,5 +1,7 @@
 ﻿namespace BackgroundProcessor.Logic.Tests
 {
+    using BackgroundProcessor.Logic.WordProcessor;
+
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]

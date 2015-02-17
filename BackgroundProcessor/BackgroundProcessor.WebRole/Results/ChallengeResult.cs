@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web.Http;
-
-namespace BackgroundProcessor.WebRole.Results
+﻿namespace BackgroundProcessor.WebRole.Results
 {
+    using System.Net;
+    using System.Net.Http;
+    using System.Threading;
+    using System.Threading.Tasks;
+    using System.Web.Http;
+
     public class ChallengeResult : IHttpActionResult
     {
         public ChallengeResult(string loginProvider, ApiController controller)

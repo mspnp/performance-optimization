@@ -1,18 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.AspNet.Identity;
-using Microsoft.AspNet.Identity.EntityFramework;
-using Microsoft.Owin;
-using Microsoft.Owin.Security.Cookies;
-using Microsoft.Owin.Security.Google;
-using Microsoft.Owin.Security.OAuth;
-using Owin;
-using BackgroundProcessor.WebRole.Providers;
-using BackgroundProcessor.WebRole.Models;
-
-namespace BackgroundProcessor.WebRole
+﻿namespace BackgroundProcessor.WebRole
 {
+    using System;
+
+    using BackgroundProcessor.WebRole.Models;
+    using BackgroundProcessor.WebRole.Providers;
+
+    using Microsoft.AspNet.Identity;
+    using Microsoft.Owin;
+    using Microsoft.Owin.Security.Cookies;
+    using Microsoft.Owin.Security.OAuth;
+
+    using Owin;
+
     public partial class Startup
     {
         public static OAuthAuthorizationServerOptions OAuthOptions { get; private set; }
