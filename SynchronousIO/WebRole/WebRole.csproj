@@ -97,9 +97,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="FileToUpload.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
   </ItemGroup>
