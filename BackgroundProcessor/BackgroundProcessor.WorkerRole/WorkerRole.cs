@@ -1,10 +1,12 @@
 ﻿namespace BackgroundProcessor.WorkerRole
 {
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Net;
     using System.Threading;
 
     using BackgroundProcessor.Logic;
+    using BackgroundProcessor.WebRole.Models;
 
     using Microsoft.ServiceBus.Messaging;
     using Microsoft.WindowsAzure;
@@ -37,6 +39,18 @@
                                 "Message properties - Letter count: {0}, Word count: {1}",
                                 receivedMessage.Properties["LetterCount"],
                                 receivedMessage.Properties["WordCount"]));
+
+                        var lwc = receivedMessage.GetBody<LetterWordCount>();
+                        var retMap = WordAnalyzer.GenerateAnalyzeTestStringsAsync(new List<LetterWordCount>() { lwc }).Result;
+                        foreach (var kvp in retMap)
+                        {
+                            Trace.WriteLine(
+                                string.Format(
+                                    "{0} lettered {1} words took {2} to process!",
+                                    kvp.Key.LetterCount,
+                                    kvp.Key.WordCount,
+                                    WordAnalyzer.GetPrintableTime(kvp.Value).Result));
+                        }
                     }
                     catch
                     {

@@ -42,21 +42,21 @@
         /// </summary>
         /// <param name="queueClient">Service bus queue client</param>
         /// <param name="queueName">Service bus queue name</param>
-        /// <param name="wordsMap">Dictionary of various length words</param>
+        /// <param name="lwcList"></param>
         /// <returns>Number of messages in the queue</returns>
         public static async Task<long> AddWorkLoadToQueueAsync(
             QueueClient queueClient,
             string queueName,
-            IDictionary<LetterWordCount, ICollection<string>> wordsMap)
+            ICollection<LetterWordCount> lwcList)
         {
             Debug.Assert(null != _namespaceManager);
 
             // Add each batch of words as a discrete message on the queue
-            foreach (var kvp in wordsMap)
+            foreach (var lwc in lwcList)
             {
-                var message = new BrokeredMessage(kvp.Value);
-                message.Properties.Add("LetterCount", kvp.Key.LetterCount);
-                message.Properties.Add("WordCount", kvp.Key.WordCount);
+                var message = new BrokeredMessage(lwc);
+                message.Properties.Add("LetterCount",lwc.LetterCount);
+                message.Properties.Add("WordCount", lwc.WordCount);
                 await queueClient.SendAsync(message).ConfigureAwait(false);
             }
            

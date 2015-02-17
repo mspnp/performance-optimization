@@ -57,10 +57,14 @@
   <ItemGroup>
     <Folder Include="BackgroundProcessor.WebRoleContent\" />
     <Folder Include="BackgroundProcessor.WorkerRoleContent\" />
+    <Folder Include="Profiles" />
   </ItemGroup>
   <ItemGroup>
     <DiagnosticsConfiguration Include="BackgroundProcessor.WebRoleContent\diagnostics.wadcfgx" />
     <DiagnosticsConfiguration Include="BackgroundProcessor.WorkerRoleContent\diagnostics.wadcfgx" />
+  </ItemGroup>
+  <ItemGroup>
+    <PublishProfile Include="Profiles\bgprocperfProduction.azurePubxml" />
   </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>

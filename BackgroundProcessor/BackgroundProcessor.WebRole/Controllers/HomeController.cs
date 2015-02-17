@@ -1,44 +1,33 @@
 ﻿namespace BackgroundProcessor.WebRole.Controllers
 {
-    using System;
-    using System.Collections;
     using System.Collections.Generic;
+    using System.Collections.Specialized;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Web.Mvc;
 
     using BackgroundProcessor.Logic;
     using BackgroundProcessor.WebRole.Models;
+    using BackgroundProcessor.WebRole.Attributes;
 
     public class HomeController : Controller
     {
         public ActionResult Index()
         {
-            ViewBag.Title = "Bulls and Cows Test Bed Home Page";
+            this.ViewBag.Title = "Bulls and Cows Test Bed Home Page";
 
-            return View();
+            return this.View();
         }
 
-        [HttpPost]
-        private async Task<ActionResult> SendWorkToBackground(IDictionary<byte,ICollection<string>> wordMap)
+        private static ICollection<LetterWordCount> ParseWorkLoad(NameValueCollection form)
         {
-            //await ServiceBusQueueHandler
-            return View("Index");
-        }
+            var lwcList = new List<LetterWordCount>();
 
-        public ActionResult DoWorkInNewThread()
-        {
-            //new Thread(GetPrimes).Start();
-
-            return this.View("Index");
-        }
-
-        private static IDictionary<LetterWordCount, ICollection<string>> StoreWorkLoadInAMap(FormCollection form)
-        {
-            var map = new Dictionary<LetterWordCount, ICollection<string>>();
-            const string Format = "txtCnt{0}Letter";
             var lb = int.Parse(form["lowerBound"]);
             var ub = int.Parse(form["upperBound"]);
+
+            // TODO: Bit of a hardcoding here to parse the textfields. Could do better!
+            const string Format = "txtCnt{0}Letter";
 
             for (var index = lb; index <= ub; index++)
             {
@@ -47,31 +36,42 @@
                                 LetterCount = index,
                                 WordCount = int.Parse(form[string.Format(Format, index)])
                             };
-                map[lwCnt] = new List<string>();
+                
+                lwcList.Add(lwCnt);
             }
 
-            return map;
+            return lwcList;
         }
 
-
-        public async Task<ActionResult> AnalyzeDataAsync(FormCollection form)
+        [HttpPost]
+        [MultipleSubmit(Name = "action", Argument = "SubmitBgWorkerAsync")]
+        public async Task<ActionResult> SubmitBgWorkerAsync(FormCollection form)
         {
             // Herein you should store the workload in a map and offload to a queue
-            var map = StoreWorkLoadInAMap(form);
-            WordAnalyzer.RandomizeMapWithWords(map);
+            var lwcList = ParseWorkLoad(form);
             await
                 ServiceBusQueueHandler.AddWorkLoadToQueueAsync(
                     WebApiApplication.QueueClient,
                     WebApiApplication.QueueName,
-                    map);
+                    lwcList);
             return this.View("Index");
         }
 
-        //[HttpGet]
+        [HttpPost]
+        [MultipleSubmit(Name = "action", Argument = "SubmitNewThread")]
+        public ActionResult SubmitNewThread(FormCollection form)
+        {
+            // Herein you should store the workload in a map and offload to a queue
+            var lwcList = ParseWorkLoad(form);
+            new Thread(() => WordAnalyzer.GenerateAnalyzeTestStringsAsync(lwcList)).Start();
+
+            return this.View("Index");
+        }
+
         public async Task<ActionResult> SetDataModelAsync(int lowerBound, int upperBound)
         {
             var tbModel = new TextBoxGenerationModel { LowerBound = lowerBound, UpperBound = upperBound };
-            return this.PartialView("TextBoxesForWordAnalyzer", tbModel);
+            return this.PartialView("FormWordAnalyzer", tbModel);
         }
     }
 }
