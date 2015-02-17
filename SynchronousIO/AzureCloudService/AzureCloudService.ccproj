@@ -37,6 +37,7 @@
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Profiles" />
     <Folder Include="WebRoleContent\" />
   </ItemGroup>
   <ItemGroup>
@@ -51,6 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <DiagnosticsConfiguration Include="WebRoleContent\diagnostics.wadcfgx" />
+  </ItemGroup>
+  <ItemGroup>
+    <PublishProfile Include="Profiles\cmasynctestserviceProduction.azurePubxml" />
   </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>

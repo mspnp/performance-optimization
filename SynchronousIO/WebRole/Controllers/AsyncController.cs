@@ -19,7 +19,8 @@ namespace WebRole.Controllers
         /// <returns>A UserProfile instance</returns>
         public Task<UserProfile> GetUserProfileAsync()
         {
-            return _userProfileService.GetUserProfileAsync();
+            var userProfile = _userProfileService.GetUserProfileAsync();
+            return userProfile;
         }
     }
 }

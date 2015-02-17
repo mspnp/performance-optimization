@@ -3,7 +3,7 @@
   <Role name="WebRole">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="StorageConnectionString" value="[Your connection string goes here]" />
+      <Setting name="StorageConnectionString" value="DefaultEndpointsProtocol=https;AccountName=cmadventureworksstorage;AccountKey=EKUh7pivnYIFUeewYVn04WADDYa4xkVMbfkMuP8YbyHRY0IwqGy/oAwWZ+ZnHNWcmgHYHycC4Rd6Ea+3/Dcp8Q==" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
