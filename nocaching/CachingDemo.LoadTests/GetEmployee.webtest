@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WebTest Name="GetEmployee" Id="8993203e-b813-4572-9845-4cbc1a38b07b" Owner="" Priority="2147483647" Enabled="True" CssProjectStructure="" CssIteration="" Timeout="0" WorkItemIds="" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010" Description="" CredentialUserName="" CredentialPassword="" PreAuthenticate="True" Proxy="default" StopOnError="False" RecordedResultFile="" ResultsLocale="">
+  <Items>
+    <Request Method="GET" Guid="ce1dcf40-5e87-4d9d-be6c-39e449743dde" Version="1.1" Url="{{WebServer1}}/api/NoCache/GetEmployee/{{EmployeeIds.EmployeeIds#csv.BusinessEntityID}}" ThinkTime="0" Timeout="300" ParseDependentRequests="True" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="0" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False" />
+  </Items>
+  <DataSources>
+    <DataSource Name="EmployeeIds" Provider="Microsoft.VisualStudio.TestTools.DataSource.CSV" Connection="|DataDirectory|\EmployeeIds.csv">
+      <Tables>
+        <DataSourceTable Name="EmployeeIds#csv" SelectColumns="SelectAllColumns" AccessMethod="Random" />
+      </Tables>
+    </DataSource>
+  </DataSources>
+  <ContextParameters>
+    <ContextParameter Name="WebServer1" Value="http://pnp-perf-redis.cloudapp.net" />
+  </ContextParameters>
+</WebTest>

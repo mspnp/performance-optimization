@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WebTest Name="GetTopTenSalesPeople" Id="5d422f86-65bd-4ded-94e5-ebcf3e3fc5a8" Owner="" Priority="2147483647" Enabled="True" CssProjectStructure="" CssIteration="" Timeout="0" WorkItemIds="" xmlns="http://microsoft.com/schemas/VisualStudio/TeamTest/2010" Description="" CredentialUserName="" CredentialPassword="" PreAuthenticate="True" Proxy="default" StopOnError="False" RecordedResultFile="" ResultsLocale="">
+  <Items>
+    <Request Method="GET" Guid="23b61ab8-f706-466d-8bd9-57b52f3465f6" Version="1.1" Url="{{WebServer1}}/api/NoCache/GetTopTenSalesPeople" ThinkTime="0" Timeout="300" ParseDependentRequests="True" FollowRedirects="True" RecordResult="True" Cache="False" ResponseTimeGoal="0" Encoding="utf-8" ExpectedHttpStatusCode="0" ExpectedResponseUrl="" ReportingName="" IgnoreHttpStatusCode="False" />
+  </Items>
+  <ContextParameters>
+    <ContextParameter Name="WebServer1" Value="http://pnp-perf-redis.cloudapp.net" />
+  </ContextParameters>
+</WebTest>
