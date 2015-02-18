@@ -114,7 +114,7 @@
             return Task.FromResult(sb.ToString());
         }
 
-        public static Task<string> GetPrintableTime(long millisec)
+        public static Task<string> GetPrintableTimeAsync(long millisec)
         {
             var t = TimeSpan.FromMilliseconds(millisec);
             return Task.FromResult(string.Format("{0:D2}h:{1:D2}m:{2:D2}s:{3:D3}ms", t.Hours, t.Minutes, t.Seconds, t.Milliseconds));

@@ -4,8 +4,8 @@
     using System.Diagnostics;
     using System.Net;
     using System.Threading;
+    using System.Threading.Tasks;
 
-    using BackgroundProcessor.Logic;
     using BackgroundProcessor.Logic.QueueProcessor;
     using BackgroundProcessor.Logic.WordProcessor;
 
@@ -22,14 +22,27 @@
         // QueueClient is thread-safe. Recommended that you cache 
         // rather than recreating it on every request
         private QueueClient _queueClient;
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEvent _completedEvent = new ManualResetEvent(false);
 
         public override void Run()
         {
-            Trace.WriteLine("Starting processing of messages");
+            try
+            {
+                Trace.WriteLine("Starting processing of messages");
+                this.RunAsync(this._cancellationTokenSource.Token).Wait();
+            }
+            finally
+            {
+                this._completedEvent.Set();
+            }
+        }
 
+        public async Task RunAsync(CancellationToken cancellationToken)
+        {
             // Initiates the message pump and callback is invoked for each message that is received, calling close on the client will stop the pump.
-            this._queueClient.OnMessage((receivedMessage) =>
+            this._queueClient.OnMessageAsync(
+                async (receivedMessage) =>
                 {
                     try
                     {
@@ -42,20 +55,23 @@
                                 receivedMessage.Properties["WordCount"]));
 
                         var lwc = receivedMessage.GetBody<LetterWordCount>();
-                        var retMap = WordAnalyzer.GenerateAnalyzeTestStringsAsync(new List<LetterWordCount>() { lwc }).Result;
-                        foreach (var kvp in retMap)
-                        {
-                            Trace.WriteLine(
-                                string.Format(
-                                    "{0} lettered {1} words took {2} to process!",
-                                    kvp.Key.LetterCount,
-                                    kvp.Key.WordCount,
-                                    WordAnalyzer.GetPrintableTime(kvp.Value).Result));
-                        }
+                        var retMap =
+                            WordAnalyzer.GenerateAnalyzeTestStringsAsync(new List<LetterWordCount>() { lwc }).Result;
+                        Parallel.ForEach(
+                            retMap,
+                            kvp =>
+                                Trace.WriteLine(
+                                    string.Format(
+                                        "{0} lettered {1} words took {2} to process!",
+                                        kvp.Key.LetterCount,
+                                        kvp.Key.WordCount,
+                                        WordAnalyzer.GetPrintableTimeAsync(kvp.Value).Result)));
+
+                        await receivedMessage.CompleteAsync();
                     }
                     catch
                     {
-                        // Handle any message processing specific exceptions here
+                        receivedMessage.Abandon();
                     }
                 });
 
