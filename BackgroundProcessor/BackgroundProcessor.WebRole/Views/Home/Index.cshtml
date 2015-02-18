@@ -1,0 +1,42 @@
+﻿<div class="jumbotron">
+    <h1>Bulls and Cows</h1>
+    <p class="lead">Bulls and cows is a game where the player needs to guess the computer word in given number of attempts (dependent on word length)!
+        For example, if the word is ABLE and your guess is TAPE, computer says One Bull and One Cow, the bull being the letter E that is
+        at the same position in both words and cow being the letter A that is in different positions in both words!</p>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <h4>Minimum length: <input type="text" value="4" id="txtMinWordLength" min="4"/></h4>
+        <h4>Maximum length: <input type="text" value="12" id="txtMaxWordLength" max="12"/></h4>
+        <h3>
+            <button id="btnGetTxtFields">Get Fields</button>
+        </h3>
+    </div>
+</div>
+<div class="row" id="refTable"></div>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $("#btnGetTxtFields").click(function() {
+            var low = $("#txtMinWordLength").val();
+            var high = $("#txtMaxWordLength").val();
+
+            $.ajax({
+                url: "/Home/SetDataModelAsync",
+                type: "GET",
+                data: { 'upperBound': high ,  'lowerBound': low },
+                dataType: "html",
+                traditional: true,
+                contentType: "application/json; charset=utf-8",
+                success: function (partialViewResult, status, xhr) {
+                    $("#refTable").html(partialViewResult);
+                },
+                error: function(xhr, status, errorThrown) {
+                    alert(errorThrown);
+                }
+            });
+        });
+    });
+</script>
+    
+
