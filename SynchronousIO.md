@@ -4,59 +4,62 @@ A synchronous I/O operation blocks the calling thread while the I/O completes. T
 
 Common examples of synchronous I/O include:
 
-- Retrieving or persisting data to a database.
+- Retrieving or persisting data to a database and waiting for the outcome of a transaction.
+
+- Uploading or downloading large volumes of data to and from remote storage and waiting for verification that the operation was successful.
 
 - Sending a request to a web service and waiting for a response.
-
-- Posting a message to a message queue and waiting for the message queue to acknowledge receipt of the message.
 
 - Writing to a local file and waiting for the data to be saved.
 
 This anti-pattern typically occurs because:
 
-- It appears to be the most intuitive way to perform an operation. For example, the following code looks to be the obvious way to post a message to an Azure Service Bus queue:
+- It appears to be the most intuitive way to perform an operation. For example, the following code looks to be the obvious way to upload a file to an Azure blob storage:
 
 **C#**
 
 ``` C#
-// Create a QueueClient object to connect to the queue
-QueueClient client = ...;
-// Create a message to post on the queue
-BrokeredMessage message = ...;
-// Post the message
-client.Send(message);
+CloudStorageAccount storageAccount = ...;
+CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+CloudBlobContainer container = blobClient.GetContainerReference("uploadedfiles");
+container.CreateIfNotExists();
+
+CloudBlockBlob blockBlob = container.GetBlockBlobReference("myblob");
+
+// Create or overwrite the "myblob" blob with contents from a local file.
+using (var fileStream = System.IO.File.OpenRead(HttpContext.Current.Server.MapPath(@"../FileToUpload.txt")))
+{
+    blockBlob.UploadFromStream(fileStream);
+}
 ```
 
-- The application requires a response from the request, as shown by the following code example which sends an HTTP GET request to a web service and then displays the result:
+- The application requires a response from the request, as shown by the following code example. The `GetUserProfile` method is part of a web service that retrieves user profile information from a User Profile service (through the `UserServiceProfileProxy` class which handles all of the connection and routing details) and then returns it to a client. The thread running the `GetUserProfile` method will be blocked waiting for the response from the User Profile service:
 
 **C#**
 
 ``` C#
-// Construct an HTTP web request
-HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri("http://..."));
-request.Method = "GET";
-request.ContentType = "application/json";
-
-// Send the request and wait for the response
-HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-
-// Process the response
-if (response.StatusCode == HttpStatusCode.OK)
+public class SyncController : ApiController
 {
-    using (var responseStream = response.GetResponseStream())
+    private readonly IUserProfileService _userProfileService;
+
+    public SyncController()
     {
-        if (responseStream != null)
-        {
-            using (var responseReader = new StreamReader(responseStream))
-            {
-                string result = responseReader.ReadToEnd();
-                Console.WriteLine("{0}", result);
-            }
-        }
+        _userProfileService = new UserProfileServiceProxy();
+    }
+
+    /// <summary>
+    /// This is a synchronous method that calls the synchronous GetUserProfile method.
+    /// </summary>
+    /// <returns>A UserProfile instance</returns>
+    public UserProfile GetUserProfile()
+    {
+        var userProfile = _userProfileService.GetUserProfile();
+        return userProfile;
     }
 }
 ```
 
+Note that the code for these two examples form part of the [Synchronous I/O sample application][fullDemonstrationOfProblem].
 
 - The application uses a library which performs I/O and that does not provide asynchronous operations. For example:
 
@@ -69,7 +72,6 @@ var result = LibraryIOOperation();
 Console.WriteLine("{0}", result);
 ```
 
-[Link to the related sample][fullDemonstrationOfProblem]
 
 ## How to detect the problem
 From the viewpoint of a user running an application that performs synchronous I/O operations, the system can seem unresponsive or appear to hang periodically. The application may even fail with timeout exceptions.
@@ -87,63 +89,54 @@ Profiling the application can identify long-running method-calls and the amount 
 ## How to correct the problem
 Replace synchronous I/O operations with asynchronous requests.
 
-Some libraries provide asynchronous versions of the available I/O operations. For example, the following code posts a message to a Service Bus queue asynchronously.
+Some libraries provide asynchronous versions of the available I/O operations. For example, the following code uploads data to Azure blob storage asynchronously:
 
 **C#**
 
 ``` C#
-// Create a QueueClient object to connect to the queue
-QueueClient client = ...;
-// Create a message to post on the queue
-BrokeredMessage message = ...;
-// Post the message asynchrously
-client.SendAsync(message);
+CloudStorageAccount storageAccount = ...;
+CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
+CloudBlobContainer container = blobClient.GetContainerReference("uploadedfiles");
+await container.CreateIfNotExistsAsync();
 
-// Processing continues while the Send operation is performed asynchronously
-Console.WriteLine("Processing while message is sent");
-...
+CloudBlockBlob blockBlob = container.GetBlockBlobReference("myblob");
+
+// Create or overwrite the "myblob" blob with contents from a local file.
+using (var fileStream = System.IO.File.OpenRead(HttpContext.Current.Server.MapPath(@"../FileToUpload.txt")))
+{
+    await blockBlob.UploadFromStreamAsync(fileStream).ConfigureAwait(false);
+}
 ```
 
-The `SendAsync` method creates a new `Task` on which to perform the send operation. This task can run asynchronously on a separate thread from the code that called it. The use of the `SendAsync` method shown in this example is an illustration of the fire-and-forget technique;  the application invokes the `SendAsync` method but does not know whether the task has succeeded. To capture this information, use a continuation that runs when the task completes and has access to state information about the task:
+The `UploadFromStreamAsync` method creates a new `Task` on which to perform the file upload operation. This task can run asynchronously on a separate thread from the code that called it. Note that this code uses the `await` operator to return control to the calling environment while the asynchronous operation is performed. The subsequent code effectively acts as a continuation that runs when the asynchronous operation has completed.
+
+A well-designed service should also provide asynchronous operations. The example below illustrates an asynchronous version of the web service that returns user profile information. The `GetUserProfileAsync` method depends on an asynchronous version of the User Profile service proxy which doesn't block the calling thread:
 
 **C#**
 
 ``` C#
-...
-Task sendTask = client.SendAsync(message);
-
-// Specify a continuation that runs when the task completes
-sendTask.ContinueWith((task) =>
+public class AsyncController : ApiController
 {
-    // Processing that runs when the task is complete.
-    Console.WriteLine("SendAsync task status is {0}", task.Status);
-});
-...
-```
+    private readonly IUserProfileService _userProfileService;
 
-The `HttpWebResponse` class used to obtain a response to a web request in the example shown earlier provides similar functionality. The `GetResponseAsync` method is an asynchronous version of the `GetResponse` method that also runs by creating a new task. You can use a continuation to capture and process the information returned by the web response in the same way as the previous example. However, note that some recent libraries only provide asynchronous versions of certain methods. These libraries are usually highly optimized for the asynchronous approach (as opposed to being asynchronous extensions of inherently synchronous methods). If possible, you should consider replacing your synchronous code with these calls to these methods. An example is the `HttpClient` class in the `System.Net.Http` namespace. This class provides methods such as `GetAsync`, `PostAsync`, `PutAsync`, and `DeleteAsync` for interacting with a REST web service. The following code snippet could be used to replace the synchronous example shown earlier:
-
-**C#**
-
-``` C#
-using (HttpClient client = new HttpClient())
-{
-    client.BaseAddress = new Uri("http://...");
-    client.DefaultRequestHeaders.Accept.Clear();
-    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-    
-    HttpResponseMessage response = await client.GetAsync(...);
-    if (response.IsSuccessStatusCode)
+    public AsyncController()
     {
-        var result = await response.Content.ReadAsStringAsync();
-        Console.WriteLine("{0}", result);
+        _userProfileService = new UserProfileServiceProxy();
+    }
+
+    /// <summary>
+    /// This is an synchronous method that calls the Task based GetUserProfileAsync method.
+    /// </summary>
+    /// <returns>A UserProfile instance</returns>
+    public Task<UserProfile> GetUserProfileAsync()
+    {
+        var userProfile = _userProfileService.GetUserProfileAsync();
+        return userProfile;
     }
 }
 ```
 
-Note that this code uses the `await` operator to return control to the calling environment while the asynchronous operation is performed. The subsequent code effectively acts as a continuation that runs when the asynchronous operation has completed.
-
-For libraries that do not provide asynchronous versions of operations, it may be possible to create asynchronous wrappers around selected synchronous methods. However, you should follow this approach with caution. While this strategy may improve responsiveness on the thread invoking the asynchronous wrapper (which is useful if the thread is handling the user interface), it actually consumes more resources; an additional thread may be created, and there is additional overhead associated with synchronizing the work performed by this thread. Consequently, this approach might not be scalable. For more information, see the article [Should I expose asynchronous wrappers for synchronous methods?][async-wrappers]:
+For libraries that do not provide asynchronous versions of operations, it may be possible to create asynchronous wrappers around selected synchronous methods. However, you should follow this approach with caution. While this strategy may improve responsiveness on the thread invoking the asynchronous wrapper (which is useful if the thread is handling the user interface), it actually consumes more resources; an additional thread may be created, and there is additional overhead associated with synchronizing the work performed by this thread. Consequently, **this approach might not be scalable and should not be used for server-side code**. For more information, see the article [Should I expose asynchronous wrappers for synchronous methods?][async-wrappers]:
 
 **C#**
 
@@ -172,9 +165,9 @@ Console.WriteLine("Work performed while LibraryIOOperation is running asynchrono
 [Link to the related sample][fullDemonstrationOfSolution]
 
 ## Consequences of the solution
-*TBD - Need more input from the developers*.
+**This needs verification**.
 
-The system should be able to support more concurrent user requests than before, and as a result be more scalable. This can be determined by performing load testing before and after making any changes to the code and then comparing the results. Functionally, the system should remain unchanged. Monitoring the system and analyzing the key performance counters described earlier should indicate that the system spends less time blocked by synchronous I/O and the CPUs are more active. *(NOTE: NEED TO ADD SOME QUANTIFIABLE GUIDANCE)*
+The system should be able to support more concurrent user requests than before, and as a result be more scalable. This can be determined by performing load testing before and after making any changes to the code and then comparing the results. Functionally, the system should remain unchanged. Monitoring the system and analyzing the key performance counters described earlier should indicate that the system spends less time blocked by synchronous I/O and the CPUs are more active.
 
 ## Related resources
 
