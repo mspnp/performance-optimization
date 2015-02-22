@@ -55,15 +55,15 @@ Performing load testing can help to highlight any problems. Load-testing should 
 
 The following output was generated from load-testing the CachingDemo sample application without using caching. The load-test simulates 500 concurrent users performing a series of HTTP GET operations targeted at 99 different resources (`Person 1` through `Person 99`). The test runs for 5 minutes, generating many thousands of requests.
 
-The following graph shows the throughput summary of the load-test. In this graph, the application was able to support 29.98 requests per second on average, and each request was successful:
+The following graph shows the performance summary. This graph shows that the average response time during the load-test was 19.6 seconds:
 
 ![Performance load-test results for the uncached scenario][Performance-Load-Test-Results-Uncached]
 
-Downloading the report and viewing the tabular summary indicates that in 5 minutes, 500 users were able to make 8993 successful requests, and each request took on average 16.4 seconds to complete:
+The throughput summary graph shows that the application was able to support 24.58 requests per second on average, and each request was successful:
 
-![Performance summary for the uncached scenario][Performance-Summary-Uncached]
+![Throughput load-test results for the uncached scenario][Throughput-Load-Test-Results-Uncached]
 
-The average response time is relatively long. If a business operation involves accessing three or four entities a user may be forced to wait for a minute for the operation to complete. Additionally, the volume of requests processed may fall below that required for a system that may need to support thousands of concurrent users.
+The average response time is relatively long. If a business operation involves accessing three or four entities a user may be forced to wait for a minute for the operation to complete. Additionally, the throughput may fall below that required for a system that may need to support thousands of concurrent users.
  
 ### Using data access statistics
 
@@ -97,15 +97,11 @@ In the [CachingDemo sample application][fullDemonstrationOfProblem] shown earlie
 
 ### Instrumenting the application
 
-While statistical information from the data store may be useful to identify common queries, you should also consider instrumenting applications to provide more information about specific requests while the application is in production. You can then analyze the results to group them by operation. You can use lightweight logging  frameworks such as [NLog][NLog] or [Log4Net][Log4Net] to gather this information. You can also deploy more powerful tools such as [Microsoft Application Insights][AppInsights], [New Relic][NewRelic], or [AppDynamics][AppDynamics] to collect and analyze instrumentation information, but these tools incur more overhead than simple logging, and they should be disabled when not required. 
+While statistical information from the data store may be useful to identify common queries, you should also consider instrumenting applications to provide more information about the specific requests that users make while the application is in production. You can then analyze the results to group them by operation. You can use lightweight logging  frameworks such as [NLog][NLog] or [Log4Net][Log4Net] to gather this information. You can also deploy more powerful tools such as [Microsoft Application Insights][AppInsights], [New Relic][NewRelic], or [AppDynamics][AppDynamics] to collect and analyze instrumentation information, but these tools incur more overhead than simple logging, and they should be disabled when not required. 
 
-As an example, if you configure the CachingDemo to capture monitoring data by using [Application Insights][AppInsights], the analytics generated can quickly show you the frequency with which each server request occurs, as shown by the image below. Three different HTTP GET operations (`Person/Get`, `Person/GetAsync`, and `Person/GetCached`) have been performed while the application has been running: 
+As an example, if you configure the CachingDemo to capture monitoring data by using [New Relic][NewRelic], the analytics generated can quickly show you the frequency with which each server request occurs, as shown by the image below. In this case, the only HTTP GET operation performed is `Person/GetAsync` (the load-test simply repeats this same request each time), but in a live environment knowing the relative frequency with which each request is performed gives you an insight into which resources might best be cached: 
 
-![AppInsights showing server requests for the CachingDemo application][AppInsights-server-requests]
-
-In this example, `Person\Get` accounts for 68.8% of all requests. You can drill into this request to obtain more information and view the specific instances of this request, including the full URL which identifies the resource being retrieved. A useful feature here is the ability to filter the data. The `URL base` filter displays a count of the number of times each resource has been accessed. In the following image, each resource has been retrieved at least 190 times. The data is filtered by using the URL base `/api/Person/Get/10`, and the Diagnostic search pane displays the details for each access, including the time the access was made. If these accesses occur within a relatively short period of time, then the data returned by accessing this resource is a good candidate for caching. Note that this data may be an entity, or it could be the results of a computation:
-
-![AppInsights showing the details of requests for the Person 10 resource][AppInsights-GET-Person-10-requests]
+![New Relic showing server requests for the CachingDemo application][NewRelic-server-requests]
 
 ### Profiling the application
 
@@ -177,15 +173,15 @@ You should consider the following points concerning caching:
 ## Consequences of the solution
 Implementing caching may lead to a lack of immediate consistency; applications may not always read the most recent version of a data item. Applications should be designed around the principle of eventual consistency and tolerate being presented with old data. Applying time-based eviction policies to the cache can help to prevent cached data from becoming too stale, but any such policy must be balanced against the expected volatility of the data; data that is highly static and read often can reside in the cache for longer periods than dynamic information that may become stale quickly and which should be evicted more frequently.
 
-To determine the efficacy of any caching strategy, you should repeat load-testing after incorporating a cache and compare the results to those generated before the cache was added. The following results are the output generated by load testing the CachingDemo sample solution with caching enabled. The throughput summary graph now shows that application was now able to perform 880.33 requests per second. This is an enormous improvement (by a factor of 30) over the throughput for the uncached example:
+To determine the efficacy of any caching strategy, you should repeat load-testing after incorporating a cache and compare the results to those generated before the cache was added. The following results are the output generated by load testing the CachingDemo sample solution with caching enabled. The performance summary graph shows that the average response time is now 0.41 seconds. Compared to a response time of 19.6 seconds for the uncached example this is an enormous increase throughput (by a factor of 47):
 
 ![Performance load-test results for the cached scenario][Performance-Load-Test-Results-Cached]
  
-However, the number of requests per second should not be considered the only measure of success. The increased volume of requests may have an adverse affect on a service, resulting in transient availability errors if it becomes overloaded at any point. The throughput graph indicates that many errors occured, and the tabular summary shows that although the system now handled 264,100 requests in 5 minutes (compared to 8993 previously), a large proportion of these requests failed and only 87.084 were successful:
+However, the number of requests per second should not be considered the only measure of success. The increased volume of requests may have an adverse affect on a service, resulting in transient availability errors if it becomes overloaded at any point. The throughput graph indicates that although the load-test performed an average of 1034.86 requests per second (compared to 24.58 for the uncached scenario), when the rate exceeded approximately 550 requests per second many errors occurred (the details of these errors are available on the Details tab in the load-test results pane):
 
-![Performance summary for the cached scenario][Performance-Summary-Cached]
+![Throughput load-test results for the cached scenario][Throughput-Load-Test-Results-Cached]
 
-The excess traffic caused a large number of HTTP 403 (Forbidden) and HTTP 500 (Internal Server Error) messages, indicating that the web site hosting the service was temporarily unavailable. **This is a common concern; increasing the potential throughput of the application can require that the infrastructure on which the application runs needs to be scaled.**
+The additional traffic overwhelmed the service causing a large number of HTTP 403 (Forbidden) and HTTP 503 (Service Unavailable) messages, indicating that the web site hosting the service was temporarily unavailable. **This is a common concern; increasing the potential throughput of the application can require that the infrastructure on which the application runs be scaled to handle the additional load.**
 
 ## Related resources
 - [The Cache-Aside Pattern][cache-aside-pattern].
@@ -213,10 +209,9 @@ The excess traffic caused a large number of HTTP 403 (Forbidden) and HTTP 500 (I
 [PerfView]: http://blogs.msdn.com/b/vancem/archive/2011/12/28/publication-of-the-perfview-performance-analysis-tool.aspx
 [ANTS]: http://www.red-gate.com/products/dotnet-development/ants-performance-profiler/
 [VisualStudioOnline]: http://www.visualstudio.com/get-started/load-test-your-app-vs.aspx
-[AppInsights-server-requests]: http://i.imgur.com/4vUXXSb.jpg
-[AppInsights-GET-Person-10-requests]: http://i.imgur.com/gcJhG2m.jpg
-[Performance-Load-Test-Results-Uncached]: http://i.imgur.com/Vgl9W6Q.jpg
-[Performance-Summary-Uncached]: http://i.imgur.com/4qDmxUG.jpg
-[Dynamic-Management-Views]: http://i.imgur.com/nNF320z.jpg
-[Performance-Load-Test-Results-Cached]: http://i.imgur.com/oqB2QG5.jpg
-[Performance-Summary-Cached]: http://i.imgur.com/4su5ScO.jpg
+[NewRelic-server-requests]: Figures/New-Relic.jpg
+[Performance-Load-Test-Results-Uncached]:Figures/VSOLoadTest1.jpg
+[Throughput-Load-Test-Results-Uncached]: Figures/VSOLoadTest2.jpg
+[Dynamic-Management-Views]: Figures/SQLServerManagementStudio.jpg
+[Performance-Load-Test-Results-Cached]: Figures/VSOLoadTest3.jpg
+[Throughput-Load-Test-Results-Cached]: Figures/VSOLoadTest4.jpg
