@@ -290,5 +290,5 @@ List<Product> products = query.ToList();
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
 [chatty-io]: http://LINK-TO-CHATTY-IO-ANTI-PATTERN
 [odata-support]: http://www.asp.net/web-api/overview/odata-support-in-aspnet-web-api/supporting-odata-query-options
-[full-product-table]:http://i.imgur.com/lFCHegw.jpg
-[product-review-tables]:http://i.imgur.com/9erP9E0.jpg
+[full-product-table]:Figures/ProductTable.jpg
+[product-review-tables]:Figures/ProductAndReviewTables.jpg
