@@ -17,7 +17,11 @@ namespace CreateFileToUpload
             
             for (int i = 0; i < numberOfBuffers; i++)
             {
-                fileStream.WriteAsync(buffer, 0, buffer.Length).Wait();
+                // While file streams do have a WriteAsync method, we're not doing anything in the background.
+                // We don't need to service other threads, nor do we have an async context.
+                // Therefore, the synchronous Write method is fine.
+
+                fileStream.Write(buffer, 0, buffer.Length);
             }
         }
     }
