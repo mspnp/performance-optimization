@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.IO;
+using System.Web.Hosting;
 using System.Web.Http;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.Storage;
@@ -23,7 +24,7 @@ namespace WebRole.Controllers
             CloudBlockBlob blockBlob = container.GetBlockBlobReference("myblob");
 
             // Create or overwrite the "myblob" blob with contents from a local file.
-            using (var fileStream = System.IO.File.OpenRead(HttpContext.Current.Server.MapPath(@"../FileToUpload.txt")))
+            using (var fileStream = File.OpenRead(HostingEnvironment.MapPath("~/FileToUpload.txt")))
             {
                 blockBlob.UploadFromStream(fileStream);
             }
