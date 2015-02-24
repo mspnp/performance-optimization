@@ -4,13 +4,13 @@ A synchronous I/O operation blocks the calling thread while the I/O completes. T
 
 Common examples of synchronous I/O include:
 
-- Retrieving or persisting data to a database and waiting for the outcome of a transaction.
-
-- Uploading or downloading large volumes of data to and from remote storage and waiting for verification that the operation was successful.
+- Retrieving or persisting data to a database or any type of persistent storage.
 
 - Sending a request to a web service and waiting for a response.
 
-- Writing to a local file and waiting for the data to be saved.
+- Posting a message or retrieving a message from a queue.
+
+- Writing to or reading from a local file.
 
 This anti-pattern typically occurs because:
 
@@ -72,22 +72,63 @@ var result = LibraryIOOperation();
 Console.WriteLine("{0}", result);
 ```
 
+- The system is tuned to expect a constant load where synchronous I/O may be more optimal. This can happen with IIS optimization and may be missed during load testing where the system may be exposed to an artificially distributed (constant) stream of requests directed at a limited set of I/O resources. Performing operations synchronously in this scenario can help to preserve CPU and memory resources as requests are queued rather than being competing for the same data on seperate threads. However, in the real world, requests are more likely to be distributed across a wider number of items and occur at varying rates, in which case performing synchronous I/O operations becomes an overhead rather than an advantage.
+
+- Synchronous I/O operations are hidden in an external library used by the application. A single synchronous I/O call embedded deep within a series of cascading operations can block an entire call chain.
 
 ## How to detect the problem
-From the viewpoint of a user running an application that performs synchronous I/O operations, the system can seem unresponsive or appear to hang periodically. The application may even fail with timeout exceptions.
+From the viewpoint of a user running an application that performs synchronous I/O operations, the system can seem unresponsive or appear to hang periodically. The application may even fail with timeout exceptions. A web server hosting a service that performs internal I/O operations synchronously may become overloaded. Operations within the web server may fail as a result, causing HTTP 500 (Internal Server Error) response messages. Additionally, in the case of a web server such as IIS, incoming client requests might be blocked until a thread becomes available. This can result in excessive request queue lengths, resulting in HTTP 503 (Service Unavailable) response messages being passed back to the caller.
 
-An operator monitoring a system that performs synchronous I/O operations may observe the following phenomena:
+### Reviewing the application
 
-- The `Processor\% Processor Time` performance counter for each processor is low for extended periods of time *(NOTE: NEED TO SPECIFY A VALUE e.g. below 30%)*.
-- The `System\Processor Queue Length` performance counter indicates that many processes are blocked awaiting CPU resources *(NOTE: NEED TO QUANTIFY - WHAT SHOULD THE IDEAL QUEUE LENGTH BE?)*
-- The `Memory\Available Bytes` performance counter regularly indicates that the amount of free memory is less than 10% of the available memory.
-- If the application is performing disk I/O, the `PhysicalDisk\Avg. Disk Queue Length` for disks accessed by the application indicate a persistent backlog of I/O requests. A sustained queue length above 5 could indicate a disk subsystem bottleneck (**Note:** The application should ensure that disks used for paging process memory are kept distinct from those used to store application data).
-- The `HttpWebRequest` performance counters on a machine hosting a web service ... *(NOTE: MORE DETAILS TO BE ADDED)*
+If you are a designer or developer familiar with the way in which application is implemented, you could perform a code review to identify the source of any I/O operations that the application performs. I/O operations that appear to be synchronous should be evaluated to determine whether they are likely to cause a blockage as the number of requests increases.
 
-Profiling the application can identify long-running method-calls and the amount of CPU time spent while running these methods. If a long-running method accounts for a minimal amount of CPU time, then examine this method to determine whether it is blocking by performing synchronous I/O operations *(NOTE: NEED TO QUANTIFY THIS AND POSSIBLY ADD MORE DETAILS)*.
+----------
+**Note:** I/O operations that are expected to be very short lived and which are unlikely to cause contention, typically accessing fast, local resources (such as small private files on an SSD drive), might be best left as synchronous operations. In these cases the overhead of creating and managing a separate task, dispatching it to another thread, and synchronizing with that thread when the task completes might outweigh the benefits of performing an operation asynchronously.
+
+----------
+
+### Load-testing the application
+
+Load-testing can help to identify whether a system is being constrained by performing synchronous I/O operations. As user load increases, performing synchronous I/O operations can result in exponential increases in latency for requests and consequent low throughput. This behavior typically occurs when the user load reaches thousands of concurrent requests. A good detection strategy to determine whether synchronous I/O may be a problem is to load-test the system against a work load that increases from a small number to thousands of concurrent user requests and examine how the response rate and latency varies. As an example, the following table illustrates the performance of the synchronous `GetUserProfile` method in the `SyncController` controller in the sample application under varying loads.
+
+#Users | Requests/sec | Latency secs
+------| ---------| ------------
+20 | 8 | 2.5
+1000 | 115 | 8.87
+2000 | 138 | 14.64
+3000 | 178 | 16.97
+4000 | 200 | 20.10
+5000 | 223 | 22.51
+6000 | 226 | 26.62
+7000 | 242 | 29.01
+
+As the workload increases, the rate at which requests are handled initially jumps due to the spare capacity in the system being utilized. However, the change in this rate is not linear and will eventually reach a plateau. The latency also increases significantly but it too plateaus. One reason for this is that requests are arriving faster than the system can handle them. Web servers such as IIS queue incoming requests as they arrive and only process these requests when a thread becomes available (IIS manages its own thread pool). If a request performs synchronous I/O operations, the thread is blocked while these operations complete. As the queue length grows, requests start to time out. This is characterized by the number of errors that are returned; the rate at which these errors occur increases with the load after the web server is running at full capacity. At this point, the average latency is roughly inline with the timeout period, which is a constant. 
+
+----------
+
+**Note:** Throughput should not be determined by the volume of requests per second and the latency alone, but must also consider the rate at which requests fail.
+
+----------
+
+Generally, in a system that performs synchronous I/O operations, response times will fluctuate as the user load varies. Additionally, as the user load diminishes, it may take some time for the system to recover and manage to process the majority of requests successfully. The following graph shows the performance profile of a typical web application that uses synchronous I/O. The test starts with 6000 concurrent users. Initially requests are successful; the first requests are handled very quickly as the system has plenty of spare capacity, but as more requests arrive they take longer to process until the volume of requests that are queued exceeds the capacity of the system to process them. At this point, errors start occurring and this is indicated by the spikes in the average test time. As the user load drops, the system starts to recover and the average test times become more stable as requests are handled successfully (the system is able to drain the request queue faster than new requests are added). Notice also that there is a lag in the change in response time as the user load steps down; this is due to the backlog effects of the queue. As the user load increases, so does the response time (with a similar lag), until the point at which the system becomes overloaded again (6000 users) when the spikes in the response time are indicative of many requests resulting in an error. Finally, as the user load decreases, the system recovers.
+
+![Performance chart for a web application performing synchronous I/O operations][sync-performance]
+
+You should consider the following points when load-testing a system to detect effects due to synchronous I/O:
+
+- Examine how the throughput and response time vary as the user load increases.
+
+- Perform testing with `step-up` user loads to simulate user loads with spikes that are expected to exceed the capacity of the system, and examine how the system recovers when the user load drops.
+
+- Many business scenarios might result in an application performing a mixture of synchronous I/O operations together with other forms of processing. Such asymmetric workloads can cause capacity variations in the system. When you are load-testing the system, use a testing profile that simulates the asymmetric workload of the real business environment.
+
+### Monitoring web server performance
+
+For Azure web applications and web roles, it is also worth monitoring the performance of the IIS web server. In particular, you should pay attention to the ASP.NET request queue length to ascertain whether requests are being blocked waiting for available threads to process them during periods of high activity. You can gather this information by enabling Azure diagnostics. You can retrieve the performance counter data from the `WADPerformanceCountersTable` table generated by Azure diagnostics.The key performance counters to examine are `\ASP.NET\Requests Queued` and `\ASP.NET\Requests Rejected`. The article [Analyzing logs collected with Azure Diagnostics][analyzing-logs] provides more information on collecting and analyzing diagnostics.
 
 ## How to correct the problem
-Replace synchronous I/O operations with asynchronous requests.
+Replace synchronous I/O operations with asynchronous requests. Performing an I/O operation asynchronously can free the current thread to continue performing meaningful work rather than being blocked waiting for a slow device or network to respond. This helps to improve the utilization of expensive compute resources.
 
 Some libraries provide asynchronous versions of the available I/O operations. For example, the following code uploads data to Azure blob storage asynchronously:
 
@@ -165,14 +206,43 @@ Console.WriteLine("Work performed while LibraryIOOperation is running asynchrono
 [Link to the related sample][fullDemonstrationOfSolution]
 
 ## Consequences of the solution
-**This needs verification**.
 
-The system should be able to support more concurrent user requests than before, and as a result be more scalable. This can be determined by performing load testing before and after making any changes to the code and then comparing the results. Functionally, the system should remain unchanged. Monitoring the system and analyzing the key performance counters described earlier should indicate that the system spends less time blocked by synchronous I/O and the CPUs are more active.
+The system should be able to support more concurrent user requests than before, and as a result be more scalable. This can be determined by performing load testing before and after making any changes to the code and then comparing the results. Repeating the load-testing experiment described earlier but using asynchronous `GetUserProfileAsync` method in the `AsyncController` controller in the sample application yields the following results: 
+
+#Users | Requests/sec | Latency secs
+-------| ---------| ------------
+20 | 8 | 2.5
+1000 | 489 | 2.09
+2000 | 950 | 2.13
+3000 | 1389 | 2.17
+4000 | 1732 | 2.32
+5000 | 1871 | 2.68
+6000 | 1887 | 3.19
+7000 | 1890 | 3.71
+
+This time, the latency remains low and does not fluctuate with increased load to the same extent that the synchronous scenario does. Requests are queued as before and dispatched to a thread in the IIS thread pool when one becomes available. However, the IIS thread is not blocked by the operation being performed and once the asynchronous work has started the thread can be released to process the next queued request. For more information, visit [Using Asynchronous Methods in ASP.NET 4.5][AsyncASPNETMethods].
+
+For comparison purposes with the earlier example, the following graph shows the performance profile of a typical web application that uses asynchronous I/O. Notice that response time is less dependent on the user load and remains reasonably level until the point at which the system becomes overloaded. Recovery time when the user load drops is much quicker. 
+
+![Performance chart for a web application performing asynchronous I/O operations][async-performance]
+
+Functionally, the system should remain unchanged. Monitoring the request queue lengths should reveal that requests are retrieved more quickly rather than timing out as they spend less time blocked waiting for an available thread.
+
+You should note that improving I/O performance may cause other parts of the system to become bottlenecks. Alleviating the effects of synchronous I/O operations that were previously constraining performance may cause overloading of other parts of the system. For example, unblocking threads could result in an increased volume of concurrent requests to network resources resulting in network connection starvation, or an increased number of concurrent data accesses could result in a data store throttling requests. **Therefore it may be necessary to scale or redsign the I/O resources; increase the number of web servers or partition data stores to help reduce contention.**
+
 
 ## Related resources
 
 - [Should I expose asynchronous wrappers for synchronous methods?][async-wrappers]
 
+- [Using Asynchronous Methods in ASP.NET 4.5][AsyncASPNETMethods]
+
+- [Analyzing logs collected with Azure Diagnostics][analyzing-logs]
+
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
-[async-wrappers]:http://blogs.msdn.com/b/pfxteam/archive/2012/03/24/10287244.aspx
+[async-wrappers]: http://blogs.msdn.com/b/pfxteam/archive/2012/03/24/10287244.aspx
+[AsyncASPNETMethods]: http://www.asp.net/web-forms/overview/performance-and-caching/using-asynchronous-methods-in-aspnet-45
+[analyzing-logs]: https://msdn.microsoft.com/library/azure/dn904284.aspx
+[sync-performance]: Figures/SyncPerformance.jpg
+[async-performance]: Figures/AsyncPerformance.jpg
