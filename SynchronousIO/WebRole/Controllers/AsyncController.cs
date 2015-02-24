@@ -14,7 +14,7 @@ namespace WebRole.Controllers
         }
 
         /// <summary>
-        /// This is an Asynchronous method that calls the Task based GetUserProfileAsync method.
+        /// This is an asynchronous method that calls the Task based GetUserProfileAsync method.
         /// </summary>
         /// <returns>A UserProfile instance</returns>
         public Task<UserProfile> GetUserProfileAsync()
