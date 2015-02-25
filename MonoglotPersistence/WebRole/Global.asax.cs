@@ -13,11 +13,11 @@ namespace WebRole
         protected void Application_Start()
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
-            MyCompanyLogging.Start();
+            Logging.Logging.Start();
         }
         protected void Application_End()
         {
-            MyCompanyLogging.End();
+            Logging.Logging.End();
         }
 
     }
