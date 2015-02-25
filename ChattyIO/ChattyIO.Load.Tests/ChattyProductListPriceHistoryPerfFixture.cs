@@ -1,14 +1,10 @@
-﻿namespace ChattyIO.Load.Tests
+﻿namespace ChattyIO.Tests
 {
     using System;
     using System.Configuration;
-    using System.Diagnostics;
     using System.Net.Http;
-    using System.Linq;
     using System.Threading.Tasks;
     using System.Net.Http.Headers;
-    using System.Collections.Generic;
-    using Microsoft.VisualStudio.TestTools.UnitTesting.Web;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     using ChattyIO.DataAccess;

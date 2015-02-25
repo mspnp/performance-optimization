@@ -12,7 +12,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChattyIO.DataAccess", "Chat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChattyIO.WebApi", "ChattyIO.WebApi\ChattyIO.WebApi.csproj", "{F8C34AFB-5694-4028-B665-4075EA420C7B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChattyIO.Load.Tests", "ChattyIO.Load.Tests\ChattyIO.Load.Tests.csproj", "{E5366E09-9128-40C1-817D-A3A9E24C52F8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChattyIO.Tests", "ChattyIO.Load.Tests\ChattyIO.Tests.csproj", "{E5366E09-9128-40C1-817D-A3A9E24C52F8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F33C3BC4-46F8-4F06-8DE4-F16BDC5F9410}"
 	ProjectSection(SolutionItems) = preProject

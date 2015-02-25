@@ -9,8 +9,8 @@
     <ProjectGuid>{E5366E09-9128-40C1-817D-A3A9E24C52F8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ChattyIO.Load.Tests</RootNamespace>
-    <AssemblyName>ChattyIO.Load.Tests</AssemblyName>
+    <RootNamespace>ChattyIO.Tests</RootNamespace>
+    <AssemblyName>ChattyIO.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
