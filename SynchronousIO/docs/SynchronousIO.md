@@ -98,7 +98,7 @@ Load-testing can help to identify whether a system is being constrained by perfo
 
 ----------
 
-#Users | Requests/sec | Avg Response Time secs | Failed Requests/sec
+Users | Requests/sec | Avg Response Time secs | Failed Requests/sec
 -------| -------------| ------------------ | -------------------
 50 | 23.4 | 2.08 | 0
 550 | 53 | 9.74 | 0.13
@@ -123,7 +123,7 @@ Incoming requests are queued by the IIS web server and handed to a thread runnin
 
 For comparison purposes with the earlier example, the following table and graph highlights the performance of the asynchronous `GetUserProfileAsync` method in the `AsyncController` controller in the sample application under the same varying loads:
 
-#Users | Requests/sec | Avg Response Time secs | Failed Requests/sec
+Users | Requests/sec | Avg Response Time secs | Failed Requests/sec
 -------| -------------| ------------------ | -------------------
 50 | 23.4 | 2.10 | 0
 550 | 195 | 2.75 | 0.83
