@@ -1,4 +1,4 @@
-﻿namespace ChattyIO.Tests
+﻿namespace ChattyIO.Load.Tests
 {
     using System;
     using System.Configuration;
@@ -29,8 +29,7 @@
         [TestMethod]
         public async Task WhenUsingChattyAPI_ToGet_AllProductListPriceHistory_ForCategories()
         {
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
+            
             for (int i = 1; i < 5; i++)
             {
                
@@ -38,23 +37,16 @@
                         await httpClient.GetAsync("chattyproduct/products/" + i.ToString());
                     var subCategory = await subCategoryResponse.Content.ReadAsAsync<ProductSubcategory>();
             }
-            stopWatch.Stop();
-            Console.WriteLine("Chatty-Time {0}", stopWatch.ElapsedMilliseconds);
         }
 
         [TestMethod]
         public async Task WhenUsingChunkyAPI_ToGet_AllProductListPriceHistory_ForCategories()
         {
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
             for (int i = 1; i < 5; i++)
             {
                 var subCategoryResponse = await httpClient.GetAsync("chunkyproduct/products/" + i.ToString());
                 var subCategory = await subCategoryResponse.Content.ReadAsAsync<ProductSubcategory>();
             }
-            stopWatch.Stop();
-            Console.WriteLine("Chunky-Time {0}", stopWatch.ElapsedMilliseconds);
-
         }
 
         public TestContext TestContext

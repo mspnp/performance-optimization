@@ -10,16 +10,16 @@
     public class ChunkyProductController : ApiController
     {
         [HttpGet]
-        [Route("chunkyproduct/{categoryId}")]
-        public async Task<ProductCategory> GetProductCategoryDetailsAsync(int categoryId)
+        [Route("chunkyproduct/products/{subCategoryId}")]
+        public async Task<ProductSubcategory> GetProductCategoryDetailsAsync(int subCategoryId)
         {
             using (var context = GetContext())
             {
-                var category = await context.ProductCategories
-                      .Where((pc) => pc.ProductCategoryId == categoryId)
-                      .Include("ProductSubcategory.Product.ProductListPriceHistory")
+                var subCategory = await context.ProductSubcategories
+                      .Where((psc) => psc.ProductSubcategoryId == subCategoryId)
+                      .Include("Product.ProductListPriceHistory")
                       .SingleOrDefaultAsync();
-                return category;
+                return subCategory;
             }
 
         }
