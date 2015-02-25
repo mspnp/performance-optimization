@@ -90,38 +90,63 @@ If you are a designer or developer familiar with the way in which application is
 
 ### Load-testing the application
 
-Load-testing can help to identify whether a system is being constrained by performing synchronous I/O operations. As user load increases, performing synchronous I/O operations can result in exponential increases in latency for requests and consequent low throughput. This behavior typically occurs when the user load reaches thousands of concurrent requests. A good detection strategy to determine whether synchronous I/O may be a problem is to load-test the system against a work load that increases from a small number to thousands of concurrent user requests and examine how the response rate and latency varies. As an example, the following table illustrates the performance of the synchronous `GetUserProfile` method in the `SyncController` controller in the sample application under varying loads.
-
-#Users | Requests/sec | Latency secs
-------| ---------| ------------
-20 | 8 | 2.5
-1000 | 115 | 8.87
-2000 | 138 | 14.64
-3000 | 178 | 16.97
-4000 | 200 | 20.10
-5000 | 223 | 22.51
-6000 | 226 | 26.62
-7000 | 242 | 29.01
-
-As the workload increases, the rate at which requests are handled initially jumps due to the spare capacity in the system being utilized. However, the change in this rate is not linear and will eventually reach a plateau. The latency also increases significantly but it too plateaus. One reason for this is that requests are arriving faster than the system can handle them. Web servers such as IIS queue incoming requests as they arrive and only process these requests when a thread becomes available (IIS manages its own thread pool). If a request performs synchronous I/O operations, the thread is blocked while these operations complete. As the queue length grows, requests start to time out. This is characterized by the number of errors that are returned; the rate at which these errors occur increases with the load after the web server is running at full capacity. At this point, the average latency is roughly inline with the timeout period, which is a constant. 
+Load-testing can help to identify whether a system is being constrained by performing synchronous I/O operations. As user load increases, performing synchronous I/O operations can result in exponential increases in latency for requests and consequent low throughput. This behavior typically occurs when the user load reaches thousands of concurrent requests. A good detection strategy to determine whether synchronous I/O may be a problem is to load-test the system against a work load that increases from a small number to thousands of concurrent user requests and examine how the response rate and latency varies. As an example, the following table illustrates the performance of the synchronous `GetUserProfile` method in the `SyncController` controller in the sample application under varying loads. 
 
 ----------
 
-**Note:** Throughput should not be determined by the volume of requests per second and the latency alone, but must also consider the rate at which requests fail.
+**Note:** The sample application was deployed to a 2-instance cloud service comprising small virtual machines. Using more instances and larger virtual machines should support a bigger work load, but the purpose of this exercise is to demonstrate the profile of a web application that performs synchronous I/O operations. Also note that the synchronous operation is timed to take 2 seconds, so the minimum response time will be slightly over 2 seconds.
 
 ----------
 
-Generally, in a system that performs synchronous I/O operations, response times will fluctuate as the user load varies. Additionally, as the user load diminishes, it may take some time for the system to recover and manage to process the majority of requests successfully. The following graph shows the performance profile of a typical web application that uses synchronous I/O. The test starts with 6000 concurrent users. Initially requests are successful; the first requests are handled very quickly as the system has plenty of spare capacity, but as more requests arrive they take longer to process until the volume of requests that are queued exceeds the capacity of the system to process them. At this point, errors start occurring and this is indicated by the spikes in the average test time. As the user load drops, the system starts to recover and the average test times become more stable as requests are handled successfully (the system is able to drain the request queue faster than new requests are added). Notice also that there is a lag in the change in response time as the user load steps down; this is due to the backlog effects of the queue. As the user load increases, so does the response time (with a similar lag), until the point at which the system becomes overloaded again (6000 users) when the spikes in the response time are indicative of many requests resulting in an error. Finally, as the user load decreases, the system recovers.
+#Users | Requests/sec | Avg Response Time secs | Failed Requests/sec
+-------| -------------| ------------------ | -------------------
+50 | 23.4 | 2.08 | 0
+550 | 53 | 9.74 | 0.13
+1050 | 76.5 | 12.5 | 0.083
+1550 | 93.7 | 15.5 | 0.58
+2050 | 104 | 18.1 | 1.90
+2550 | 335 | 7.42 | 227
+3050 | 132 | 20.3 | 22
+3550 | 1599 | 1.35 | 1491
+4050 | 172 | 18.7 | 46.1
+4550 | 175 | 17.5 | 35.8
 
-![Performance chart for a web application performing synchronous I/O operations][sync-performance]
+Incoming requests are queued by the IIS web server and handed to a thread running in the ASP.NET thread pool. Because each operation performs I/O synchronously, the thread is blocked until the operation completes. As the workload increases, the rate at which requests are processed also increases up to the point at which all of the ASP.NET threads in the thread pool are blocked. At this time, any further incoming requests cannot be not fulfilled immediately and wait in the queue until a running operation completes and a thread becomes available. As the queue length grows, requests start to time out. This is characterized by the number of errors that are returned. Although the volume of requests appears to increase at this point, the proportion of these requests that result in an error also increases. In total, the load-test reported 109,338 failed tests out of 164,981; a failure rate of 66.3%. The following graph illustrates these points:
 
-You should consider the following points when load-testing a system to detect effects due to synchronous I/O:
+![Performance chart for the sample application performing synchronous I/O operations][sync-performance]
 
-- Examine how the throughput and response time vary as the user load increases.
+----------
 
-- Perform testing with `step-up` user loads to simulate user loads with spikes that are expected to exceed the capacity of the system, and examine how the system recovers when the user load drops.
+**Note:** Throughput should not be determined by the volume of requests per second and the response time alone, but must also consider the rate at which requests fail.
 
-- Many business scenarios might result in an application performing a mixture of synchronous I/O operations together with other forms of processing. Such asymmetric workloads can cause capacity variations in the system. When you are load-testing the system, use a testing profile that simulates the asymmetric workload of the real business environment.
+----------
+
+For comparison purposes with the earlier example, the following table and graph highlights the performance of the asynchronous `GetUserProfileAsync` method in the `AsyncController` controller in the sample application under the same varying loads:
+
+#Users | Requests/sec | Avg Response Time secs | Failed Requests/sec
+-------| -------------| ------------------ | -------------------
+50 | 23.4 | 2.10 | 0
+550 | 195 | 2.75 | 0.83
+1050 | 284 | 3.4 | 1.22
+1550 | 328 | 4.15 | 0.77
+2050 | 332 | 5.38 | 3.93
+2550 | 353 | 6.6 | 11.1
+3050 | 358 | 7.88 | 20.8
+3550 | 356 | 9.35 | 33.5
+4050 | 324 | 14.3 | 46.2
+4550 | 326 | 12.8 | 67.4
+
+![Performance chart for the sample application performing asynchronous I/O operations][async-performance]
+
+Each operation will still take at least 2 seconds (possibly slightly slower than the synchronous version due to the overhead of dispatching the I/O operations to a separate thread and then marshalling the results when the operation completes). However, this time the throughput is more consistent when the system reaches capacity and the error rate is significantly lower (11,143 tests failed out of 176,028 performed; an error rate of 6.33%). This is because ASP.NET threads are not blocked and can accept further requests while existing requests are performing I/O operations asynchronously. 
+
+You can use the following strategy when load-testing a system to detect effects due to synchronous I/O:
+
+1. Perform a load-test with a large workload (many thousands of users). The ASP.NET thread pool only contains approximately 100 threads initially to satisfy requests, so requests that perform synchronous I/O operations will show how a high latency.
+
+2. Perform a pair of load-tests; one with 100 users and the second with 5000 users. Compare the results for response time, throughput, and error rates.
+
+3. Perform testing with *step-up* user loads to simulate workloads with spikes that are expected to exceed the capacity of the system. Examine how the system responds and determine whether it matches the performance profile of a system that performs synchronous or asynchronous I/O operations.
 
 ### Monitoring web server performance
 
@@ -177,7 +202,7 @@ public class AsyncController : ApiController
 }
 ```
 
-For libraries that do not provide asynchronous versions of operations, it may be possible to create asynchronous wrappers around selected synchronous methods. However, you should follow this approach with caution. While this strategy may improve responsiveness on the thread invoking the asynchronous wrapper (which is useful if the thread is handling the user interface), it actually consumes more resources; an additional thread may be created, and there is additional overhead associated with synchronizing the work performed by this thread. Consequently, **this approach might not be scalable and should not be used for server-side code**. For more information, see the article [Should I expose asynchronous wrappers for synchronous methods?][async-wrappers]:
+For libraries that do not provide asynchronous versions of operations, it may be possible to create asynchronous wrappers around selected synchronous methods. However, you should follow this approach with caution. While this strategy may improve responsiveness on the thread invoking the asynchronous wrapper (which is useful if the thread is handling the user interface), it actually consumes more resources; an additional thread may be created, and there is additional overhead associated with synchronizing the work performed by this thread. For more information, see the article [Should I expose asynchronous wrappers for synchronous methods?][async-wrappers]:
 
 **C#**
 
@@ -207,26 +232,7 @@ Console.WriteLine("Work performed while LibraryIOOperation is running asynchrono
 
 ## Consequences of the solution
 
-The system should be able to support more concurrent user requests than before, and as a result be more scalable. This can be determined by performing load testing before and after making any changes to the code and then comparing the results. Repeating the load-testing experiment described earlier but using asynchronous `GetUserProfileAsync` method in the `AsyncController` controller in the sample application yields the following results: 
-
-#Users | Requests/sec | Latency secs
--------| ---------| ------------
-20 | 8 | 2.5
-1000 | 489 | 2.09
-2000 | 950 | 2.13
-3000 | 1389 | 2.17
-4000 | 1732 | 2.32
-5000 | 1871 | 2.68
-6000 | 1887 | 3.19
-7000 | 1890 | 3.71
-
-This time, the latency remains low and does not fluctuate with increased load to the same extent that the synchronous scenario does. Requests are queued as before and dispatched to a thread in the IIS thread pool when one becomes available. However, the IIS thread is not blocked by the operation being performed and once the asynchronous work has started the thread can be released to process the next queued request. For more information, visit [Using Asynchronous Methods in ASP.NET 4.5][AsyncASPNETMethods].
-
-For comparison purposes with the earlier example, the following graph shows the performance profile of a typical web application that uses asynchronous I/O. Notice that response time is less dependent on the user load and remains reasonably level until the point at which the system becomes overloaded. Recovery time when the user load drops is much quicker. 
-
-![Performance chart for a web application performing asynchronous I/O operations][async-performance]
-
-Functionally, the system should remain unchanged. Monitoring the request queue lengths should reveal that requests are retrieved more quickly rather than timing out as they spend less time blocked waiting for an available thread.
+The system should be able to support more concurrent user requests than before, and as a result be more scalable. Functionally, the system should remain unchanged. Performing load-tests and monitoring the request queue lengths should reveal that requests are retrieved more quickly rather than timing out as they spend less time blocked waiting for an available thread.
 
 You should note that improving I/O performance may cause other parts of the system to become bottlenecks. Alleviating the effects of synchronous I/O operations that were previously constraining performance may cause overloading of other parts of the system. For example, unblocking threads could result in an increased volume of concurrent requests to network resources resulting in network connection starvation, or an increased number of concurrent data accesses could result in a data store throttling requests. **Therefore it may be necessary to scale or redsign the I/O resources; increase the number of web servers or partition data stores to help reduce contention.**
 
