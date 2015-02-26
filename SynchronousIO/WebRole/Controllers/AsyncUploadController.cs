@@ -20,7 +20,7 @@ namespace WebRole.Controllers
             CloudStorageAccount storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference("uploadedfiles");
-            await container.CreateIfNotExistsAsync();
+            await container.CreateIfNotExistsAsync().ConfigureAwait(false);
 
             CloudBlockBlob blockBlob = container.GetBlockBlobReference("myblob");
 

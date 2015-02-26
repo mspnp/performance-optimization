@@ -18,8 +18,7 @@ namespace WebRole.Controllers
         /// <returns>A UserProfile instance</returns>
         public UserProfile GetUserProfile()
         {
-            var userProfile = _userProfileService.GetUserProfile();
-            return userProfile;
+            return _userProfileService.GetUserProfile();
         }
     }
 }
