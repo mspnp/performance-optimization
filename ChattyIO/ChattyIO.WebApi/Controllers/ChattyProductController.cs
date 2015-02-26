@@ -12,58 +12,38 @@
     //consider using the Repository pattern instead in a real app.
     public class ChattyProductController : ApiController
     {
-        [HttpGet]
-        [Route("chattyproduct/{categoryId}")]
-        public async Task<ProductCategory> GetProductCategoryAsync(int categoryId)
-        {
-            using (var context = GetContext())
-            {
-                return await context.ProductCategories
-                    .Where((pc) => pc.ProductCategoryId == categoryId)
-                    .SingleOrDefaultAsync();
-            }
-        }
 
-        [HttpGet]
-        [Route("chattyproduct/productsubcategories/{categoryId}")]
-        public async Task<IEnumerable<ProductSubcategory>> GetProductSubCategoriesInCategoryAsync(int categoryId)
-        {
-            using (var context = GetContext())
-            {
-                return await context.ProductSubcategories
-                     .Where((ps) => ps.ProductCategoryId == categoryId)
-                     .ToListAsync();
-            }
-        }
-       
         [HttpGet]
         [Route("chattyproduct/products/{subcategoryId}")]
-        public async Task<IEnumerable<Product>> GetProductsInSubCategoryAsync(int subcategoryId)
+        public async Task<ProductSubcategory> GetProductsInSubCategoryAsync(int subcategoryId)
         {
+            ProductSubcategory productSubcategory = null;
+     
             using (var context = GetContext())
             {
-                return await context.Products
-                    .Where((p) => p.ProductSubcategoryId == subcategoryId)
+               productSubcategory = await context.ProductSubcategories
+                      .Where((psc) => psc.ProductSubcategoryId == subcategoryId)
+                      .SingleOrDefaultAsync();
+                productSubcategory.Product = await context.Products
+                    .Where((p) => subcategoryId == p.ProductSubcategoryId)
                     .ToListAsync();
+
+                foreach (var prod in productSubcategory.Product)
+                {
+                    var productListPriceHistory = await context.ProductListPriceHistory
+                       .Where((pl) => pl.ProductId == prod.ProductId)
+                       .ToListAsync();
+                    prod.ProductListPriceHistory = productListPriceHistory;
+                }
+
             }
+            return productSubcategory;
         }
 
-        [HttpGet]
-        [Route("chattyproduct/productlistpricehistory/{productId}")]
-        public async Task<IEnumerable<ProductListPriceHistory>> GetProductListPriceHistoryAsync(int productId)
-        {
-            using (var context = GetContext())
-            {
-                return await context.ProductListPriceHistory
-                    .Where((plphist) => plphist.ProductId == productId)
-                    .ToListAsync();
-            }
-        }
 
         private AdventureWorksProductContext GetContext()
         {
             var context = new AdventureWorksProductContext();
-            // load eagerly
             context.Configuration.LazyLoadingEnabled = false;
             context.Configuration.ProxyCreationEnabled = false;
             return context;
