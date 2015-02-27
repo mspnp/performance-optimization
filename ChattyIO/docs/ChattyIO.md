@@ -156,7 +156,9 @@ Symptoms of chatty I/O include high latency and low throughput. End-users are li
 
 ### Load-testing the application
 
-Performing load-testing against the `GetProductsInSubCategoryAsync` in the `ChattyProduct` controller in sample application yields the following results:
+The key task in determining the possible causes of poor performance is to examine operations that are running slowly. With this in mind, performing load-testing against suspect areas of functionality can help to establish a baseline, and monitoring how the application runs while executing the load-tests can provide useful insights into how the system might be optimized. 
+
+Running load-tests against the `GetProductsInSubCategoryAsync` in the `ChattyProduct` controller in sample application yields the following results:
 
 ![Key indicators load-test results for the Chatty I/O sample application][key-indicators-chatty-io]
 
@@ -174,11 +176,11 @@ This load test was performed by using a simulated workload of 500 concurrent use
 
 ### Using data access statistics
 
-Examining data access statistics and other information provided by a data store acting as the repository can yield some useful information, such as which queries being repeated most frequently. For example, Windows Azure SQL Database provides access to query statistics using the Query Performance pane in the management portal. This pane shows information about all recently executed queries:
+Examining data access statistics and other information provided by the data store acting as the repository can produce some useful information about the frequency with which the data store is accessed and the data that is requested. Windows Azure SQL Database provides access to query statistics using the Query Performance pane in the management portal. This pane shows information about all recently executed queries:
 
 ![The Query Performance pan in the Windows Azure SQL Database management portal][QueryPerformance1]
 
-The `Run Count` column in the results indicates how frequently each query is run. In this case, the following queries have been executed a significant number of times:
+The `Run Count` column in the results indicates how frequently each query is run. In this case, the following queries have been executed a significant number of times by the load-test:
 
 **SQL**
 ```SQL
@@ -254,7 +256,7 @@ public class ChunkyProductController : ApiController
     ...
 ```
 
-- In the `UserController` example shown earlier, rather than exposing individual properties of User objects through the REST interface, provide a method that retrieves an entire User object within a single request.
+- In the `UserController` example shown earlier, rather than exposing individual properties of `User` objects through the REST interface, provide a method that retrieves an entire User object within a single request.
 
 **C# web API**
 
@@ -353,21 +355,60 @@ You should consider the following points:
 [Link to the related sample][fullDemonstrationOfSolution]
 
 ## <a name="Consequences"></a>Consequences of the solution
+
 The system should spend less time performing I/O, and contention for I/O resources should be decreased. This should manifest itself as an improvement in response time and throughput in an application. Performing load-testing against the Chatty I/O sample application by using the `chunky` API yields the following results:
 
 ![Key indicators load-test results for the Chunky API in the Chatty I/O sample application][key-indicators-chunky-io]
 
-This load test was performed on the same deployment and using the same simulated workload of 500 concurrent users as before. This time the graph shows much lower latency; discounting the errors at the end, each request takes between 7 and 8 seconds on average. A user querying the product catalog to find the details of products in a specified subcategory will now wait for less than 10 seconds to see the results.
+This load-test was performed on the same deployment and using the same simulated workload of 500 concurrent users as before. This time the graph shows much lower latency; discounting the errors at the end, each request takes between 7 and 8 seconds on average. A user querying the product catalog to find the details of products in a specified subcategory will now wait for less than 10 seconds to see the results.
 
-**I AM STILL GENERATING THE STATS AND QUERY FOR THIS FINAL PART. I WILL FILL THEM IN TOMORROW**
-For comparison purposes, examining the query access statistics shows that the following query was run XYZ times. This query is executed in place of the three SELECT statements shown earlier, and returns the combined data for all products and price information in a given subcategory:
+For comparison purposes, examining the query access statistics shows that the following query was run 19945 times by the second load-test. This query is executed in place of the three SELECT statements shown earlier (which accounted for approximately 85000 database requests), and returns the combined data for all products and price information in a given subcategory:
 
 **SQL**
+
 ```SQL
-
-/* Executed XYZ times by the load test */
+/* Executed 19945 times by the load test */
 SELECT 
-
+    [Project2].[ProductSubcategoryID] AS [ProductSubcategoryID], 
+    [Project2].[ProductCategoryID] AS [ProductCategoryID], 
+    [Project2].[Name] AS [Name], 
+    [Project2].[C2] AS [C1], 
+    [Project2].[ProductID] AS [ProductID], 
+    [Project2].[Name1] AS [Name1], 
+    [Project2].[ProductNumber] AS [ProductNumber], 
+    [Project2].[ListPrice] AS [ListPrice], 
+    [Project2].[ProductSubcategoryID1] AS [ProductSubcategoryID1], 
+    [Project2].[C1] AS [C2], 
+    [Project2].[ProductID1] AS [ProductID1], 
+    [Project2].[StartDate] AS [StartDate], 
+    [Project2].[EndDate] AS [EndDate], 
+    [Project2].[ListPrice1] AS [ListPrice1]
+    FROM ( SELECT 
+        [Limit1].[ProductSubcategoryID] AS [ProductSubcategoryID], 
+        [Limit1].[ProductCategoryID] AS [ProductCategoryID], 
+        [Limit1].[Name] AS [Name], 
+        [Join1].[ProductID1] AS [ProductID], 
+        [Join1].[Name] AS [Name1], 
+        [Join1].[ProductNumber] AS [ProductNumber], 
+        [Join1].[ListPrice1] AS [ListPrice], 
+        [Join1].[ProductSubcategoryId] AS [ProductSubcategoryID1], 
+        [Join1].[ProductID2] AS [ProductID1], 
+        [Join1].[StartDate] AS [StartDate], 
+        [Join1].[EndDate] AS [EndDate], 
+        [Join1].[ListPrice2] AS [ListPrice1], 
+        CASE WHEN ([Join1].[ProductID1] IS NULL) THEN CAST(NULL AS int) WHEN ([Join1].[ProductID2] IS NULL) THEN CAST(NULL AS int) ELSE 1 END AS [C1], 
+        CASE WHEN ([Join1].[ProductID1] IS NULL) THEN CAST(NULL AS int) ELSE 1 END AS [C2]
+        FROM   (SELECT TOP (2) 
+            [Extent1].[ProductSubcategoryID] AS [ProductSubcategoryID], 
+            [Extent1].[ProductCategoryID] AS [ProductCategoryID], 
+            [Extent1].[Name] AS [Name]
+            FROM [Production].[ProductSubcategory] AS [Extent1]
+            WHERE [Extent1].[ProductSubcategoryID] = @p__linq__0 ) AS [Limit1]
+        LEFT OUTER JOIN  (SELECT [Extent2].[ProductID] AS [ProductID1], [Extent2].[Name] AS [Name], [Extent2].[ProductNumber] AS [ProductNumber], [Extent2].[ListPrice] AS [ListPrice1], [Extent2].[ProductSubcategoryId] AS [ProductSubcategoryId], [Extent3].[ProductID] AS [ProductID2], [Extent3].[StartDate] AS [StartDate], [Extent3].[EndDate] AS [EndDate], [Extent3].[ListPrice] AS [ListPrice2]
+            FROM  [Production].[Product] AS [Extent2]
+            LEFT OUTER JOIN [Production].[ProductListPriceHistory] AS [Extent3] ON [Extent2].[ProductID] = [Extent3].[ProductID] ) AS [Join1] ON [Limit1].[ProductSubcategoryID] = [Join1].[ProductSubcategoryId]
+    )  AS [Project2]
+    ORDER BY [Project2].[ProductSubcategoryID] ASC, [Project2].[C2] ASC, [Project2].[ProductID] ASC, [Project2].[C1] ASC 
 ```
 
 ## Related resources
