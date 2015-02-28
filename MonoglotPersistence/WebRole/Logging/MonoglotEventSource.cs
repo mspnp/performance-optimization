@@ -42,5 +42,17 @@ namespace WebRole.Logging
             this.WriteEvent(5);
         }
 
+        [Event(6, Message = "Write data start.")]
+        internal void WriteDataStart()
+        {
+            this.WriteEvent(6);
+        }
+
+        [Event(7, Message = "Write data finish, elapsed time ={0}")]
+        internal void WriteDataFinish(long elapsedtime)
+        {
+            this.WriteEvent(7, elapsedtime);
+        }
+
     }
 }
