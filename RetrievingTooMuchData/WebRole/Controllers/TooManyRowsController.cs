@@ -21,16 +21,14 @@ namespace WebRole.Controllers
 
             using(var context = GetContext())
             {
-                //NOTE: as the context we obtained is doing EAGER loading, by loading
-                // all the SalePersons we are also fetching all related collections.
                 var salesPersons = await context.SalesPersons
-                                                .Include( sp => sp.SalesOrderHeaders)
+                                                .Include( sp => sp.SalesOrderHeaders) //This include here forces eager loading.
                                                 .ToListAsync()
                                                 .ConfigureAwait(false);
 
                 foreach (var salesPerson in salesPersons)
                 {
-                    var orderHeaders = salesPerson.SalesOrderHeaders.ToList();
+                    var orderHeaders = salesPerson.SalesOrderHeaders;
 
                     total += orderHeaders.Sum(x => x.TotalDue);
                 }
@@ -59,17 +57,6 @@ namespace WebRole.Controllers
         {
             var connectionString = CloudConfigurationManager.GetSetting("AdventureWorksContext");
             return new AdventureWorksContext(connectionString);
-        }
-
-        private AdventureWorksContext GetEagerLoadingContext()
-        {
-            var connectionString = CloudConfigurationManager.GetSetting("AdventureWorksContext");
-            var context = new AdventureWorksContext(connectionString);
-            // load eagerly
-            context.Configuration.LazyLoadingEnabled = false;
-            context.Configuration.ProxyCreationEnabled = false;
-
-            return context;
         }
     }
 }

@@ -9,6 +9,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRole", "WebRole\WebRole.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrievingTooMuchData.DataAccess", "RetrievingTooMuchData.DataAccess\RetrievingTooMuchData.DataAccess.csproj", "{35AA1C25-E5CE-456B-A88C-6E8A69BECB2E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrievingTooMuchData.LoadTest", "RetrievingTooMuchData.LoadTest\RetrievingTooMuchData.LoadTest.csproj", "{BF2276C6-5CD4-4062-870A-935ED4874B49}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CEF41986-D5A6-4D45-BB10-FF083B85316D}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +34,10 @@ Global
 		{35AA1C25-E5CE-456B-A88C-6E8A69BECB2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35AA1C25-E5CE-456B-A88C-6E8A69BECB2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35AA1C25-E5CE-456B-A88C-6E8A69BECB2E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF2276C6-5CD4-4062-870A-935ED4874B49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF2276C6-5CD4-4062-870A-935ED4874B49}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF2276C6-5CD4-4062-870A-935ED4874B49}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF2276C6-5CD4-4062-870A-935ED4874B49}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
