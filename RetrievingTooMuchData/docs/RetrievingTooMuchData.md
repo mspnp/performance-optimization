@@ -343,7 +343,15 @@ Examining the queries frequently performed against a data source, and the way in
 
 Depending on the nature of the data store, you may be able to exploit the features that it implements to efficiently store and retrieve information. For example, if an application requires an aggregation over a number of items (such as a count or sum operation), SQL databases typically provide aggregate functions that can perform these operations without requiring that an application fetches all of the data and implement the calculation itself. In other types of data store, it may be possible to maintain this information separately within the store as records are added, updated, or removed, again eliminating the requirement of an application to fetch a potentially large amount of data and perform the calculation itself.
 
-If you observe requests that retrieve a large number of fields, examine the underlying source code to determine whether all of these fields are actually necessary. Sometimes these requests are the results of injudicious *SELECT ** operations, or misplaced `.Include` operations in LINQ queries. Similarly, requests that retrieve a large number of entities (rows in a SQL Server database) may be indicative of an application that is not filtering data correctly. Verify that all of these entities are actually necessary, and implement database-side filtering if possible (for example, using a *WHERE* clause in an SQL statement.)
+If you observe requests that retrieve a large number of fields, examine the underlying source code to determine whether all of these fields are actually necessary. Sometimes these requests are the results of injudicious *SELECT ** operations, or misplaced `.Include` operations in LINQ queries. Similarly, requests that retrieve a large number of entities (rows in a SQL Server database) may be indicative of an application that is not filtering data correctly. Verify that all of these entities are actually necessary, and implement database-side filtering if possible (for example, using a *WHERE* clause in an SQL statement.) For operations that have to support unbounded queries, the system should implement pagination and only fetch a limited number (a *page*) of entities at a time.
+
+
+----------
+
+**Note:** If analysis shows that none of these situations apply, then retrieving too much data is unlikely to be the cause of poor performance and you should look elsewhere.
+
+----------
+
 
 ## How to correct the problem
 
