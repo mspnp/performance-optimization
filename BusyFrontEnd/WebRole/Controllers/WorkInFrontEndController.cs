@@ -8,12 +8,13 @@ namespace WebRole.Controllers
 {
     public class WorkInFrontEndController : ApiController
     {
-        public void Post(double number)
+        public void Get(double number)
         {
             new Thread(() =>
             {
+                Trace.WriteLine("Number: " + number);
                 var result = Calculator.RunLongComputation(number);
-                Trace.WriteLine("Result: {0}", result.ToString());
+                Trace.WriteLine("Result: " + result);
             }).Start();
             
         }

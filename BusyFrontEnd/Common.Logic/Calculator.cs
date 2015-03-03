@@ -14,7 +14,10 @@ namespace Common.Logic
             {
                 for (int j = 0; j < UPPER; j++)
                 {
-                    result += Math.Exp(number);
+                    for (int k = 0; k < UPPER; k++)
+                    {
+                        result += Math.Exp(result);                        
+                    }
                 }
             }
 

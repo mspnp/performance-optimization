@@ -9,6 +9,9 @@
   </Role>
   <Role name="WebRole">
     <Instances count="1" />
-    <ConfigurationSettings />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.ServiceBus.ConnectionString" value="[Your Service Bus connection string goes here]" />
+      <Setting name="Microsoft.ServiceBus.QueueName" value="RunLongComputation" />
+    </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>

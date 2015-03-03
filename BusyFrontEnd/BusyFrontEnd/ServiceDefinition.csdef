@@ -7,6 +7,10 @@
     </ConfigurationSettings>
   </WorkerRole>
   <WebRole name="WebRole" vmsize="Small">
+    <ConfigurationSettings>
+      <Setting name="Microsoft.ServiceBus.ConnectionString" />
+      <Setting name="Microsoft.ServiceBus.QueueName" />
+    </ConfigurationSettings>
     <Sites>
       <Site name="Web">
         <Bindings>

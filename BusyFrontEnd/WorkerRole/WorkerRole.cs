@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,11 +12,8 @@ namespace WorkerRole
     public class WorkerRole : RoleEntryPoint
     {
         private const string AppSettingKeyServiceBusConnectionString = "Microsoft.ServiceBus.ConnectionString";
-
         private const string AppSettingKeyServiceBusQueueName = "Microsoft.ServiceBus.QueueName";
 
-        // QueueClient is thread-safe. Recommended that you cache 
-        // rather than recreating it on every request
         private QueueClient _queueClient;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEvent _completedEvent = new ManualResetEvent(false);
@@ -47,7 +43,6 @@ namespace WorkerRole
                         Trace.WriteLine("Processing Service Bus message: " + receivedMessage.SequenceNumber.ToString());
 
                         var number = receivedMessage.GetBody<double>();
-
                         Trace.WriteLine("Message: " + number);
 
                         var result = Calculator.RunLongComputation(number);
