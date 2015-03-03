@@ -4,7 +4,7 @@ using System.Linq;
 using System.Web;
 using System.Web.Http;
 using System.Web.Routing;
-using WebRole.Logging;
+using WebRole.Controllers;
 
 namespace WebRole
 {
@@ -13,11 +13,15 @@ namespace WebRole
         protected void Application_Start()
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
-            Logging.Logging.Start();
+            MonoglotController.ClearTable();
+            MonoglotController.PopulateTable();
+            PoliglotController.ClearTable();
+            PoliglotController.PopulateTable();
+            Logging.Start();
         }
         protected void Application_End()
         {
-            Logging.Logging.End();
+            Logging.End();
         }
 
     }

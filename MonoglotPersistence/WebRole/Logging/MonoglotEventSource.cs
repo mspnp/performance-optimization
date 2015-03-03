@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Diagnostics.Tracing;
-namespace WebRole.Logging
+namespace WebRole
 {
     [EventSource(Name = "Monoglot")]
     public class MonoglotEventSource : EventSource

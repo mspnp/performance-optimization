@@ -8,7 +8,7 @@ using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Web;
 
-namespace WebRole.Logging
+namespace WebRole
 {
     public class Logging
     {
@@ -35,7 +35,8 @@ namespace WebRole.Logging
             string azureStorageConnectionString2 = ConfigurationManager.ConnectionStrings["azureStorageConnectionString2"].ConnectionString;
             listener2 = new ObservableEventListener();
             listener2.EnableEvents(PersistenceErrorEventSource.Log, EventLevel.Informational);
-            subscription2 = listener2.LogToWindowsAzureTable("Monolithic Anti Pattern 1", azureStorageConnectionString2);        
+            listener2.EnableEvents(SemanticLoggingEventSource.Log, EventLevel.Informational);
+            subscription2 = listener2.LogToWindowsAzureTable("Monolithic Anti Pattern 1", azureStorageConnectionString2);
         }
         public static void End()
         {

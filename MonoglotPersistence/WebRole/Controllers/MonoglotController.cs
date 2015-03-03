@@ -7,14 +7,13 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using WebRole.Logging;
+using WebRole;
 
 namespace WebRole.Controllers
 {
     public class MonoglotController : ApiController
     {
         private string sqlServerConectionString = ConfigurationManager.ConnectionStrings["sqlServerConectionString"].ConnectionString;
-
         public string Get(int id)
         {
             string result = "";
@@ -22,7 +21,7 @@ namespace WebRole.Controllers
             {
                 MonoglotEventSource.Log.Startup();
                 MonoglotEventSource.Log.PageStart(id, this.Url.Request.RequestUri.AbsoluteUri.ToString());
-                string queryString = "SELECT ProductID, Name from Production.Product WHERE ProductID=@productId";
+                string queryString = "SELECT Comment from Monoglot WHERE ID=@inputId";
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
                 using (SqlConnection connection = new SqlConnection(sqlServerConectionString))
@@ -30,11 +29,11 @@ namespace WebRole.Controllers
                     SqlCommand command = new SqlCommand(queryString, connection);
                     MonoglotEventSource.Log.ReadDataStart();
                     connection.Open();
-                    command.Parameters.AddWithValue("@productId", id);
+                    command.Parameters.AddWithValue("@inputId", id);
                     SqlDataReader reader = command.ExecuteReader();
                     if (reader.Read())
                     {
-                        result = String.Format("ProductID={0}, Name={1}", reader[0], reader[1]);
+                        result = String.Format("Comment = {0}", reader[0]);
                     }
                     reader.Close();
                 }
@@ -51,25 +50,21 @@ namespace WebRole.Controllers
             }
             return result;
         }
-        public void Put([FromBody]string value)
+        public void Post([FromBody]string value)
         {
             try
             {
-                int addressID = getRandomAddresID();
                 MonoglotEventSource.Log.Startup();
-                MonoglotEventSource.Log.PageStart(addressID, this.Url.Request.RequestUri.AbsoluteUri.ToString());
-                string queryString = "UPDATE Person.Address SET AddressLine1 = @addressLine1 WHERE AddressID =@addressID";
+                MonoglotEventSource.Log.PageStart(1, this.Url.Request.RequestUri.AbsoluteUri.ToString());
+                string queryString = "INSERT INTO dbo.Monoglot VALUES (@comment)";
                 Stopwatch watch = new Stopwatch();
                 watch.Start();
                 using (SqlConnection connection = new SqlConnection(sqlServerConectionString))
                 {
-                    Random rand = new Random();
-                    int randNumber = rand.Next(10000, 99999);
-                    string addressLine1 = randNumber.ToString() + " " + value;
                     SqlCommand command = new SqlCommand(queryString, connection);
+                    string comment = value + "_" + new Random().Next(10000, 99999).ToString();
                     connection.Open();
-                    command.Parameters.AddWithValue("@addressID", addressID);
-                    command.Parameters.AddWithValue("@addressLine1", addressLine1);
+                    command.Parameters.AddWithValue("@comment", comment);
                     MonoglotEventSource.Log.WriteDataStart();
                     command.ExecuteNonQuery();
                 }
@@ -85,30 +80,41 @@ namespace WebRole.Controllers
                 throw new HttpResponseException(HttpStatusCode.InternalServerError);
             }
         }
-        private int getRandomAddresID()
+
+        public static void ClearTable()
         {
-            int addressID = 1;
-            Stopwatch watch = new Stopwatch();
-            watch.Start();
+            string sqlServerConectionString = ConfigurationManager.ConnectionStrings["sqlServerConectionString"].ConnectionString;
             using (SqlConnection connection = new SqlConnection(sqlServerConectionString))
             {
-                MonoglotEventSource.Log.ReadDataStart();
-                // SELECT A RANDOME ROW 
-                string queryString = "SELECT TOP 1 AddressID from Person.Address ORDER BY NEWID()";
-                SqlCommand command = new SqlCommand(queryString, connection);
-                connection.Open();
-                SqlDataReader reader = command.ExecuteReader();
-                if (reader.Read())
-                {
-                    addressID = (int)reader[0];
-                }
-                reader.Close();
-            }
-            watch.Stop();
-            long elapsed = watch.ElapsedMilliseconds;
-            MonoglotEventSource.Log.ReadDataFinish(elapsed);
-            return addressID;
-        }
+                String queryString = null;
+                SqlCommand command = null;
 
+                queryString = "IF OBJECT_ID('dbo.Monoglot', 'U') IS NOT NULL DROP TABLE dbo.Monoglot";
+                command = new SqlCommand(queryString, connection);
+                connection.Open();
+                command.ExecuteNonQuery();
+
+                queryString = "CREATE TABLE Monoglot (ID int IDENTITY(1,1) PRIMARY KEY,Comment varchar(255) NOT NULL)";
+                command = new SqlCommand(queryString, connection);
+                command.ExecuteNonQuery();
+            }
+        }
+        public static void PopulateTable()
+        {
+            string sqlServerConectionString = ConfigurationManager.ConnectionStrings["sqlServerConectionString"].ConnectionString;
+            using (SqlConnection connection = new SqlConnection(sqlServerConectionString))
+            {
+                SqlCommand command = null;
+                string queryString = "INSERT INTO dbo.Monoglot VALUES (@comment)";
+
+                connection.Open();
+                for (int i = 1; i < 100; i++)
+                {
+                    command = new SqlCommand(queryString, connection);
+                    command.Parameters.AddWithValue("@comment", "Comment " + i.ToString());
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
     }
 }
