@@ -21,10 +21,10 @@ namespace WebRole
         private static SinkSubscription<WindowsAzureTableSink> subscription2;
         public static void Start()
         {
-            string sqlServerConectionString = ConfigurationManager.ConnectionStrings["sqlServerConectionString"].ConnectionString;
+            string sqlServerConnectionString = ConfigurationManager.ConnectionStrings["sqlServerConnectionString"].ConnectionString;
             listener0 = new ObservableEventListener();
             listener0.EnableEvents(MonoglotEventSource.Log, EventLevel.Informational);
-            subscription0 = listener0.LogToSqlDatabase("Monolithic Anti Pattern", sqlServerConectionString);
+            subscription0 = listener0.LogToSqlDatabase("Monolithic Anti Pattern", sqlServerConnectionString);
 
             string azureStorageConnectionString1 = ConfigurationManager.ConnectionStrings["azureStorageConnectionString1"].ConnectionString;
             listener1 = new ObservableEventListener();

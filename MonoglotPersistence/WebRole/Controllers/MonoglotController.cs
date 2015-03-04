@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace WebRole.Controllers
 {
     public class MonoglotController : ApiController
     {
-        private string sqlServerConectionString = ConfigurationManager.ConnectionStrings["sqlServerConectionString"].ConnectionString;
+        private string sqlServerConnectionString = ConfigurationManager.ConnectionStrings["sqlServerConnectionString"].ConnectionString;
         public string Get(int id)
         {
             string result = "";
@@ -21,25 +22,26 @@ namespace WebRole.Controllers
             {
                 MonoglotEventSource.Log.Startup();
                 MonoglotEventSource.Log.PageStart(id, this.Url.Request.RequestUri.AbsoluteUri.ToString());
-                string queryString = "SELECT Comment from Monoglot WHERE ID=@inputId";
-                Stopwatch watch = new Stopwatch();
-                watch.Start();
-                using (SqlConnection connection = new SqlConnection(sqlServerConectionString))
+                string queryString = "SELECT Description FROM Production.ProductDescription WHERE ProductDescriptionID=@inputId";
+                using (SqlConnection cn = new SqlConnection(sqlServerConnectionString))
                 {
-                    SqlCommand command = new SqlCommand(queryString, connection);
-                    MonoglotEventSource.Log.ReadDataStart();
-                    connection.Open();
-                    command.Parameters.AddWithValue("@inputId", id);
-                    SqlDataReader reader = command.ExecuteReader();
-                    if (reader.Read())
+                    using (SqlCommand cmd = new SqlCommand(queryString, cn))
                     {
-                        result = String.Format("Comment = {0}", reader[0]);
+                        cmd.Parameters.AddWithValue("@inputId", id);
+                        MonoglotEventSource.Log.ReadDataStart();
+                        Stopwatch watch = new Stopwatch();
+                        watch.Start();
+                        cn.Open();
+                        SqlDataReader reader = cmd.ExecuteReader();
+                        if (reader.Read())
+                        {
+                            result = String.Format("Description = {0}", reader[0]);
+                        }
+                        reader.Close();
+                        watch.Stop();
+                        MonoglotEventSource.Log.ReadDataFinish(watch.ElapsedMilliseconds);
                     }
-                    reader.Close();
                 }
-                watch.Stop();
-                long elapsed = watch.ElapsedMilliseconds;
-                MonoglotEventSource.Log.ReadDataFinish(elapsed);
                 MonoglotEventSource.Log.PageEnd();
             }
             catch (Exception ex)
@@ -56,21 +58,39 @@ namespace WebRole.Controllers
             {
                 MonoglotEventSource.Log.Startup();
                 MonoglotEventSource.Log.PageStart(1, this.Url.Request.RequestUri.AbsoluteUri.ToString());
-                string queryString = "INSERT INTO dbo.Monoglot VALUES (@comment)";
-                Stopwatch watch = new Stopwatch();
-                watch.Start();
-                using (SqlConnection connection = new SqlConnection(sqlServerConectionString))
+                string queryString =
+                    "INSERT INTO Purchasing.PurchaseOrderHeader(" +
+                    " RevisionNumber, Status, EmployeeID, VendorID, ShipMethodID, OrderDate, ShipDate, SubTotal, TaxAmt, Freight, ModifiedDate)" +
+                    " VALUES(" +
+                    "@RevisionNumber,@Status,@EmployeeID,@VendorID,@ShipMethodID,@OrderDate,@ShipDate,@SubTotal,@TaxAmt,@Freight,@ModifiedDate)";
+                var dt = DateTime.Now;
+                using (SqlConnection cn = new SqlConnection(sqlServerConnectionString))
                 {
-                    SqlCommand command = new SqlCommand(queryString, connection);
-                    string comment = value + "_" + new Random().Next(10000, 99999).ToString();
-                    connection.Open();
-                    command.Parameters.AddWithValue("@comment", comment);
-                    MonoglotEventSource.Log.WriteDataStart();
-                    command.ExecuteNonQuery();
+                    using (SqlCommand cmd = new SqlCommand(queryString, cn))
+                    {
+                        MonoglotEventSource.Log.WriteDataStart();
+
+                        cmd.Parameters.Add("@RevisionNumber", SqlDbType.TinyInt).Value = 1;
+                        cmd.Parameters.Add("@Status", SqlDbType.TinyInt).Value = 4;
+                        cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = 258;
+                        cmd.Parameters.Add("@VendorID", SqlDbType.Int).Value = 1580;
+                        cmd.Parameters.Add("@ShipMethodID", SqlDbType.Int).Value = 3;
+                        cmd.Parameters.Add("@OrderDate", SqlDbType.DateTime).Value = dt;
+                        cmd.Parameters.Add("@ShipDate", SqlDbType.DateTime).Value = dt;
+                        cmd.Parameters.Add("@SubTotal", SqlDbType.Money).Value = 123.40;
+                        cmd.Parameters.Add("@TaxAmt", SqlDbType.Money).Value = 12.34;
+                        cmd.Parameters.Add("@Freight", SqlDbType.Money).Value = 5.76;
+                        cmd.Parameters.Add("@ModifiedDate", SqlDbType.DateTime).Value = dt;
+
+                        Stopwatch watch = new Stopwatch();
+                        watch.Start();
+                        cn.Open();
+                        cmd.ExecuteNonQuery();
+                        watch.Stop();
+                        MonoglotEventSource.Log.WriteDataFinish(watch.ElapsedMilliseconds);
+                    }
                 }
-                watch.Stop();
-                long elapsed = watch.ElapsedMilliseconds;
-                MonoglotEventSource.Log.WriteDataFinish(elapsed);
+
                 MonoglotEventSource.Log.PageEnd();
             }
             catch (Exception ex)
@@ -78,42 +98,6 @@ namespace WebRole.Controllers
                 //SQL Server Store is probably not available, log to table storage
                 PersistenceErrorEventSource.Log.Failure(ex.Message);
                 throw new HttpResponseException(HttpStatusCode.InternalServerError);
-            }
-        }
-
-        public static void ClearTable()
-        {
-            string sqlServerConectionString = ConfigurationManager.ConnectionStrings["sqlServerConectionString"].ConnectionString;
-            using (SqlConnection connection = new SqlConnection(sqlServerConectionString))
-            {
-                String queryString = null;
-                SqlCommand command = null;
-
-                queryString = "IF OBJECT_ID('dbo.Monoglot', 'U') IS NOT NULL DROP TABLE dbo.Monoglot";
-                command = new SqlCommand(queryString, connection);
-                connection.Open();
-                command.ExecuteNonQuery();
-
-                queryString = "CREATE TABLE Monoglot (ID int IDENTITY(1,1) PRIMARY KEY,Comment varchar(255) NOT NULL)";
-                command = new SqlCommand(queryString, connection);
-                command.ExecuteNonQuery();
-            }
-        }
-        public static void PopulateTable()
-        {
-            string sqlServerConectionString = ConfigurationManager.ConnectionStrings["sqlServerConectionString"].ConnectionString;
-            using (SqlConnection connection = new SqlConnection(sqlServerConectionString))
-            {
-                SqlCommand command = null;
-                string queryString = "INSERT INTO dbo.Monoglot VALUES (@comment)";
-
-                connection.Open();
-                for (int i = 1; i < 100; i++)
-                {
-                    command = new SqlCommand(queryString, connection);
-                    command.Parameters.AddWithValue("@comment", "Comment " + i.ToString());
-                    command.ExecuteNonQuery();
-                }
             }
         }
     }
