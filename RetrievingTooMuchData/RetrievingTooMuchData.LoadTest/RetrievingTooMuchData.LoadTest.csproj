@@ -61,23 +61,29 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="WrongSamplesLoadTest.loadtest">
+    <None Include="AggregateOnDatabase.loadtest">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="RightSamplesLoadTest.loadtest">
+    <None Include="ProjectRequiredFields.loadtest">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Include="toomanyrows_sales_total_aggregate_on_database.webtest">
+    <None Include="ProjectAllFields.loadtest">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="AggregateOnClient.loadtest">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="unnecessaryrows_sales_total_aggregate_on_database.webtest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
-    <None Include="toomanyfields_products_project_all_fields.webtest">
+    <None Include="unnecessaryfields_products_project_all_fields.webtest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="toomanyfields_products_project_only_required_fields.webtest">
+    <None Include="unnecessaryfields_products_project_only_required_fields.webtest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="toomanyrows_sales_total_aggregate_on_client.webtest">
+    <None Include="unnecessaryrows_sales_total_aggregate_on_client.webtest">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
