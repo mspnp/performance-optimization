@@ -58,13 +58,6 @@
     <Folder Include="Profiles" />
     <Folder Include="WebRoleContent\" />
   </ItemGroup>
-  <ItemGroup>
-    <DiagnosticsConfiguration Include="WorkerRoleContent\diagnostics.wadcfgx" />
-    <DiagnosticsConfiguration Include="WebRoleContent\diagnostics.wadcfgx" />
-  </ItemGroup>
-  <ItemGroup>
-    <PublishProfile Include="Profiles\bgprocperfProduction.azurePubxml" />
-  </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>
     <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
