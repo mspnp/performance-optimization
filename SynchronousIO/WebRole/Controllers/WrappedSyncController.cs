@@ -20,10 +20,9 @@ namespace WebRole.Controllers
         /// new threads will need to be created.
         /// </summary>
         /// <returns>A UserProfile instance</returns>
-        public async Task<UserProfile> GetUserProfileAsync()
+        public Task<UserProfile> GetUserProfileAsync()
         {
-            var userProfile = await _userProfileService.GetUserProfileWrappedAsync();
-            return userProfile;
+            return _userProfileService.GetUserProfileWrappedAsync();
         }
     }
 }
