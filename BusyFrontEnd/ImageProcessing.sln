@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.22512.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{07872CE1-5E36-448E-96D8-0A4CBACE9286}"
 	ProjectSection(SolutionItems) = preProject
@@ -9,6 +9,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{07872C
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4CA759F3-E971-46B3-A547-EA8166016DAA}"
+	ProjectSection(SolutionItems) = preProject
+		Local.testsettings = Local.testsettings
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Logic", "Common.Logic\Common.Logic.csproj", "{1CF85679-FFD3-453D-83C6-D2FB004D4FE6}"
 EndProject
@@ -17,6 +20,8 @@ EndProject
 Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "ImageProcessingService", "ImageProcessingService\ImageProcessingService.ccproj", "{88B57ED3-2DDC-4E94-A2A2-DF44141F3364}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProcessing", "ImageProcessing\ImageProcessing.csproj", "{F8575F6A-E570-4D4C-A49B-BBA974B34A4B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProcessingLoadTest", "ImageProcessingLoadTest\ImageProcessingLoadTest.csproj", "{4A1C9649-4589-4B3E-85DE-A0B0CAFB74B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,6 +45,10 @@ Global
 		{F8575F6A-E570-4D4C-A49B-BBA974B34A4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F8575F6A-E570-4D4C-A49B-BBA974B34A4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F8575F6A-E570-4D4C-A49B-BBA974B34A4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4A1C9649-4589-4B3E-85DE-A0B0CAFB74B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4A1C9649-4589-4B3E-85DE-A0B0CAFB74B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4A1C9649-4589-4B3E-85DE-A0B0CAFB74B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4A1C9649-4589-4B3E-85DE-A0B0CAFB74B4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

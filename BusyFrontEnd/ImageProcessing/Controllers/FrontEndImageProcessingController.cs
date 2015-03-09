@@ -4,19 +4,31 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Net;
 using System.Threading;
+using Microsoft.ApplicationInsights;
 
 namespace ImageProcessing.Controllers
 {
     [RoutePrefix("frontendimageprocessing")]
     public class FrontEndImageProcessingController : ApiController
     {
+        private TelemetryClient telemetry = new TelemetryClient();
+        
         [Route("images")]
         [HttpPost]
         public async Task<HttpResponseMessage> Post()
         {
-            // Logic to upload an image
-            Task.Delay(2000);
-            return Request.CreateResponse(HttpStatusCode.OK);
+            try
+            {                
+                // Logic to upload an image
+                Thread.SpinWait(Int32.MaxValue / 1000);
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                telemetry.TrackException(ex);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
         }
 
         [Route("processimage")]
@@ -25,10 +37,17 @@ namespace ImageProcessing.Controllers
         {
             new Thread(() =>
             {
-                // Image processing logic
-                Thread.SpinWait(Int32.MaxValue);
-                Thread.SpinWait(Int32.MaxValue);
-                Thread.SpinWait(Int32.MaxValue);
+                try
+                {
+                    // Image processing logic
+                    Thread.SpinWait(Int32.MaxValue);
+                    Thread.SpinWait(Int32.MaxValue);
+
+                }
+                catch (Exception ex)
+                {
+                    telemetry.TrackException(ex);
+                }
             }).Start();
 
             return Request.CreateResponse(HttpStatusCode.Accepted);
@@ -38,18 +57,36 @@ namespace ImageProcessing.Controllers
         [HttpGet]
         public bool IsImageProcessingComplete(int imageID)
         {
-            // Poll to see whether processing of the specified image has finished
-            Task.Delay(1000);
-            return new Random().Next(100) % 5 == 0 ? true : false;
+            try
+            {
+                // Poll to see whether processing of the specified image has finished
+                Thread.SpinWait(Int32.MaxValue / 2000);
+                
+                return new Random().Next(100) % 5 == 0 ? true : false;
+            }
+            catch (Exception ex)
+            {
+                telemetry.TrackException(ex);
+                return true;
+            }
         }
 
         [Route("images/{imageID}")]
         [HttpGet]
         public HttpResponseMessage Get(int imageID)
         {
-            // Logic to retrieve the processed image
-            Task.Delay(2000);
-            return Request.CreateResponse(HttpStatusCode.OK);
+            try
+            {
+                // Logic to retrieve the processed image
+                Thread.SpinWait(Int32.MaxValue / 1000);
+
+                return Request.CreateResponse(HttpStatusCode.OK);
+            }
+            catch (Exception ex)
+            {
+                telemetry.TrackException(ex);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
         }
     }
 }

@@ -60,11 +60,8 @@
     <Folder Include="Profiles" />
   </ItemGroup>
   <ItemGroup>
-    <DiagnosticsConfiguration Include="ImageProcessingContent\diagnostics.wadcfgx" />
-    <DiagnosticsConfiguration Include="ImageProcessorContent\diagnostics.wadcfgx" />
-  </ItemGroup>
-  <ItemGroup>
     <PublishProfile Include="Profiles\cmbusyfrontendProduction.azurePubxml" />
+    <PublishProfile Include="Profiles\cmbusyfrontendProduction1.azurePubxml" />
   </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>

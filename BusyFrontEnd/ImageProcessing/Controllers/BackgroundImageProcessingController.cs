@@ -31,7 +31,7 @@ namespace ImageProcessing.Controllers
         public async Task<HttpResponseMessage> Post()
         {
             // Logic to upload an image
-            Thread.Sleep(2000);
+            Thread.SpinWait(Int32.MaxValue / 1000);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 
@@ -48,7 +48,7 @@ namespace ImageProcessing.Controllers
         public bool IsImageProcessingComplete(int imageID)
         {
             // Poll to see whether processing of the specified image has finished
-            Thread.Sleep(1000);
+            Thread.SpinWait(Int32.MaxValue / 2000);
             return new Random().Next(100) % 5 == 0 ? true : false;
         }
 
@@ -57,7 +57,7 @@ namespace ImageProcessing.Controllers
         public HttpResponseMessage Get(int imageID)
         {
             // Logic to retrieve the processed image
-            Thread.Sleep(2000);
+            Thread.SpinWait(Int32.MaxValue / 1000);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
     }
