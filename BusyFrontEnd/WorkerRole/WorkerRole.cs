@@ -6,6 +6,7 @@ using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using ServiceBusQueueHandling;
+using System;
 
 namespace WorkerRole
 {
@@ -43,7 +44,7 @@ namespace WorkerRole
                         Trace.WriteLine("Processing Service Bus message: " + receivedMessage.SequenceNumber.ToString());
 
                         //Simulate processing of message
-                        Thread.SpinWait(10000);
+                        Thread.SpinWait(Int32.MaxValue / 1000);
 
                         await receivedMessage.CompleteAsync();
                     }
