@@ -10,7 +10,7 @@ namespace CachingDemo.Data
     {
         private static ConnectionMultiplexer connection;
 
-        private static double defaultExpirationTimeInMinutes = 5.0d;
+        private const double DefaultExpirationTimeInMinutes = 5.0d;
 
         private static ConnectionMultiplexer Connection
         {
@@ -27,7 +27,7 @@ namespace CachingDemo.Data
 
         public static async Task<T> GetAsync<T>(string key, Func<Task<T>> loadCache)
         {
-            return await GetAsync<T>(key, loadCache, defaultExpirationTimeInMinutes)
+            return await GetAsync<T>(key, loadCache, DefaultExpirationTimeInMinutes)
                 .ConfigureAwait(false);
         }
 
