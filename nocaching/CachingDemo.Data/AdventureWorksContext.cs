@@ -1,7 +1,7 @@
 ﻿using System.Data.Entity;
+using System.Data.Entity.SqlServer;
 using CachingDemo.Data.Models;
 using Microsoft.WindowsAzure;
-using System.Data.Entity.SqlServer;
 
 namespace CachingDemo.Data
 {

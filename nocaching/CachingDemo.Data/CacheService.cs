@@ -1,11 +1,8 @@
-﻿using Microsoft.WindowsAzure;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.WindowsAzure;
 using Newtonsoft.Json;
 using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CachingDemo.Data
 {
@@ -19,18 +16,18 @@ namespace CachingDemo.Data
         {
             get
             {
-                if ((CacheService.connection == null) || (!CacheService.connection.IsConnected))
+                if ((connection == null) || (!connection.IsConnected))
                 {
-                    CacheService.connection = ConnectionMultiplexer.Connect(CloudConfigurationManager.GetSetting("RedisConfiguration"));
+                    connection = ConnectionMultiplexer.Connect(CloudConfigurationManager.GetSetting("RedisConfiguration"));
                 }
 
-                return CacheService.connection;
+                return connection;
             }
         }
 
         public static async Task<T> GetAsync<T>(string key, Func<Task<T>> loadCache)
         {
-            return await CacheService.GetAsync<T>(key, loadCache, CacheService.defaultExpirationTimeInMinutes)
+            return await GetAsync<T>(key, loadCache, defaultExpirationTimeInMinutes)
                 .ConfigureAwait(false);
         }
 
@@ -41,8 +38,8 @@ namespace CachingDemo.Data
                 throw new ArgumentException("key cannot be null, empty, or only whitespace.");
             }
 
-            IDatabase cache = CacheService.Connection.GetDatabase();
-            T value = await CacheService.GetAsync<T>(cache, key)
+            IDatabase cache = Connection.GetDatabase();
+            T value = await GetAsync<T>(cache, key)
                 .ConfigureAwait(false);
             if (value == null)
             {
@@ -50,7 +47,7 @@ namespace CachingDemo.Data
                     .ConfigureAwait(false);
                 if (value != null)
                 {
-                    await CacheService.SetAsync(cache, key, value, expirationTimeInMinutes)
+                    await SetAsync(cache, key, value, expirationTimeInMinutes)
                         .ConfigureAwait(false);
                 }
             }
