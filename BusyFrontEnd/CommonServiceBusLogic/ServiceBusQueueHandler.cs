@@ -7,11 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Common.Logic
+namespace CommonServiceBusLogic
 {
     public class ServiceBusQueueHandler
     {
         private static NamespaceManager _namespaceManager;
+
         public static async Task<QueueClient> GetQueueClientAsync(string sbConnectionString, string queueName)
         {
             _namespaceManager = NamespaceManager.CreateFromConnectionString(sbConnectionString);

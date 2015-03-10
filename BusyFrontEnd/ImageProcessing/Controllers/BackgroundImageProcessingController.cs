@@ -6,12 +6,12 @@ using System.Net;
 using System.Threading;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure;
-using Common.Logic;
+using CommonServiceBusLogic;
 
 namespace ImageProcessing.Controllers
 {
     [RoutePrefix("backgroundimageprocessing")]
-    public class BackgroundProcessingController : ApiController
+    public class BackgroundImageProcessingController : ApiController
     {
         private const string ServiceBusConnectionString = "Microsoft.ServiceBus.ConnectionString";
         private const string AppSettingKeyServiceBusQueueName = "Microsoft.ServiceBus.QueueName";
@@ -19,7 +19,7 @@ namespace ImageProcessing.Controllers
         private readonly QueueClient QueueClient;
         private readonly string QueueName;
 
-        public BackgroundProcessingController()
+        public BackgroundImageProcessingController()
         {
             var serviceBusConnectionString = CloudConfigurationManager.GetSetting(ServiceBusConnectionString);
             QueueName = CloudConfigurationManager.GetSetting(AppSettingKeyServiceBusQueueName);
@@ -39,7 +39,7 @@ namespace ImageProcessing.Controllers
         [HttpPost]
         public HttpResponseMessage ProcessImage()
         {
-            ServiceBusQueueHandler.AddWorkLoadToQueueAsync(QueueClient, QueueName, "Image information as a string");
+            ServiceBusQueueHandler.AddWorkLoadToQueueAsync(QueueClient, QueueName, "Image information as a string").Wait();
             return Request.CreateResponse(HttpStatusCode.Accepted);
         }
 

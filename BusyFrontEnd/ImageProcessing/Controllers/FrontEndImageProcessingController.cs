@@ -4,15 +4,12 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Net;
 using System.Threading;
-using Microsoft.ApplicationInsights;
 
 namespace ImageProcessing.Controllers
 {
     [RoutePrefix("frontendimageprocessing")]
     public class FrontEndImageProcessingController : ApiController
-    {
-        private TelemetryClient telemetry = new TelemetryClient();
-        
+    {       
         [Route("images")]
         [HttpPost]
         public async Task<HttpResponseMessage> Post()
@@ -26,7 +23,6 @@ namespace ImageProcessing.Controllers
             }
             catch (Exception ex)
             {
-                telemetry.TrackException(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError);
             }
         }
@@ -37,17 +33,9 @@ namespace ImageProcessing.Controllers
         {
             new Thread(() =>
             {
-                try
-                {
-                    // Image processing logic
-                    Thread.SpinWait(Int32.MaxValue);
-                    Thread.SpinWait(Int32.MaxValue);
-
-                }
-                catch (Exception ex)
-                {
-                    telemetry.TrackException(ex);
-                }
+                // Image processing logic
+                Thread.SpinWait(Int32.MaxValue);
+                Thread.SpinWait(Int32.MaxValue);
             }).Start();
 
             return Request.CreateResponse(HttpStatusCode.Accepted);
@@ -66,7 +54,6 @@ namespace ImageProcessing.Controllers
             }
             catch (Exception ex)
             {
-                telemetry.TrackException(ex);
                 return true;
             }
         }
@@ -84,7 +71,6 @@ namespace ImageProcessing.Controllers
             }
             catch (Exception ex)
             {
-                telemetry.TrackException(ex);
                 return Request.CreateResponse(HttpStatusCode.InternalServerError);
             }
         }

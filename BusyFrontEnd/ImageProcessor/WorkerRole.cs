@@ -9,7 +9,7 @@ using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using System.Threading.Tasks;
-using Common.Logic;
+using CommonServiceBusLogic;
 
 namespace ImageProcessor
 {

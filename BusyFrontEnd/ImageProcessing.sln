@@ -3,25 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.22512.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{07872CE1-5E36-448E-96D8-0A4CBACE9286}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProcessing", "ImageProcessing\ImageProcessing.csproj", "{0AF788BC-FA2B-45E6-84AC-883CF1BE4055}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4CA759F3-E971-46B3-A547-EA8166016DAA}"
-	ProjectSection(SolutionItems) = preProject
-		Local.testsettings = Local.testsettings
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Logic", "Common.Logic\Common.Logic.csproj", "{1CF85679-FFD3-453D-83C6-D2FB004D4FE6}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProcessor", "ImageProcessor\ImageProcessor.csproj", "{D636B534-50AB-43F4-AF1F-1B67AC704718}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProcessingLoadTest", "ImageProcessingLoadTest\ImageProcessingLoadTest.csproj", "{4A1C9649-4589-4B3E-85DE-A0B0CAFB74B4}"
 EndProject
 Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "ImageProcessingService", "ImageProcessingService\ImageProcessingService.ccproj", "{88B57ED3-2DDC-4E94-A2A2-DF44141F3364}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProcessing", "ImageProcessing\ImageProcessing.csproj", "{F8575F6A-E570-4D4C-A49B-BBA974B34A4B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProcessor", "ImageProcessor\ImageProcessor.csproj", "{D636B534-50AB-43F4-AF1F-1B67AC704718}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageProcessingLoadTest", "ImageProcessingLoadTest\ImageProcessingLoadTest.csproj", "{4A1C9649-4589-4B3E-85DE-A0B0CAFB74B4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonServiceBusLogic", "CommonServicebusLogic\CommonServiceBusLogic.csproj", "{C0F4E3AD-D77D-49D9-9EC7-0485E8FCFD67}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,26 +19,26 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{1CF85679-FFD3-453D-83C6-D2FB004D4FE6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{1CF85679-FFD3-453D-83C6-D2FB004D4FE6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{1CF85679-FFD3-453D-83C6-D2FB004D4FE6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{1CF85679-FFD3-453D-83C6-D2FB004D4FE6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D636B534-50AB-43F4-AF1F-1B67AC704718}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D636B534-50AB-43F4-AF1F-1B67AC704718}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D636B534-50AB-43F4-AF1F-1B67AC704718}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D636B534-50AB-43F4-AF1F-1B67AC704718}.Release|Any CPU.Build.0 = Release|Any CPU
-		{88B57ED3-2DDC-4E94-A2A2-DF44141F3364}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{88B57ED3-2DDC-4E94-A2A2-DF44141F3364}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{88B57ED3-2DDC-4E94-A2A2-DF44141F3364}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{88B57ED3-2DDC-4E94-A2A2-DF44141F3364}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F8575F6A-E570-4D4C-A49B-BBA974B34A4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F8575F6A-E570-4D4C-A49B-BBA974B34A4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F8575F6A-E570-4D4C-A49B-BBA974B34A4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F8575F6A-E570-4D4C-A49B-BBA974B34A4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0AF788BC-FA2B-45E6-84AC-883CF1BE4055}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0AF788BC-FA2B-45E6-84AC-883CF1BE4055}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0AF788BC-FA2B-45E6-84AC-883CF1BE4055}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0AF788BC-FA2B-45E6-84AC-883CF1BE4055}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4A1C9649-4589-4B3E-85DE-A0B0CAFB74B4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4A1C9649-4589-4B3E-85DE-A0B0CAFB74B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A1C9649-4589-4B3E-85DE-A0B0CAFB74B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A1C9649-4589-4B3E-85DE-A0B0CAFB74B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88B57ED3-2DDC-4E94-A2A2-DF44141F3364}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88B57ED3-2DDC-4E94-A2A2-DF44141F3364}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88B57ED3-2DDC-4E94-A2A2-DF44141F3364}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88B57ED3-2DDC-4E94-A2A2-DF44141F3364}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D636B534-50AB-43F4-AF1F-1B67AC704718}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D636B534-50AB-43F4-AF1F-1B67AC704718}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D636B534-50AB-43F4-AF1F-1B67AC704718}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D636B534-50AB-43F4-AF1F-1B67AC704718}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0F4E3AD-D77D-49D9-9EC7-0485E8FCFD67}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0F4E3AD-D77D-49D9-9EC7-0485E8FCFD67}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0F4E3AD-D77D-49D9-9EC7-0485E8FCFD67}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0F4E3AD-D77D-49D9-9EC7-0485E8FCFD67}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

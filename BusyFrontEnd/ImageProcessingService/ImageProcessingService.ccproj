@@ -12,6 +12,7 @@
     <AssemblyName>ImageProcessingService</AssemblyName>
     <StartDevelopmentStorage>True</StartDevelopmentStorage>
     <Name>ImageProcessingService</Name>
+    <PackageEnableRemoteDebugger>False</PackageEnableRemoteDebugger>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -39,7 +40,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ImageProcessing\ImageProcessing.csproj">
       <Name>ImageProcessing</Name>
-      <Project>{f8575f6a-e570-4d4c-a49b-bba974b34a4b}</Project>
+      <Project>{0af788bc-fa2b-45e6-84ac-883cf1be4055}</Project>
       <Private>True</Private>
       <RoleType>Web</RoleType>
       <RoleName>ImageProcessing</RoleName>
@@ -60,8 +61,7 @@
     <Folder Include="Profiles" />
   </ItemGroup>
   <ItemGroup>
-    <PublishProfile Include="Profiles\cmbusyfrontendProduction.azurePubxml" />
-    <PublishProfile Include="Profiles\cmbusyfrontendProduction1.azurePubxml" />
+    <DiagnosticsConfiguration Include="ImageProcessingContent\diagnostics.wadcfgx" />
   </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>
