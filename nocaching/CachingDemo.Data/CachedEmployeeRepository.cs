@@ -5,7 +5,7 @@ namespace CachingDemo.Data
 {
     public class CachedEmployeeRepository : IEmployeeRepository
     {
-        private EmployeeRepository innerRepository;
+        private readonly EmployeeRepository innerRepository;
 
         public CachedEmployeeRepository(EmployeeRepository innerRepository)
         {

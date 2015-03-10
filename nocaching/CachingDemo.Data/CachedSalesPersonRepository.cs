@@ -6,7 +6,7 @@ namespace CachingDemo.Data
 {
     public class CachedSalesPersonRepository : ISalesPersonRepository
     {
-        private SalesPersonRepository innerRepository;
+        private readonly SalesPersonRepository innerRepository;
 
         public CachedSalesPersonRepository(SalesPersonRepository innerRepository)
         {
