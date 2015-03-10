@@ -2,7 +2,6 @@
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
-using Common.Logic;
 
 namespace WebRole.Controllers
 {
@@ -12,9 +11,8 @@ namespace WebRole.Controllers
         {
             new Thread(() =>
             {
-                Trace.WriteLine("Number: " + number);
-                var result = Calculator.RunLongComputation(number);
-                Trace.WriteLine("Result: " + result);
+                //Simulate processing
+                Thread.SpinWait(10000);
             }).Start();
             
         }

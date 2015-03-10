@@ -7,8 +7,8 @@
     <ProjectGuid>{C8EE2AD5-3279-47E9-9B03-319C35EBA2ED}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Common.Logic</RootNamespace>
-    <AssemblyName>Common.Logic</AssemblyName>
+    <RootNamespace>ServiceBusQueueHandling</RootNamespace>
+    <AssemblyName>ServiceBusQueueHandling</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -48,7 +48,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Calculator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBusQueueHandler.cs" />
   </ItemGroup>

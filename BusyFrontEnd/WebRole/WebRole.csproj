@@ -112,11 +112,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\UserProfileController.cs" />
     <Compile Include="Controllers\WorkInBackgroundController.cs" />
     <Compile Include="Controllers\WorkInFrontEndController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\UserProfile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebRole.cs" />
   </ItemGroup>
@@ -131,10 +133,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common.Logic\Common.Logic.csproj">
+    <ProjectReference Include="..\Common.Logic\ServiceBusQueueHandling.csproj">
       <Project>{C8EE2AD5-3279-47E9-9B03-319C35EBA2ED}</Project>
       <Name>Common.Logic</Name>
     </ProjectReference>

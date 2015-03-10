@@ -2,17 +2,17 @@
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Logic;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.ServiceRuntime;
+using ServiceBusQueueHandling;
 
 namespace WorkerRole
 {
     public class WorkerRole : RoleEntryPoint
     {
-        private const string AppSettingKeyServiceBusConnectionString = "Microsoft.ServiceBus.ConnectionString";
-        private const string AppSettingKeyServiceBusQueueName = "Microsoft.ServiceBus.QueueName";
+        private const string ServiceBusConnectionStringKey = "Microsoft.ServiceBus.ConnectionString";
+        private const string ServiceBusQueueNameKey = "Microsoft.ServiceBus.QueueName";
 
         private QueueClient _queueClient;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
@@ -42,11 +42,8 @@ namespace WorkerRole
                         // Process the message
                         Trace.WriteLine("Processing Service Bus message: " + receivedMessage.SequenceNumber.ToString());
 
-                        var number = receivedMessage.GetBody<double>();
-                        Trace.WriteLine("Message: " + number);
-
-                        var result = Calculator.RunLongComputation(number);
-                        Trace.WriteLine("Result: " + result);
+                        //Simulate processing of message
+                        Thread.SpinWait(10000);
 
                         await receivedMessage.CompleteAsync();
                     }
@@ -65,9 +62,10 @@ namespace WorkerRole
             ServicePointManager.DefaultConnectionLimit = 12;
 
             // Setup the reader
-            var storageConnectionString = CloudConfigurationManager.GetSetting(AppSettingKeyServiceBusConnectionString);
-            var queueName = CloudConfigurationManager.GetSetting(AppSettingKeyServiceBusQueueName);
-            this._queueClient = ServiceBusQueueHandler.GetQueueClientAsync(storageConnectionString, queueName).Result;
+            var serviceBusConnectionString = CloudConfigurationManager.GetSetting(ServiceBusConnectionStringKey);
+            var queueName = CloudConfigurationManager.GetSetting(ServiceBusQueueNameKey);
+            var serviceBusQueueHandler = new ServiceBusQueueHandler(serviceBusConnectionString);
+            this._queueClient = serviceBusQueueHandler.GetQueueClientAsync(queueName).Result;
 
             return base.OnStart();
         }

@@ -7,7 +7,7 @@ Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AzureCloudService", "BusyFr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerRole", "WorkerRole\WorkerRole.csproj", "{CE3863C6-4196-4187-811C-2DBAD7D9BB87}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Common.Logic", "Common.Logic\Common.Logic.csproj", "{C8EE2AD5-3279-47E9-9B03-319C35EBA2ED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusQueueHandling", "Common.Logic\ServiceBusQueueHandling.csproj", "{C8EE2AD5-3279-47E9-9B03-319C35EBA2ED}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EF67367D-6BD4-4477-B59D-4F9BB31978D7}"
 	ProjectSection(SolutionItems) = preProject

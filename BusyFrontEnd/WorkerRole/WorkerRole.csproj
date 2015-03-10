@@ -87,9 +87,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common.Logic\Common.Logic.csproj">
+    <ProjectReference Include="..\Common.Logic\ServiceBusQueueHandling.csproj">
       <Project>{C8EE2AD5-3279-47E9-9B03-319C35EBA2ED}</Project>
-      <Name>Common.Logic</Name>
+      <Name>ServiceBusQueueHandling</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

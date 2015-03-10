@@ -1,6 +1,5 @@
 ﻿using System.Web;
 using System.Web.Http;
-using Common.Logic;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.ServiceRuntime;

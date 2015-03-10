@@ -3,24 +3,31 @@ using System.Threading.Tasks;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 
-namespace Common.Logic
+namespace ServiceBusQueueHandling
 {
     public class ServiceBusQueueHandler
     {
-        private static NamespaceManager _namespaceManager;
-        public static async Task<QueueClient> GetQueueClientAsync(string sbConnectionString, string queueName)
-        {
-            _namespaceManager = NamespaceManager.CreateFromConnectionString(sbConnectionString);
+        private NamespaceManager _namespaceManager;
+        private string _serviceBusConnectionString;
 
+        public ServiceBusQueueHandler(string serviceBusConnectionString)
+        {
+            _serviceBusConnectionString = serviceBusConnectionString;
+            _namespaceManager = NamespaceManager.CreateFromConnectionString(serviceBusConnectionString);
+        }
+
+        public async Task<QueueClient> GetQueueClientAsync(string queueName)
+        {
+            
             if (!_namespaceManager.QueueExists(queueName))
             {
                 await _namespaceManager.CreateQueueAsync(queueName).ConfigureAwait(false);
             }
 
-            return QueueClient.CreateFromConnectionString(sbConnectionString, queueName);
+            return QueueClient.CreateFromConnectionString(_serviceBusConnectionString, queueName);
         }
 
-        public static async Task<long> AddWordToQueueAsync(QueueClient queueClient, string queueName, string word)
+        public async Task<long> AddWordToQueueAsync(QueueClient queueClient, string queueName, string word)
         {
             Debug.Assert(null != _namespaceManager);
             var message = new BrokeredMessage(word);
@@ -37,7 +44,7 @@ namespace Common.Logic
         /// <param name="queueName">Service bus queue name</param>
         /// <param name="number"></param>
         /// <returns>Number of messages in the queue</returns>
-        public static async Task<long> AddWorkLoadToQueueAsync(
+        public async Task<long> AddWorkLoadToQueueAsync(
             QueueClient queueClient,
             string queueName,
             double number)
