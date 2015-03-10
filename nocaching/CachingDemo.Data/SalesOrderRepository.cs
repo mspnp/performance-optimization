@@ -8,10 +8,6 @@ namespace CachingDemo.Data
 {
     public class SalesOrderRepository : ISalesOrderRepository
     {
-        public SalesOrderRepository()
-        {
-        }
-
         public async Task<ICollection<SalesOrderHeader>> GetTopTenSalesOrdersAsync()
         {
             using (var context = new AdventureWorksContext())

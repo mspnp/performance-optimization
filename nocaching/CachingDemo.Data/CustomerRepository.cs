@@ -7,10 +7,6 @@ namespace CachingDemo.Data
 {
     public class CustomerRepository : ICustomerRepository
     {
-        public CustomerRepository()
-        {
-        }
-
         public async Task<Customer> GetAsync(int id)
         {
             using (var context = new AdventureWorksContext())

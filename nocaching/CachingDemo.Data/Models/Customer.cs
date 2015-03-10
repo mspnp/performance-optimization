@@ -2,10 +2,6 @@
 {
     public class Customer
     {
-        public Customer()
-        {
-        }
-
         public int CustomerId { get; set; }
 
         public string AccountNumber { get; set; }
