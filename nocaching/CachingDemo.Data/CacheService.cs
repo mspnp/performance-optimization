@@ -1,11 +1,8 @@
-﻿using Microsoft.WindowsAzure;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.WindowsAzure;
 using Newtonsoft.Json;
 using StackExchange.Redis;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CachingDemo.Data
 {
@@ -13,25 +10,24 @@ namespace CachingDemo.Data
     {
         private static ConnectionMultiplexer connection;
 
-        private static double defaultExpirationTimeInMinutes = 5.0d;
+        private const double DefaultExpirationTimeInMinutes = 5.0d;
 
         private static ConnectionMultiplexer Connection
         {
             get
             {
-                if ((CacheService.connection == null) || (!CacheService.connection.IsConnected))
+                if ((connection == null) || (!connection.IsConnected))
                 {
-                    CacheService.connection = ConnectionMultiplexer.Connect(CloudConfigurationManager.GetSetting("RedisConfiguration"));
+                    connection = ConnectionMultiplexer.Connect(CloudConfigurationManager.GetSetting("RedisConfiguration"));
                 }
 
-                return CacheService.connection;
+                return connection;
             }
         }
 
-        public static async Task<T> GetAsync<T>(string key, Func<Task<T>> loadCache)
+        public static Task<T> GetAsync<T>(string key, Func<Task<T>> loadCache)
         {
-            return await CacheService.GetAsync<T>(key, loadCache, CacheService.defaultExpirationTimeInMinutes)
-                .ConfigureAwait(false);
+            return GetAsync<T>(key, loadCache, DefaultExpirationTimeInMinutes);
         }
 
         public static async Task<T> GetAsync<T>(string key, Func<Task<T>> loadCache, double expirationTimeInMinutes)
@@ -41,17 +37,14 @@ namespace CachingDemo.Data
                 throw new ArgumentException("key cannot be null, empty, or only whitespace.");
             }
 
-            IDatabase cache = CacheService.Connection.GetDatabase();
-            T value = await CacheService.GetAsync<T>(cache, key)
-                .ConfigureAwait(false);
+            IDatabase cache = Connection.GetDatabase();
+            T value = await GetAsync<T>(cache, key).ConfigureAwait(false);
             if (value == null)
             {
-                value = await loadCache()
-                    .ConfigureAwait(false);
+                value = await loadCache().ConfigureAwait(false);
                 if (value != null)
                 {
-                    await CacheService.SetAsync(cache, key, value, expirationTimeInMinutes)
-                        .ConfigureAwait(false);
+                    await SetAsync(cache, key, value, expirationTimeInMinutes).ConfigureAwait(false);
                 }
             }
 
@@ -63,29 +56,31 @@ namespace CachingDemo.Data
             // In order to flush all, we need to be in admin mode.
             var options = ConfigurationOptions.Parse(CloudConfigurationManager.GetSetting("RedisConfiguration"));
             options.AllowAdmin = true;
+
             using (var adminConnection = ConnectionMultiplexer.Connect(options))
             {
                 foreach (var redisEndPoint in adminConnection.GetEndPoints(true))
                 {
                     IServer server = adminConnection.GetServer(redisEndPoint);
-                    await server.FlushAllDatabasesAsync();
+                    await server.FlushAllDatabasesAsync().ConfigureAwait(false);
                 }
 
-                await adminConnection.CloseAsync(true);
+                await adminConnection.CloseAsync(true).ConfigureAwait(false);
             }
         }
 
         private static async Task<T> GetAsync<T>(IDatabase cache, string key)
         {
-            return Deserialize<T>(await cache.StringGetAsync(key).ConfigureAwait(false));
+            var json = await cache.StringGetAsync(key).ConfigureAwait(false);
+            return Deserialize<T>(json);
         }
 
         private static async Task SetAsync(IDatabase cache, string key, object value, double expirationTimeInMinutes)
         {
-            await cache.StringSetAsync(key, Serialize(value))
-                .ConfigureAwait(false);
+            await cache.StringSetAsync(key, Serialize(value)).ConfigureAwait(false);
+
             // We will default to a five minute expiration
-            await cache.KeyExpireAsync(key, TimeSpan.FromMinutes(expirationTimeInMinutes));
+            await cache.KeyExpireAsync(key, TimeSpan.FromMinutes(expirationTimeInMinutes)).ConfigureAwait(false);
         }
 
         private static string Serialize(object o)

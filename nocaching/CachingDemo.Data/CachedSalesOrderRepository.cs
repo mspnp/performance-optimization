@@ -1,15 +1,12 @@
-﻿using CachingDemo.Data.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using CachingDemo.Data.Models;
 
 namespace CachingDemo.Data
 {
     public class CachedSalesOrderRepository : ISalesOrderRepository
     {
-        private SalesOrderRepository innerRepository;
+        private readonly SalesOrderRepository innerRepository;
 
         public CachedSalesOrderRepository(SalesOrderRepository innerRepository)
         {
@@ -20,7 +17,7 @@ namespace CachingDemo.Data
         {
             return await CacheService.GetAsync<ICollection<SalesOrderHeader>>(
                 "soh:topTen",
-                () => this.innerRepository.GetTopTenSalesOrdersAsync());
+                () => this.innerRepository.GetTopTenSalesOrdersAsync()).ConfigureAwait(false);
         }
     }
 }

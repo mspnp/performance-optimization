@@ -1,12 +1,8 @@
-﻿using CachingDemo.Data;
-using CachingDemo.Data.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
+using CachingDemo.Data;
+using CachingDemo.Data.Models;
 
 namespace WebRole.Controllers
 {
@@ -46,7 +42,7 @@ namespace WebRole.Controllers
         public async Task<IHttpActionResult> Flush()
         {
             await CacheService.FlushAsync();
-            return Ok();
+            return this.Ok();
         }
     }
 }
