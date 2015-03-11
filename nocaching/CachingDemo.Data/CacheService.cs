@@ -25,9 +25,9 @@ namespace CachingDemo.Data
             }
         }
 
-        public static async Task<T> GetAsync<T>(string key, Func<Task<T>> loadCache)
+        public static Task<T> GetAsync<T>(string key, Func<Task<T>> loadCache)
         {
-            return await GetAsync<T>(key, loadCache, DefaultExpirationTimeInMinutes).ConfigureAwait(false);
+            return GetAsync<T>(key, loadCache, DefaultExpirationTimeInMinutes);
         }
 
         public static async Task<T> GetAsync<T>(string key, Func<Task<T>> loadCache, double expirationTimeInMinutes)
