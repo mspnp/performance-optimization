@@ -63,11 +63,20 @@
     <Compile Include="RetrievingTooMuchDataTest.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="AggregateOnClient.loadtest">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="App.config" />
-    <None Include="LoadTest.loadtest">
+    <None Include="AggregateOnDatabase.loadtest">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="ProjectRequired.loadtest">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />
+    <None Include="ProjectAllFields.loadtest">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
