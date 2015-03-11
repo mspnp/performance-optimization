@@ -124,13 +124,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\CachingDemo.Data\CachingDemo.Data.csproj">
       <Project>{9fca9fdb-cce3-4521-977e-8277afb6b062}</Project>
       <Name>CachingDemo.Data</Name>
