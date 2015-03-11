@@ -14,7 +14,7 @@ namespace CachingDemo.Data
 
         public async Task<Customer> GetAsync(int id)
         {
-            return await CacheService.GetAsync<Customer>("c:" + id, () => this.innerRepository.GetAsync(id));
+            return await CacheService.GetAsync<Customer>("c:" + id, () => this.innerRepository.GetAsync(id)).ConfigureAwait(false);
         }
     }
 }

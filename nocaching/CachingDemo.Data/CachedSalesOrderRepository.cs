@@ -17,7 +17,7 @@ namespace CachingDemo.Data
         {
             return await CacheService.GetAsync<ICollection<SalesOrderHeader>>(
                 "soh:topTen",
-                () => this.innerRepository.GetTopTenSalesOrdersAsync());
+                () => this.innerRepository.GetTopTenSalesOrdersAsync()).ConfigureAwait(false);
         }
     }
 }

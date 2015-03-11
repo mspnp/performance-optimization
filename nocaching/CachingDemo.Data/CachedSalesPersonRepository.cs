@@ -15,14 +15,14 @@ namespace CachingDemo.Data
 
         public async Task<SalesPerson> GetAsync(int id)
         {
-            return await CacheService.GetAsync<SalesPerson>("sp:" + id, () => this.innerRepository.GetAsync(id));
+            return await CacheService.GetAsync<SalesPerson>("sp:" + id, () => this.innerRepository.GetAsync(id)).ConfigureAwait(false);
         }
 
         public async Task<ICollection<SalesPersonTotalSales>> GetTopTenSalesPeopleAsync()
         {
             return await CacheService.GetAsync<ICollection<SalesPersonTotalSales>>(
                 "sp:topTen",
-                () => this.innerRepository.GetTopTenSalesPeopleAsync());
+                () => this.innerRepository.GetTopTenSalesPeopleAsync()).ConfigureAwait(false);
         }
     }
 }

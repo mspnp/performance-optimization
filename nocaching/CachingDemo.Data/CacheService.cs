@@ -62,10 +62,10 @@ namespace CachingDemo.Data
                 foreach (var redisEndPoint in adminConnection.GetEndPoints(true))
                 {
                     IServer server = adminConnection.GetServer(redisEndPoint);
-                    await server.FlushAllDatabasesAsync();
+                    await server.FlushAllDatabasesAsync().ConfigureAwait(false);
                 }
 
-                await adminConnection.CloseAsync(true);
+                await adminConnection.CloseAsync(true).ConfigureAwait(false);
             }
         }
 
@@ -80,7 +80,7 @@ namespace CachingDemo.Data
             await cache.StringSetAsync(key, Serialize(value)).ConfigureAwait(false);
 
             // We will default to a five minute expiration
-            await cache.KeyExpireAsync(key, TimeSpan.FromMinutes(expirationTimeInMinutes));
+            await cache.KeyExpireAsync(key, TimeSpan.FromMinutes(expirationTimeInMinutes)).ConfigureAwait(false);
         }
 
         private static string Serialize(object o)
