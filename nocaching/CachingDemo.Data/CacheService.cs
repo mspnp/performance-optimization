@@ -27,8 +27,7 @@ namespace CachingDemo.Data
 
         public static async Task<T> GetAsync<T>(string key, Func<Task<T>> loadCache)
         {
-            return await GetAsync<T>(key, loadCache, DefaultExpirationTimeInMinutes)
-                .ConfigureAwait(false);
+            return await GetAsync<T>(key, loadCache, DefaultExpirationTimeInMinutes).ConfigureAwait(false);
         }
 
         public static async Task<T> GetAsync<T>(string key, Func<Task<T>> loadCache, double expirationTimeInMinutes)
@@ -39,16 +38,13 @@ namespace CachingDemo.Data
             }
 
             IDatabase cache = Connection.GetDatabase();
-            T value = await GetAsync<T>(cache, key)
-                .ConfigureAwait(false);
+            T value = await GetAsync<T>(cache, key).ConfigureAwait(false);
             if (value == null)
             {
-                value = await loadCache()
-                    .ConfigureAwait(false);
+                value = await loadCache().ConfigureAwait(false);
                 if (value != null)
                 {
-                    await SetAsync(cache, key, value, expirationTimeInMinutes)
-                        .ConfigureAwait(false);
+                    await SetAsync(cache, key, value, expirationTimeInMinutes).ConfigureAwait(false);
                 }
             }
 
@@ -60,6 +56,7 @@ namespace CachingDemo.Data
             // In order to flush all, we need to be in admin mode.
             var options = ConfigurationOptions.Parse(CloudConfigurationManager.GetSetting("RedisConfiguration"));
             options.AllowAdmin = true;
+
             using (var adminConnection = ConnectionMultiplexer.Connect(options))
             {
                 foreach (var redisEndPoint in adminConnection.GetEndPoints(true))
@@ -74,13 +71,14 @@ namespace CachingDemo.Data
 
         private static async Task<T> GetAsync<T>(IDatabase cache, string key)
         {
-            return Deserialize<T>(await cache.StringGetAsync(key).ConfigureAwait(false));
+            var json = await cache.StringGetAsync(key).ConfigureAwait(false);
+            return Deserialize<T>(json);
         }
 
         private static async Task SetAsync(IDatabase cache, string key, object value, double expirationTimeInMinutes)
         {
-            await cache.StringSetAsync(key, Serialize(value))
-                .ConfigureAwait(false);
+            await cache.StringSetAsync(key, Serialize(value)).ConfigureAwait(false);
+
             // We will default to a five minute expiration
             await cache.KeyExpireAsync(key, TimeSpan.FromMinutes(expirationTimeInMinutes));
         }

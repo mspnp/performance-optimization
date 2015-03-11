@@ -30,30 +30,37 @@ namespace CachingDemo.Data
                 .HasKey(p => p.Id)
                 .Property(p => p.Id)
                 .HasColumnName("BusinessEntityID");
+
             modelBuilder.Entity<Employee>()
                 .ToTable("Employee", "HumanResources");
+
             modelBuilder.Entity<SalesPerson>()
                 .ToTable("SalesPerson", "Sales")
                 .Property(sp => sp.CommissionPercentage)
                 .HasColumnName("CommissionPct");
+
             modelBuilder.Entity<Customer>()
                 .ToTable("Customer", "Sales")
                 .HasKey(c => c.CustomerId)
                 .Property(c => c.CustomerId)
                 .HasColumnName("CustomerID");
+
             modelBuilder.Entity<Customer>()
                 .HasRequired(c => c.Person)
                 .WithMany()
                 .Map(m => m.MapKey("PersonID"));
+
             modelBuilder.Entity<SalesOrderHeader>()
                 .ToTable("SalesOrderHeader", "Sales")
                 .HasKey(soh => soh.Id)
                 .Property(soh => soh.Id)
                 .HasColumnName("SalesOrderID");
+
             modelBuilder.Entity<SalesOrderHeader>()
                 .HasRequired(soh => soh.Customer)
                 .WithMany()
                 .WillCascadeOnDelete(false);
+
             modelBuilder.Entity<SalesOrderHeader>()
                 .HasOptional(soh => soh.SalesPerson)
                 .WithMany()
