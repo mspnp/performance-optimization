@@ -26,12 +26,14 @@ namespace WebRole.Controllers
             QueueClient = ServiceBusQueueHandler.GetQueueClientAsync(QueueName).Result;
         }
 
-        public Task Get(double number)
+        [HttpPost]
+        [Route("api/workinbackground")]
+        public Task<long> Post()
         {
             return ServiceBusQueueHandler.AddWorkLoadToQueueAsync(
                     QueueClient,
                     QueueName,
-                    number);
+                    0);
         }
     }
 }
