@@ -1,69 +1,62 @@
 # Busy Front End
 
-In an interactive web application, running resource-intensive tasks as part of the user interface processing can result in poor response times and high latency for user operations. One often-considered technique to improve response times is to offload a resource-intensive task onto a separate thread. This strategy enables the user interface to continue functioning while the processing is performed in the background. 
-
-As an example, the following code shows part web site hosted by an organization specializing in graphics services. This organization offers digital image processing to customers. Customers can upload photographs to the service by sending an HTTP `POST` request to the *images* URI (uploading is asynchronous). The response message contains a unique ID for the image. When the photograph has been uploaded, the customer can invoke the `ProcessImage` request (the request should include the ID of the image). Image processing may take some time so it is also performed asynchronously to avoid delaying the user. A customer can query whether image processing has completed by sending an HTTP `GET` request to the *images/{imageID}/iscomplete* URI (where imageID is the unique identifier of the photograph being processed. Finally, when processing is complete, the customer an issue an HTTP `GET` request to the *images/imageID* URI to retrieve the image.
-
-**C# Web API**
-```C#
-[RoutePrefix("frontendimageprocessing")]
-public class FrontEndImageProcessingController : ApiController
-{
-    [Route("images")]
-    [HttpPost]
-    public async Task<HttpResponseMessage> Post()
-    {
-        // Logic to upload an image
-        ...
-        return Request.CreateResponse(HttpStatusCode.OK);
-    }
-
-    [Route("processimage")]
-    [HttpPost]
-    public HttpResponseMessage ProcessImage()
-    {
-        new Thread(() =>
-        {
-            // Image processing logic
-            ...
-        }).Start();
-
-        return Request.CreateResponse(HttpStatusCode.Accepted);
-    }
-
-    [Route("images/{imageID}/iscomplete")]
-    [HttpGet]
-    public bool IsImageProcessingComplete(int imageID)
-    {
-        // Poll to see whether processing of the specified image has finished
-        bool isFinished = ...
-        return isFinished;
-    }
-
-    [Route("images/{imageID}")]
-    [HttpGet]
-    public HttpResponseMessage Get(int imageID)
-    {
-        // Logic to retrieve the processed image
-        ...
-        return Request.CreateResponse(HttpStatusCode.OK);
-    }
-}
-```
-
-The primary concern with this web application is the resource requirements of the `ProcessImage` method. Although it runs on a background thread, alleviating the user of the need to wait for the result before continuing with further work, it can still consume considerable processing resources. These resources are shared with the other operations being performed by other concurrent users. If a moderate number of users issue requests to perform image processing at the same time, then the overall performance of the system is likely to suffer, causing a slowdown in all operations; users might experience a significant slowing of the image upload and download operations, for example.
+In a business application, resource-intensive tasks can impact the response times and cause high latency operations. One often-considered technique to improve response times is to offload a resource-intensive task onto a separate thread. This strategy enables the business application to remain responsive while the processing is performed in the background. However, this approach still consumes resources and can impact the performance of other concurrent tasks running as part of the same process that share these resources.
 
 ----------
 
-**Note:** The `FrontEndImageProcessing` controller is included in the [sample code][fullDemonstrationOfProblem] available with this anti-pattern.
+**Note:** The term *resource* can encompass many things, such as CPU utilization, memory occupancy, and network or disk I/O.
 
 ----------
 
 This problem typically occurs when an application is developed as a monolithic whole, with the entire business processing combined into a single tier shared with the user interface.
 
+As an example, the following conceptual sample code shows part of a web application built by using Web API. The web application contains two controllers:
+
+1. `WorkInFrontEnd` which exposes an HTTP POST operation. This operation simulates a long-running, CPU-intensive piece of processing. The work is performed on a separate thread in an attempt to enable the POST operation to complete quickly and ensure that the caller remains responsive.
+
+2. `UserProfile` which exposes an HTTP GET operation to retrieve user profile information. This time the processing is much less CPU intensive.
+
+**C# Web API**
+```C#
+public class WorkInFrontEndController : ApiController
+{
+    [HttpPost]
+    [Route("api/workinfrontend")]
+    public void Post()
+    {
+        new Thread(() =>
+        {
+            //Simulate processing
+            Thread.SpinWait(Int32.MaxValue / 100);
+        }).Start();
+
+        return Request.CreateResponse(HttpStatusCode.Accepted);
+    }
+}
+...
+public class UserProfileController : ApiController
+{
+    [HttpGet]
+    [Route("api/userprofile/{id}")]
+    public UserProfile Get(int id)
+    {
+        //Simulate processing
+        return new UserProfile() { FirstName = "Alton", LastName = "Hudgens" };
+    }
+}
+```
+
+The primary concern with this web application is the resource requirements of the `Post` method in the `WorkInFrontEnd` controller. Although the processing runs on a background thread, alleviating the user of the need to wait for the result before continuing with further work, it can still consume considerable CPU resources. These resources are shared with the other operations being performed by other concurrent users. If a moderate number of users issue this request at the same time, then the overall performance of the system is likely to suffer, causing a slowdown in all operations; users might experience a significant slowing of the `Get` method in the `UserProfile` controller for example.
+
+----------
+
+**Note:** The `WorkInFrontEnd` and `UserProfile` controllers are included in the [sample code][fullDemonstrationOfProblem] available with this anti-pattern.
+
+----------
+
 ## How to detect the problem
 
-Symptoms of a busy front end in an application include high latency during periods when resource-intensive tasks are being performed. These tasks can starve other requests of the processing power they require, causing them to run more slowly. End-users are likely to report extended response times and possible failures caused by services timing out due to lack of processing resources in the web server. These failures could manifest themselves as HTTP 500 (Internal Server) errors or HTTP 503 (Service Unavailable) errors. In these cases, you should examine the event logs for the web server which are likely to contain more detailed information about the causes and circumstances of the errors.
+Symptoms of a busy front end in an application include high latency during periods when resource-intensive tasks are being performed. These tasks can starve other requests of the processing power they require, causing them to run more slowly. End-users are likely to report extended response times and possible failures caused by services timing out due to lack of processing resources in the web server. These failures could also manifest themselves as HTTP 500 (Internal Server) errors or HTTP 503 (Service Unavailable) errors. In these cases, you should examine the event logs for the web server which are likely to contain more detailed information about the causes and circumstances of the errors.
 
 You can perform the following steps to help identify the causes of any problems:
 
@@ -87,42 +80,40 @@ The following sections apply these steps to the sample application described ear
 
 Instrumenting each method to track the duration and resources consumed by each requests and then monitoring the live system can help to provide an overall view of how the requests compete with each other. During periods of stress, slow-running resource hungry requests will likely impact other operations, and this behavior can be observed by monitoring the system and noting the drop-off in performance. 
 
-The following image shows some of the statistics in the Metrics Explorer gathered by using Microsoft Application Insights against an installation of a cloud service that hosts the `FrontEndImageProcessing` controller. The cloud service comprised two small web role instances under a relatively constant load averaging 100 users. You should note the volumes of each request and the average response time. In this case, the `processimage` request accounted for the largest average response time: 
+The following image shows the Business Transactions pane in AppDyanamics monitoring the sample application. Initially the system is lightly loaded but then users start requesting the `UserProfile` GET operation. The performance is reasonably quick until other users start issuing requests to the `WorkInFrontEnd` controller, when the response time suddenly increases dramatically (see the Response Time (ms) graph in the image). The response time only improves once the volume of requests to the `WorkInFrontEnd` controller diminishes (see the Calls/min graph.)
 
-![Application Insights metrics showing the relative performance of each request][App-Insights-Metrics-Front-End-All-Requests]
+![AppDynamics Business Transactions pane showing the effects of the response times of all requests when the WorkInFrontEnd controller is used][AppDynamics-Transactions-Front-End-Requests]
 
 ### Examining telemetry data and finding correlations
 
-A detailed analysis of the telemetry data for each request should indicate the resources that are being utilized. You should look for areas of contention; resources that are shared by multiple concurrent requests. Resources may be memory or CPU utilization, files on disk, or they could be other items such as database connections or threads in a thread pool. This information can help you to form a hypothesis concerning which requests are proving to be the most disruptive to others. In the example application, the `processimage` request is suspected to be a major cause of CPU contention.
+The next image shows some of the metrics gathered by using AppDynamics monitoring the resource utilization of the web role hosting the sample application during the same interval as the previous graph. Initially, few users are accessing the system, but as more connect the CPU utilization becomes very high (100%) for much of the time, so the system is clearly under duress. Additionally, the network I/O rate peaks while the CPU utilization rises, and then retreats when the CPU is running at capacity. This is because the system is unable to handle more than a relatively small number of requests once the CPU is at capacity. As users disconnect, the CPU load tails off:
+
+![AppDynamics metrics showing the CPU and network utilization][AppDynamics-Metrics-Front-End-Requests]
+
+From the information provided by identifying the points of slow down and the telemetry at these points, it would appear that the `WorkInFrontEnd` controller is a prime candidate for further examination, but further work in a controlled environment is necessary to confirm this hypothesis.
 
 ### Performing load-testing to identify *bad actors*
 
-Having identified the candidate disruptive requests in the system, you should perform tests in a controlled environment to demonstrate any correlations between these requests and the overall performance of the system. As an example, you can perform a series of load tests that include and then omit each request in turn to see the effects. The graph below shows the results of a load-test performed by using 100 simulated users against an identical deployment of the cloud service hosting the `FrontEndImageProcessing` controller. The load-test performed an equal mix (25%) for each of the requests exposed by the controller (`Post`, `ProcessImage`, `IsImageProcessingComplete`, and `Get`)
+Having identified the possible source of disruptive requests in the system, you should perform tests in a controlled environment to demonstrate any correlations between these requests and the overall performance of the system. As an example, you can perform a series of load tests that include and then omit each request in turn to see the effects. 
 
-![Initial load-test results for the FrontEndImageProcessing controller][Initial-Load-Test-Results-Front-End]
+The graph below shows the results of a load-test performed against an identical deployment of the cloud service used for the previous tests. The load test used a constant load of 500 users performing the `Get` operation in the `UserProfile` controller alongside a step-load of users performing requests against the `WorkInFrontEnd` controller. Initially, the step-load was 0, so the only active users were performing the `UserProfile` requests and the system was capable of supporting 700 requests per second. After 60 seconds, a load of 100 additional users was started, and these users sent POST requests to the `WorkInFrontEnd` controller. Almost immediately, the request rate for the `UserProfile` controller dropped to about 300 requests per second. As more users were added (in steps of 100) performing POST requests against the `WorkInFrontEnd` controller, the request rate against the `UserProfile` controller gradually diminished further. The volume of requests performed against the `WorkInFrontEnd` controller remained relatively constant. The saturation of the system becomes apparent as the overall rate of both requests tends towards a steady but low limit.
 
-The graph shows how many calls to each request were completed over time. Overall, the test made 676 successful requests over a 5 minute period. Given that this workload represents 100 users, then each user had to wait on average 44.4 seconds on average to complete a request.
+![Initial load-test results for the WorkInFrontEnd controller][Initial-Load-Test-Results-Front-End]
 
-Repeating the load-test with the `ProcessImage` request omitted and the remaining tests distributed equally (33%) yields the following results:
-
-![Load-test results for the FrontEndImageProcessing controller with the ProcessImage tests omitted][Second-Load-Test-Results-Front-End]
-
-This time the test complete 11973 successful requests. The average response time per user dropped to 2.5 seconds on average.
-
-Overall, these results suggest that the code for the `ProcessImage` request is worthy of further scrutiny.
+It is also worth noting the average test time of both sets of requests for future comparison.
 
 ### Reviewing the source code
 
-The final stage is to examine the source code for each of the `bad actors` previously identified. In the case of the `ProcessImage` method, the development team was aware that this request could take a considerable amount of time which is why the processing is performed on an asynchronous thread. In this way a user issuing the request does not have to wait for processing to complete before being able to continue with the next task:
+The final stage is to examine the source code for each of the `bad actors` previously identified. In the case of the `Post` method in the `WorkInFrontEnd` controller, the development team was aware that this request could take a considerable amount of time which is why the processing is performed on an asynchronous thread. In this way a user issuing the request does not have to wait for processing to complete before being able to continue with the next task:
 
 **C#**
 ```C#
-public HttpResponseMessage ProcessImage()
+public void Post()
 {
     new Thread(() =>
     {
-        // Image processing logic
-        ...
+        //Simulate processing
+        Thread.SpinWait(Int32.MaxValue / 100);
     }).Start();
 
     return Request.CreateResponse(HttpStatusCode.Accepted);
@@ -135,14 +126,13 @@ However, although this approach notionally improves response time for the user, 
 
 You should move processes that might consume significant resources to a separate tier, and control the way in which these processes run to prevent competition from causing resource starvation. 
 
-With Azure, you can offload the image processing work to a set of worker roles. The `ProcessImage` request in the web role can submit the details of the request to a queue, and instances of the web role can pick up these requests and perform the necessary tasks. The web role is then free to focus on user-facing tasks. Furthermore, the queue acts as a natural load-leveller, buffering requests until a worker role instance is available. If the queue length becomes too long, you can configure auto-scaling to start additional worker role instances, and shut these instances down when the workload eases.
+With Azure, you can offload the image processing work to a set of worker roles. The POST request in the `DoWorkInFrontEnd` controller can submit the details of the request to a queue, and instances of the web role can pick up these requests and perform the necessary tasks. The web role is then free to focus on user-facing tasks. Furthermore, the queue acts as a natural load-leveller, buffering requests until a worker role instance is available. If the queue length becomes too long, you can configure auto-scaling to start additional worker role instances, and shut these instances down when the workload eases.
 
-The following code snippet shows the amended version of the web API controller and the `ProcessImage` method:
+The following code snippet shows an alternative version of the `WorkInFrontEnd` controller:
 
 **C# web API**
 ```C#
-[RoutePrefix("backgroundimageprocessing")]
-public class BackgroundProcessingController : ApiController
+public class WorkInBackgroundController : ApiController
 {
     private const string ServiceBusConnectionString = ...;
     private const string AppSettingKeyServiceBusQueueName = ...;
@@ -150,7 +140,7 @@ public class BackgroundProcessingController : ApiController
     private readonly QueueClient QueueClient;
     private readonly string QueueName;
 
-    public BackgroundProcessingController()
+    public WorkInBackgroundController()
     {
         var serviceBusConnectionString = ...;
         QueueName = ...;
@@ -159,12 +149,12 @@ public class BackgroundProcessingController : ApiController
 
     ...
 
-    [Route("processimage")]
     [HttpPost]
-    public HttpResponseMessage ProcessImage()
+    [Route("api/workinbackground")]
+    public async Task<long> Post()
     {
-        ServiceBusQueueHandler.AddWorkLoadToQueueAsync(QueueClient, QueueName, ...);
-        return Request.CreateResponse(HttpStatusCode.Accepted);
+        return await ServiceBusQueuehandler.AddWorkLoadToQueueAsync(
+                QueueClient, QueueName, 0);
     }
 }
 ```
@@ -187,11 +177,8 @@ public class WorkerRole : RoleEntryPoint
             {
                 try
                 {
-                    // Process the message
-                    var data = receivedMessage.GetBody<string>();
-    
-                    // Perform image processing 
-                    ...
+                    // Simulate processing of message
+                    Thread.SpinWait(Int32.Maxvalue / 1000);
 
                     await receivedMessage.CompleteAsync();
                 }
@@ -207,7 +194,7 @@ public class WorkerRole : RoleEntryPoint
 ```
 ----------
 
-**Note:** The `BackgroundProcessing` controller and the worker role are included in the [sample code][fullDemonstrationOfSolution] available with this anti-pattern.
+**Note:** The `WorkInBackgroundController` controller and the worker role are included in the [sample code][fullDemonstrationOfSolution] available with this anti-pattern.
 
 ----------
 
@@ -217,22 +204,24 @@ You should consider the following points:
 
 - The processing environment must be sufficiently scalable to handle the expected workload and meet the required throughput targets.
 
-- Using a web role is simply one solution. Azure also provide other options such as [WebJobs][WebJobs]. 
+- Using a worker role is simply one solution. Azure also provide other options such as [WebJobs][WebJobs]. 
 
 
 ## Consequences of the solution
 
-Running the [sample solution][fullDemonstrationOfSolution] in a production environment and using Application Insights to monitor performance generated the following results:
+Running the [sample solution][fullDemonstrationOfSolution] in a production environment and using AppDynamics to monitor performance generated the following results. The load was similar to that shown earlier, but the response times of requests to the `UserProfile` controller is now much faster and the volume of requests overall was greatly increased over the same duration (23565 against 2759 earlier). A much bigger volume of requests was made to the `WorkInBackground` controller compared to the earlier tests due to the increased efficiency of these requests. However, you should not compare the throughput and response time for these requests to those shown earlier as the work being performed is very different (queuing a request rather than performing a time-consuming calculation):
 
-![Application Insights metrics for the BackgroundImageProcessing controller][App-Insights-Metrics-Background-All-Requests]
+![AppDynamics Business Transactions pane showing the effects of the response times of all requests when the WorkInBackground controller is used][AppDynamics-Transactions-Background-Requests]
 
-The load was similar to that shown earlier, but the response times of the `Post`, `Get`, and `IsImageProcessingComplete` requests is now much faster. A similar volume of requests was made to the `ProcessImage` method, but you should not compare the response time for these requests to those shown earlier as the times are simply a measure of how long the it took to post a message to a queue.
+The CPU and network utilization also illustrate the improved performance. The CPU utilization never reached 100% and the volume of network requests handled was far greater than earlier and did not tail off until the workload dropped.
 
-Repeating the controlled load-test over 5 minutes for 100 users submitting a mixture of all four requests gives the following results:
+![AppDynamics metrics showing the CPU and network utilization for the WorkInBackground controller][AppDynamics-Metrics-Background-Requests]
+
+Repeating the controlled load-test over 5 minutes for users submitting a mixture of all requests against the `UserProfile` and `WorkInBackground` controllers gives the following results:
 
 ![Load-test results for the BackgroundImageProcessing controller][Load-Test-Results-Background]
 
-This graph confirms the improvement in performance of the `Post`, `Get`, and `IsImageProcessingComplete` requests as a result of offloading the processing for the `ProcessImage` requests.
+This graph confirms the improvement in performance of the system as a result of offloading the intensive processing to the worker role. The overall volume of tests and the average test time is greatly improved compared to the earlier tests.
 
 Relocating resource-hungry processing to a separate set of processes should improve responsiveness for most requests, but the resource-hungry processing itself may take longer (this duration is not illustrated in the two graphs above, and requires instrumenting and monitoring the worker role.) If there are insufficient worker role instances available to perform the resource-hungry workload, jobs might be queued or otherwise held pending for an indeterminate period. However, it might be possible to expedite critical jobs that must be performed quickly by using a priority queuing mechanism.
 
@@ -250,9 +239,9 @@ Relocating resource-hungry processing to a separate set of processes should impr
 [ServiceBusQueues]: https://msdn.microsoft.com/library/azure/hh367516.aspx
 [QueueBasedLoadLeveling]: https://msdn.microsoft.com/library/dn589783.aspx
 [PriorityQueue]: https://msdn.microsoft.com/library/dn589794.aspx
-[App-Insights-Metrics-Front-End-All-Requests]: Figures/AppInsightsAllTests.jpg
+[AppDynamics-Transactions-Front-End-Requests]: Figures/AppDynamicsPerformanceStats.jpg
+[AppDynamics-Metrics-Front-End-Requests]: Figures/AppDynamicsFrontEndMetrics.jpg
 [Initial-Load-Test-Results-Front-End]: Figures/InitialLoadTestResultsFrontEnd.jpg
-[Second-Load-Test-Results-Front-End]: Figures/SecondLoadTestResultsFrontEnd.jpg
-[App-Insights-Metrics-Background-All-Requests]: Figures/AppInsightsBackground.jpg
+[AppDynamics-Transactions-Background-Requests]: Figures/AppDynamicsBackgroundPerformanceStats.jpg
+[AppDynamics-Metrics-Background-Requests]: Figures/AppDynamicsBackgroundMetrics.jpg
 [Load-Test-Results-Background]: Figures/LoadTestResultsBackground.jpg
-
