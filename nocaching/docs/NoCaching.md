@@ -166,8 +166,6 @@ You should consider the following points concerning caching:
 
 - Caching doesn't just apply to data held in a remote data source. You can use caching to save the results of complex computations that are performed regularly. In this way, rather than expending processing resources (and time) repeating such a calculation, an application might be able to retrieve results computed earlier.
 
-- Use an appropriate caching technology. If you are building Azure cloud services or web applications, then using an in-memory cache may not be appropriate because client requests might not always be routed to the same server. This approach also has limited scalability (governed by the available memory on the server). Instead, use a shared caching solution such as [Azure Redis Cache][Azure-cache].
-
 - Falling back to the original data store if the cache is temporarily unavailable may have a scalability impact on the system. While the cache is being recovered, the original data store could be swamped with requests for data, resulting in timeouts and failed connections.
 
 - It might be useful to prime the cache on system startup. The cache can be populated with the data that is most likely to be used.
