@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<appdynamics-agent xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <instrumentation>
+    <instrumentor name="ThreadCorrelationThreadPoolCLR2Instrumentor" enabled="true"/>
+    <instrumentor name="ThreadStartCLR2Instrumentor" enabled="true"/>
+    <instrumentor name="ThreadStartCLR4Instrumentor" enabled="true"/>
+  </instrumentation>
+  <controller host="azurep_p.saas.appdynamics.com:443/controller" port="443" ssl="true">
+    <account name="azurep_p" password="1a6a3dbaa120"/>
+    <application name="TooMuchProcSql" />
+  </controller>
+  <machine-agent />
+  <app-agents>
+    <IIS>
+      <automatic />
+      <applications />
+    </IIS>
+    <windows-services>
+      <windows-service name="RetalixDMSService">
+        <tier name="Retalix-StoreDMS"/>
+      </windows-service>
+    </windows-services>
+    <standalone-applications>
+      <standalone-application executable="Retalix.Client.POS.Shell.exe">
+        <tier name="POS" Client="""" />
+      </standalone-application>
+    </standalone-applications>
+  </app-agents>
+</appdynamics-agent>

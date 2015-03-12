@@ -1,0 +1,14 @@
+﻿declare @ItemList varchar(8000);
+set @ItemList = 'car,moto,bicycle,hope,rio,grande,canal,juggle,money,jar,compose,film,actor,code,book,the art of hiding secrects,
+                 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
+				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
+				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
+				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
+				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
+				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
+				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
+				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
+				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
+				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
+				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,';
+select @ItemList;
