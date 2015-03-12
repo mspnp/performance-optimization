@@ -13,7 +13,7 @@ namespace WebRole
         public UserProfile GetUserProfile()
         {
             Thread.Sleep(2000);
-            return new UserProfile() { FirstName = "Alton", LastName = "Hudgens" };
+            return new UserProfile { FirstName = "Alton", LastName = "Hudgens" };
         }
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace WebRole
         public async Task<UserProfile> GetUserProfileAsync()
         {
             await Task.Delay(2000).ConfigureAwait(false);
-            return new UserProfile() { FirstName = "Alton", LastName = "Hudgens" };
+            return new UserProfile { FirstName = "Alton", LastName = "Hudgens" };
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace WebRole
         /// </summary>
         public Task<UserProfile> GetUserProfileWrappedAsync()
         {
-            return Task.Run(()=> GetUserProfile());
+            return Task.Run(() => GetUserProfile());
         }
     }
 }
