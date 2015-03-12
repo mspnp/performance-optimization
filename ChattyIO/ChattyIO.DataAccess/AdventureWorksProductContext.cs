@@ -1,4 +1,5 @@
 ﻿using System.Data.Entity;
+using ChattyIO.DataAccess.Models;
 
 namespace ChattyIO.DataAccess
 {

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using ChattyIO.DataAccess;
+using ChattyIO.DataAccess.Models;
 
 namespace ChattyIO.WebApi.Controllers
 {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace ChattyIO.DataAccess
+namespace ChattyIO.DataAccess.Models
 {
     public class Product
     {

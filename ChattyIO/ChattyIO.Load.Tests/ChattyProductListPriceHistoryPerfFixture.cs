@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Net.Http.Headers;
 using ChattyIO.DataAccess;
+using ChattyIO.DataAccess.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace ChattyIO.Tests

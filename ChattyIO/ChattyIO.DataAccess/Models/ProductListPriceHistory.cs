@@ -1,6 +1,6 @@
 using System;
 
-namespace ChattyIO.DataAccess
+namespace ChattyIO.DataAccess.Models
 {
     public class ProductListPriceHistory
     {
