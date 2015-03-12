@@ -83,7 +83,6 @@ namespace CachingDemo.Data
     {
         public AdventureWorksConfiguration()
         {
-            this.AddInterceptor(new LoggingInterceptor());
             this.SetProviderServices(SqlProviderServices.ProviderInvariantName, SqlProviderServices.Instance);
             this.SetExecutionStrategy(SqlProviderServices.ProviderInvariantName, () => new SqlAzureExecutionStrategy());
         }

@@ -5,16 +5,16 @@ namespace CachingDemo.Data
 {
     public class CachedPersonRepository : IPersonRepository
     {
-        private readonly PersonRepository innerRepository;
+        private readonly PersonRepository _innerRepository;
 
         public CachedPersonRepository(PersonRepository innerRepository)
         {
-            this.innerRepository = innerRepository;
+            _innerRepository = innerRepository;
         }
 
         public async Task<Person> GetAsync(int id)
         {
-            return await CacheService.GetAsync<Person>("p:" + id, () => this.innerRepository.GetAsync(id)).ConfigureAwait(false);
+            return await CacheService.GetAsync<Person>("p:" + id, () => _innerRepository.GetAsync(id)).ConfigureAwait(false);
         }
     }
 }
