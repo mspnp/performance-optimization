@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Configuration;
 using System.Net.Http;
-using System.Threading.Tasks;
 using System.Net.Http.Headers;
-using ChattyIO.DataAccess;
+using System.Threading.Tasks;
 using ChattyIO.DataAccess.Models;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
