@@ -14,7 +14,7 @@ namespace CachingDemo.Data
                 return await context.Customers
                     .Include(c => c.Person)
                     .Where(c => c.CustomerId == id)
-                    .SingleOrDefaultAsync()
+                    .FirstOrDefaultAsync()
                     .ConfigureAwait(false);
             }
         }

@@ -13,7 +13,7 @@ namespace CachingDemo.Data
             {
                 return await context.People
                     .Where(p => p.Id == id)
-                    .SingleOrDefaultAsync()
+                    .FirstOrDefaultAsync()
                     .ConfigureAwait(false);
             }
         }
