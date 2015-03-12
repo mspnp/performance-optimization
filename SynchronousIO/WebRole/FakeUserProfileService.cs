@@ -4,7 +4,7 @@ using WebRole.Models;
 
 namespace WebRole
 {
-    public class UserProfileServiceProxy : IUserProfileService
+    public class FakeUserProfileService : IUserProfileService
     {
         /// <summary>
         /// This method simulates a synchronous IO call that blocks the current thread

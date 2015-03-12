@@ -9,7 +9,7 @@ namespace WebRole.Controllers
 
         public SyncController()
         {
-            _userProfileService = new UserProfileServiceProxy();
+            _userProfileService = new FakeUserProfileService();
         }
 
         /// <summary>

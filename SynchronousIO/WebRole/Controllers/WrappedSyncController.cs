@@ -10,7 +10,7 @@ namespace WebRole.Controllers
 
         public WrappedSyncController()
         {
-            _userProfileService = new UserProfileServiceProxy();
+            _userProfileService = new FakeUserProfileService();
         }
 
         /// <summary>
