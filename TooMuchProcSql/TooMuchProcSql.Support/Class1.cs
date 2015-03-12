@@ -34,37 +34,19 @@ namespace TooMuchProcSql.Support
             }
         }
 
-        public static string GetQuery(string word)
+        public static void PutQuery(string key, string file )
         {
-            
+           
             string result;
-            if (Query.TryGetValue(word, out result))
-            {
-                return result;
-            }
-            else
-            {
-                return null;
-            }
+            Query.Add(key, GetSqlQuery(file));
+
         }
 
-        public static string PutQuery(string word)
-        {
-
-            string result;
-            if (Query.Add.TryGetValue(word, out result))
-            {
-                return result;
-            }
-            else
-            {
-                return null;
-            }
-        }
+       
 
 
 
-        public static string GetSqlQuery(string file)
+        private static string GetSqlQuery(string file)
         {
 
 

@@ -1,30 +1,20 @@
 ﻿declare @Items varchar(8000);
-set @Items='Name: ';
 declare @ItemList varchar(8000);
 DECLARE @DelimIndex     INT;
 DECLARE @Item   VARCHAR(8000);
-set @ItemList = 'car,moto,bicycle,hope,rio,grande,canal,juggle,money,jar,compose,film,actor,code,book,the art of hiding secrects,
-                 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
-				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
-				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
-				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
-				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
-				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
-				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
-				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
-				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
-				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,
-				 the universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,the art of hiding secrects,'; 	
+set @ItemList = 'car,moto,bicycle,hope,rio,grande,canal,juggle,money,jar,compose,film,actor,code,book,secrects,universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,car,moto,bicycle,hope,rio,grande,canal,juggle,money,jar,compose,film,actor,code,book,secrects,universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,car,moto,bicycle,hope,rio,grande,canal,juggle,money,jar,compose,film,actor,code,book,secrects,universe,brazil,amazon,forest,ama,love,determined,complecompose,film,actor,code,book,'; 
 declare @Delimiter varchar(1);              
 SET @Delimiter = ',';
 SET @DelimIndex = CHARINDEX(@Delimiter, @ItemList, 0);
+SET @Item = LTRIM(SUBSTRING(@ItemList, 0, @DelimIndex));
+SET @Items = @Item;
 WHILE (@DelimIndex != 0)
 BEGIN
-	SET @Item = LTRIM(SUBSTRING(@ItemList, 0, @DelimIndex))
-	SET @Items=CONCAT(@Items,' Name: ',@Item)
-	--INSERT INTO @Items VALUES (@Item)
-	-- Set @ItemList = @ItemList minus one less item
-	SET @ItemList = SUBSTRING(@ItemList, @DelimIndex+1, LEN(@ItemList)-@DelimIndex)
+    SET @ItemList = SUBSTRING(@ItemList, @DelimIndex+1, LEN(@ItemList)-@DelimIndex)
 	SET @DelimIndex = CHARINDEX(@Delimiter, @ItemList, 0)
+	SET @Item = LTRIM(SUBSTRING(@ItemList, 0, @DelimIndex))
+	SET @Items=CONCAT(@Items,' ',@Item)	
 END; -- End WHILE
+SET @Item = LTRIM(SUBSTRING(@ItemList, 0, @DelimIndex))
+SET @Items=CONCAT(@Items,' ',@Item);	
 select  @Items as FormattedList;

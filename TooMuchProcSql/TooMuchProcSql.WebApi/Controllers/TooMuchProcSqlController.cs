@@ -22,12 +22,13 @@ namespace TooMuchProcSql.WebApi.Controllers
      
         public async Task GetNameConcat(int Id)
         {
+       
  
             using (var connection = new SqlConnection(ConfigurationManager.AppSettings["connectionString"]))
             {
                 await connection.OpenAsync(new System.Threading.CancellationToken());               
-             
-                string commandString = SupportFiles.GetSqlQuery("TooMuchProcSql3.txt");               
+                //get query from memory
+                string commandString = SupportFiles.GetQuery("TooMuchSql");               
                 using (SqlCommand command = new SqlCommand(commandString, connection))
                 {
                     command.CommandType = CommandType.Text;
@@ -36,15 +37,8 @@ namespace TooMuchProcSql.WebApi.Controllers
                     using (SqlDataReader reader = await command.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
-                        {
-                            try
-                            {
-                                var field = reader.GetFieldValue<string>(0);
-                            }
-                            catch(Exception ex)
-                            {
-                                var message = ex.Message;
-                            }
+                        { 
+                            var value = reader.GetFieldValue<string>(0);                             
                         }                     
                     }
                 }
@@ -52,8 +46,8 @@ namespace TooMuchProcSql.WebApi.Controllers
             
             }
 
-
-         //   return "value";
+          
+         
         }
 
 

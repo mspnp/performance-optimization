@@ -19,26 +19,16 @@ namespace TooMuchProcSql.WebApi.Controllers
             using (var connection = new SqlConnection(ConfigurationManager.AppSettings["connectionString"]))
             {
                 await connection.OpenAsync(new System.Threading.CancellationToken());
-
-            //    string commandString = SupportFiles.GetSqlQuery("LessProcSql2.txt");  
-                string commandString = SupportFiles.GetSqlQuery("LessProcSql.txt");  
-                
+                string commandString = SupportFiles.GetQuery("LessSql");                
                 using (SqlCommand command = new SqlCommand(commandString, connection))
                 {
                     command.CommandType = CommandType.Text;
                     using (SqlDataReader reader = await command.ExecuteReaderAsync())
                     {
-                        string value=" Name: ";
+                        
                         while (await reader.ReadAsync())
                         {
-                            var field = reader.GetFieldValue<string>(0);
-                            string[] str=field.Split(',');
-                            foreach( string s in str)
-                            {
-                                value = value + s;
-
-                            }
-
+                            var field = reader.GetFieldValue<string>(0).Replace(',',' ');                           
                         }
                     }
 
