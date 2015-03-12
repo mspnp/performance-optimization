@@ -4,7 +4,7 @@ using System.Web.Http;
 using System.Data.Entity;
 using ChattyIO.DataAccess;
 
-namespace ChattyIO.Api.Web.Controllers
+namespace ChattyIO.WebApi.Controllers
 {
     public class ChunkyProductController : ApiController
     {

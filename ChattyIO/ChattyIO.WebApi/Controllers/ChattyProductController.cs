@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using System.Web.Http;
 using ChattyIO.DataAccess;
 
-namespace ChattyIO.Api.Web.Controllers
+namespace ChattyIO.WebApi.Controllers
 {
     //We are using the context directly here since the purpose of this is to illustrate perf anti-patterns
     //consider using the Repository pattern instead in a real app.
