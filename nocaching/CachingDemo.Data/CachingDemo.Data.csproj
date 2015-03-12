@@ -69,7 +69,6 @@
     <Compile Include="IPersonRepository.cs" />
     <Compile Include="ISalesOrderRepository.cs" />
     <Compile Include="ISalesPersonRepository.cs" />
-    <Compile Include="LoggingInterceptor.cs" />
     <Compile Include="Models\Customer.cs" />
     <Compile Include="Models\Employee.cs" />
     <Compile Include="Models\Person.cs" />
