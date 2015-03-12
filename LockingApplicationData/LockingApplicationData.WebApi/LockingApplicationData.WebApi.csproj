@@ -107,7 +107,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\ContentionController.cs" />
+    <Compile Include="Controllers\DictionaryController.cs" />
+    <Compile Include="Controllers\ConcurrentDictionaryController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
