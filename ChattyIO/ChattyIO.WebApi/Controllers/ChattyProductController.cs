@@ -7,8 +7,9 @@ using ChattyIO.DataAccess.Models;
 
 namespace ChattyIO.WebApi.Controllers
 {
-    //We are using the context directly here since the purpose of this is to illustrate perf anti-patterns
-    //consider using the Repository pattern instead in a real app.
+    // We are using the db context directly here since the purpose of this is to illustrate perf anti-patterns.
+    // Consider using the Repository pattern instead in a real app.
+
     public class ChattyProductController : ApiController
     {
 
@@ -16,27 +17,29 @@ namespace ChattyIO.WebApi.Controllers
         [Route("chattyproduct/products/{subcategoryId}")]
         public async Task<ProductSubcategory> GetProductsInSubCategoryAsync(int subcategoryId)
         {
-            ProductSubcategory productSubcategory = null;
-     
             using (var context = GetContext())
             {
-               productSubcategory = await context.ProductSubcategories
-                      .Where((psc) => psc.ProductSubcategoryId == subcategoryId)
-                      .SingleOrDefaultAsync();
+                var productSubcategory = await context.ProductSubcategories
+                       .Where(psc => psc.ProductSubcategoryId == subcategoryId)
+                       .SingleOrDefaultAsync();
+
                 productSubcategory.Product = await context.Products
-                    .Where((p) => subcategoryId == p.ProductSubcategoryId)
+                    .Where(p => subcategoryId == p.ProductSubcategoryId)
                     .ToListAsync();
 
                 foreach (var prod in productSubcategory.Product)
                 {
+                    int productId = prod.ProductId;
+
                     var productListPriceHistory = await context.ProductListPriceHistory
-                       .Where((pl) => pl.ProductId == prod.ProductId)
+                       .Where(pl => pl.ProductId == productId)
                        .ToListAsync();
+
                     prod.ProductListPriceHistory = productListPriceHistory;
                 }
 
+                return productSubcategory;
             }
-            return productSubcategory;
         }
 
 
