@@ -38,17 +38,6 @@ namespace ChattyIO.DataAccess
                 new ProductSubcategoryConfiguration());
         }
 
-        public static DbModelBuilder CreateModel(DbModelBuilder modelBuilder, string schema)
-        {
-            modelBuilder.Configurations.Add(new ProductConfiguration(schema));
-            modelBuilder.Configurations.Add(new ProductCategoryConfiguration(schema));
-            modelBuilder.Configurations.Add(
-                new ProductListPriceHistoryConfiguration());
-            modelBuilder.Configurations.Add(
-                new ProductSubcategoryConfiguration(schema));
-            return modelBuilder;
-        }
-
         public DbSet<Product> Products { get; set; } // Product
         public DbSet<ProductCategory> ProductCategories { get; set; } // ProductCategory
         public DbSet<ProductListPriceHistory> ProductListPriceHistory { get; set; }
