@@ -14,7 +14,7 @@ namespace CachingDemo.Data
             {
                 return await context.SalesPeople
                     .Where(sp => sp.Id == id)
-                    .SingleOrDefaultAsync()
+                    .FirstOrDefaultAsync()
                     .ConfigureAwait(false);
             }
         }
