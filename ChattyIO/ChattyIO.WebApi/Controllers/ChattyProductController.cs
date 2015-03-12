@@ -21,7 +21,7 @@ namespace ChattyIO.WebApi.Controllers
             {
                 var productSubcategory = await context.ProductSubcategories
                        .Where(psc => psc.ProductSubcategoryId == subcategoryId)
-                       .SingleOrDefaultAsync();
+                       .FirstOrDefaultAsync();
 
                 productSubcategory.Product = await context.Products
                     .Where(p => subcategoryId == p.ProductSubcategoryId)
