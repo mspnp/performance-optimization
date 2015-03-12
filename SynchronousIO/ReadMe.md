@@ -1,9 +1,10 @@
 # Synchronous I/O Sample Code
 
-The Synchronous IO sample code illustrates techniques for retrieving information in a web service and returning it to a client. The sample comprises:
-* The SynchronousIO solution file,
-* The AzureCloudService project, and
-* The WebRole project.
+The Synchronous IO sample code illustrates techniques for retrieving information from a web service and returning it to a client. The sample comprises:
+* The SynchronousIO solution file
+* The AzureCloudService project
+* CreateFileToUpload project
+* The WebRole project
 
 The sample simulates fetching information from a data store. The data returned is a `UserProfile` object (defined in the Models folder in the WebRole project):
 
@@ -16,10 +17,10 @@ public class UserProfile
 }
 ```
 
-The code that actually retrieves the data is located in the `UserProfileServiceProxy` class, located in the WebRole project. This class exposes the following three methods:
+The code that actually retrieves the data is located in the `FakeUserProfileService` class, located in the WebRole project. This class exposes the following three methods:
 ***C#***
 ``` C#
-public class UserProfileServiceProxy : IUserProfileService
+public class FakeUserProfileService : IUserProfileService
 {
     public UserProfile GetUserProfile()
     {
@@ -39,12 +40,17 @@ public class UserProfileServiceProxy : IUserProfileService
 ```
 These methods demonstrate the synchronous, task-based asynchronous, and wrapped async techniques for fetching data. The methods return hard-coded values, but simulate the delay expected when retrieving information from a remote data store.
 
-WebRole is a Web API project. It includes three controllers:
+WebRole is a Web API project. It includes five controllers:
 * `AsyncController`
+* `AsyncUploadController`
 * `SyncController`
+* `SyncUploadController`
 * `WrappedSyncController`
 
-These three WebAPI controllers call the corresponding methods of the `UserProfileServiceProxy` class.
+The AsyncController, SyncController, and WrappedSyncController WebAPI controllers call the corresponding methods of the `FakeUserProfileService` class.
+
+The AsyncUploadController and SyncUploadController WebAPI controllers call corresponding methods in the Azure Blob storage sdk to upload the "FileToUpload.txt" file to Blob storage.
+The CreateFileToUpload project is a console app that can be used to generate a file named "FileToUpload.txt" that is 10 MB in size.
 
 ## Deploying to Azure
 Right-click the AzureCloudService project and then click *Publish* to deploy the project to Azure.

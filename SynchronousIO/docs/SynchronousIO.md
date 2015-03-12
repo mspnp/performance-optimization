@@ -33,7 +33,7 @@ using (var fileStream = System.IO.File.OpenRead(HttpContext.Current.Server.MapPa
 }
 ```
 
-- The application requires a response from the request, as shown by the following code example. The `GetUserProfile` method is part of a web service that retrieves user profile information from a User Profile service (through the `UserServiceProfileProxy` class which handles all of the connection and routing details) and then returns it to a client. The thread running the `GetUserProfile` method will be blocked waiting for the response from the User Profile service:
+- The application requires a response from the request, as shown by the following code example. The `GetUserProfile` method is part of a web service that retrieves user profile information from a User Profile service (through the `FakeUserProfileService` class which handles all of the connection and routing details) and then returns it to a client. The thread running the `GetUserProfile` method will be blocked waiting for the response from the User Profile service:
 
 **C#**
 
@@ -44,7 +44,7 @@ public class SyncController : ApiController
 
     public SyncController()
     {
-        _userProfileService = new UserProfileServiceProxy();
+        _userProfileService = new FakeUserProfileService();
     }
 
     // This is a synchronous method that calls the synchronous GetUserProfile method.
@@ -85,7 +85,7 @@ Perform a code review to identify the source of any I/O operations that the appl
 
 ### Load-testing the application
 
-Load-testing can help to identify whether a system is being constrained by performing synchronous I/O operations. As an example, the following graph illustrates the performance of the synchronous `GetUserProfile` method in the `SyncController` controller in the sample application under varying loads. 
+Load-testing can help to identify whether a system is being constrained by performing synchronous I/O operations. As an example, the following graph illustrates the performance of the synchronous `GetUserProfile` method in the `SyncController` controller in the sample application under varying loads.
 
 ----------
 
@@ -116,7 +116,7 @@ Users | Requests/sec | Avg Response Time secs | Failed Requests/sec | Successful
 4050 | 172 | 18.7 | 46.1 | 125.9
 4550 | 175 | 17.5 | 35.8 | 139.2
 
-The rate of successful requests is not shown on the graph but is calculated by subtracting the rate of failed requests from the rate of all requests. Apart from the final couple of figures (which are possibly outliers), the system appears to support a maximum of approximately 110 successful requests per second. To understand why this is so, consider that the application runs as a Web role. Incoming requests are queued by the IIS web server and handed to a thread running in the ASP.NET thread pool. Because each operation performs I/O synchronously, the thread is blocked until the operation completes. As the workload increases, the rate at which requests are received also increases up to the point at which all of the ASP.NET threads in the thread pool are allocated and being blocked. At this time, any further incoming requests cannot be not fulfilled immediately and wait in the queue until a running operation completes and a thread becomes available. As the queue length grows, requests start to time out. This is characterized by the number of errors that are returned. Although the volume of requests appears to increase at this point, the proportion of these requests that result in an error also increases. In total, the load-test reported a failure rate of 66.3%. 
+The rate of successful requests is not shown on the graph but is calculated by subtracting the rate of failed requests from the rate of all requests. Apart from the final couple of figures (which are possibly outliers), the system appears to support a maximum of approximately 110 successful requests per second. To understand why this is so, consider that the application runs as a Web role. Incoming requests are queued by the IIS web server and handed to a thread running in the ASP.NET thread pool. Because each operation performs I/O synchronously, the thread is blocked until the operation completes. As the workload increases, the rate at which requests are received also increases up to the point at which all of the ASP.NET threads in the thread pool are allocated and being blocked. At this time, any further incoming requests cannot be not fulfilled immediately and wait in the queue until a running operation completes and a thread becomes available. As the queue length grows, requests start to time out. This is characterized by the number of errors that are returned. Although the volume of requests appears to increase at this point, the proportion of these requests that result in an error also increases. In total, the load-test reported a failure rate of 66.3%.
 
 ----------
 
@@ -189,7 +189,7 @@ using (var fileStream = File.OpenRead(HostingEnvironment.MapPath("~/FileToUpload
 }
 ```
 
-The `UploadFromStreamAsync` method creates a new `Task` on which to perform the file upload operation. This I/O operation is started and the thread is released, becoming available to perform other work. When the I/O operation completes, the next available thread is used to continue the processing for the remainder of the method (the call to `ConfigureAwait(false)` indicates that this does not have to be the same thread that initiated the task.) 
+The `UploadFromStreamAsync` method creates a new `Task` on which to perform the file upload operation. This I/O operation is started and the thread is released, becoming available to perform other work. When the I/O operation completes, the next available thread is used to continue the processing for the remainder of the method (the call to `ConfigureAwait(false)` indicates that this does not have to be the same thread that initiated the task.)
 
 
 ----------
@@ -198,7 +198,7 @@ The `UploadFromStreamAsync` method creates a new `Task` on which to perform the 
 
 ----------
 
-A well-designed service should also provide asynchronous operations. The example below illustrates an asynchronous version of the web service that returns user profile information. The `GetUserProfileAsync` method depends on an asynchronous version of the User Profile service proxy which doesn't block the calling thread:
+A well-designed service should also provide asynchronous operations. The example below illustrates an asynchronous version of the web service that returns user profile information. The `GetUserProfileAsync` method depends on an asynchronous version of the User Profile service which doesn't block the calling thread:
 
 **C#**
 
@@ -209,7 +209,7 @@ public class AsyncController : ApiController
 
     public AsyncController()
     {
-        _userProfileService = new UserProfileServiceProxy();
+        _userProfileService = new FakeUserProfileService();
     }
 
     // This is an synchronous method that calls the Task based GetUserProfileAsync method.
