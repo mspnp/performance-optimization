@@ -20,15 +20,13 @@ namespace ChattyIO.DataAccess
 
             modelBuilder.Configurations.Add(new ProductConfiguration());
             modelBuilder.Configurations.Add(new ProductCategoryConfiguration());
-            modelBuilder.Configurations.Add(
-                new ProductListPriceHistoryConfiguration());
-            modelBuilder.Configurations.Add(
-                new ProductSubcategoryConfiguration());
+            modelBuilder.Configurations.Add(new ProductListPriceHistoryConfiguration());
+            modelBuilder.Configurations.Add(new ProductSubcategoryConfiguration());
         }
 
-        public DbSet<Product> Products { get; set; } // Product
-        public DbSet<ProductCategory> ProductCategories { get; set; } // ProductCategory
+        public DbSet<Product> Products { get; set; }
+        public DbSet<ProductCategory> ProductCategories { get; set; }
         public DbSet<ProductListPriceHistory> ProductListPriceHistory { get; set; }
-        public DbSet<ProductSubcategory> ProductSubcategories { get; set; } // ProductSubcategory
+        public DbSet<ProductSubcategory> ProductSubcategories { get; set; }
     }
 }
