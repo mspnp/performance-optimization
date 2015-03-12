@@ -8,7 +8,7 @@ namespace CachingDemo.Data
 {
     public class CacheService
     {
-        private static ConnectionMultiplexer connection;
+        private static ConnectionMultiplexer _connection;
 
         private const double DefaultExpirationTimeInMinutes = 5.0d;
 
@@ -16,12 +16,12 @@ namespace CachingDemo.Data
         {
             get
             {
-                if ((connection == null) || (!connection.IsConnected))
+                if ((_connection == null) || (!_connection.IsConnected))
                 {
-                    connection = ConnectionMultiplexer.Connect(CloudConfigurationManager.GetSetting("RedisConfiguration"));
+                    _connection = ConnectionMultiplexer.Connect(CloudConfigurationManager.GetSetting("RedisConfiguration"));
                 }
 
-                return connection;
+                return _connection;
             }
         }
 

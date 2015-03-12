@@ -6,18 +6,18 @@ namespace CachingDemo.Data
 {
     public class CachedSalesOrderRepository : ISalesOrderRepository
     {
-        private readonly SalesOrderRepository innerRepository;
+        private readonly SalesOrderRepository _innerRepository;
 
         public CachedSalesOrderRepository(SalesOrderRepository innerRepository)
         {
-            this.innerRepository = innerRepository;
+            _innerRepository = innerRepository;
         }
 
         public async Task<ICollection<SalesOrderHeader>> GetTopTenSalesOrdersAsync()
         {
             return await CacheService.GetAsync<ICollection<SalesOrderHeader>>(
                 "soh:topTen",
-                () => this.innerRepository.GetTopTenSalesOrdersAsync()).ConfigureAwait(false);
+                () => _innerRepository.GetTopTenSalesOrdersAsync()).ConfigureAwait(false);
         }
     }
 }
