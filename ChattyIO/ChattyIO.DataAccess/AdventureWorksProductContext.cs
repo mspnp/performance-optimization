@@ -12,18 +12,6 @@ namespace ChattyIO.DataAccess
         public AdventureWorksProductContext()
             : base("Name=AdventureWorksProductContext")
         {
-
-        }
-
-        public AdventureWorksProductContext(string connectionString)
-            : base(connectionString)
-        {
-        }
-
-        public AdventureWorksProductContext(string connectionString,
-            System.Data.Entity.Infrastructure.DbCompiledModel model)
-            : base(connectionString, model)
-        {
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
