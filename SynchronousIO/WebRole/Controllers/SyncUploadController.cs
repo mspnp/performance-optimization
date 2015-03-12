@@ -8,11 +8,7 @@ namespace WebRole.Controllers
 {
     public class SyncUploadController : ApiController
     {
-        public void Get()
-        {
-            UploadFile();
-        }
-
+        [HttpGet]
         public void UploadFile()
         {
             var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));

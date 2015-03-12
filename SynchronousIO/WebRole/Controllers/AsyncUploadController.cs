@@ -9,11 +9,7 @@ namespace WebRole.Controllers
 {
     public class AsyncUploadController : ApiController
     {
-        public Task Get()
-        {
-            return UploadFileAsync();
-        }
-
+        [HttpGet]
         public async Task UploadFileAsync()
         {
             var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
