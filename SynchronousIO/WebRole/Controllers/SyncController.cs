@@ -15,7 +15,6 @@ namespace WebRole.Controllers
         /// <summary>
         /// This is a synchronous method that calls the synchronous GetUserProfile method.
         /// </summary>
-        /// <returns>A UserProfile instance</returns>
         public UserProfile GetUserProfile()
         {
             return _userProfileService.GetUserProfile();

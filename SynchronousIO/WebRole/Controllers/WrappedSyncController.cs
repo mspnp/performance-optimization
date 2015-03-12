@@ -19,7 +19,6 @@ namespace WebRole.Controllers
         /// are tied up by the synchronous GetUserProfile method in the Task.Run. Under significant load
         /// new threads will need to be created.
         /// </summary>
-        /// <returns>A UserProfile instance</returns>
         public Task<UserProfile> GetUserProfileAsync()
         {
             return _userProfileService.GetUserProfileWrappedAsync();
