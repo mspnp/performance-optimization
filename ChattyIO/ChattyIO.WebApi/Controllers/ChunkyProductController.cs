@@ -1,12 +1,11 @@
-﻿namespace ChattyIO.Api.Web.Controllers
+﻿using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Data.Entity;
+using ChattyIO.DataAccess;
+
+namespace ChattyIO.Api.Web.Controllers
 {
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Web.Http;
-    using System.Data.Entity;
-
-    using ChattyIO.DataAccess;
-
     public class ChunkyProductController : ApiController
     {
         [HttpGet]

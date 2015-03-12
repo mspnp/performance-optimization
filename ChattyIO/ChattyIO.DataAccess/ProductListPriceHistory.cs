@@ -1,7 +1,7 @@
+using System;
+
 namespace ChattyIO.DataAccess
 {
-    using System;
-  
     public class ProductListPriceHistory
     {
         public int ProductId { get; set; }

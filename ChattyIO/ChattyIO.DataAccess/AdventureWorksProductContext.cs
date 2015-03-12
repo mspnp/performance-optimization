@@ -1,7 +1,7 @@
-﻿namespace ChattyIO.DataAccess
-{
-    using System.Data.Entity;
+﻿using System.Data.Entity;
 
+namespace ChattyIO.DataAccess
+{
     public class AdventureWorksProductContext : DbContext
     {
         static AdventureWorksProductContext()

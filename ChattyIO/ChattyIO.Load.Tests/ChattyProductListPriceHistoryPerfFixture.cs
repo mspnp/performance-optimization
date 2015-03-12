@@ -1,14 +1,13 @@
-﻿namespace ChattyIO.Tests
+﻿using System;
+using System.Configuration;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Net.Http.Headers;
+using ChattyIO.DataAccess;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace ChattyIO.Tests
 {
-    using System;
-    using System.Configuration;
-    using System.Net.Http;
-    using System.Threading.Tasks;
-    using System.Net.Http.Headers;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-    using ChattyIO.DataAccess;
-
     [TestClass]
     public class ChattyProductListPriceHistoryPerfFixture
     {
@@ -25,13 +24,13 @@
         [TestMethod]
         public async Task WhenUsingChattyAPI_ToGet_AllProductListPriceHistory_ForCategories()
         {
-            
+
             for (int i = 1; i < 5; i++)
             {
-               
-                    var subCategoryResponse =
-                        await httpClient.GetAsync("chattyproduct/products/" + i.ToString());
-                    var subCategory = await subCategoryResponse.Content.ReadAsAsync<ProductSubcategory>();
+
+                var subCategoryResponse =
+                    await httpClient.GetAsync("chattyproduct/products/" + i.ToString());
+                var subCategory = await subCategoryResponse.Content.ReadAsAsync<ProductSubcategory>();
             }
         }
 

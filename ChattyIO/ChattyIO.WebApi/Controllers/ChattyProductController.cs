@@ -1,13 +1,11 @@
-﻿namespace ChattyIO.Api.Web.Controllers
+﻿using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Http;
+using ChattyIO.DataAccess;
+
+namespace ChattyIO.Api.Web.Controllers
 {
-    using System.Collections.Generic;
-    using System.Data.Entity;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Web.Http;
-
-    using ChattyIO.DataAccess;
-
     //We are using the context directly here since the purpose of this is to illustrate perf anti-patterns
     //consider using the Repository pattern instead in a real app.
     public class ChattyProductController : ApiController
