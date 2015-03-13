@@ -7,8 +7,8 @@ namespace ServiceBusQueueHandling
 {
     public class ServiceBusQueueHandler
     {
-        private NamespaceManager _namespaceManager;
-        private string _serviceBusConnectionString;
+        private readonly NamespaceManager _namespaceManager;
+        private readonly string _serviceBusConnectionString;
 
         public ServiceBusQueueHandler(string serviceBusConnectionString)
         {
@@ -18,7 +18,6 @@ namespace ServiceBusQueueHandling
 
         public async Task<QueueClient> GetQueueClientAsync(string queueName)
         {
-            
             if (!_namespaceManager.QueueExists(queueName))
             {
                 await _namespaceManager.CreateQueueAsync(queueName).ConfigureAwait(false);
@@ -44,10 +43,7 @@ namespace ServiceBusQueueHandling
         /// <param name="queueName">Service bus queue name</param>
         /// <param name="number"></param>
         /// <returns>Number of messages in the queue</returns>
-        public async Task<long> AddWorkLoadToQueueAsync(
-            QueueClient queueClient,
-            string queueName,
-            double number)
+        public async Task<long> AddWorkLoadToQueueAsync(QueueClient queueClient, string queueName, double number)
         {
             Debug.Assert(null != _namespaceManager);
 

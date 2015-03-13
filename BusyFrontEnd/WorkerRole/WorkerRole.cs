@@ -1,12 +1,11 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Net;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using ServiceBusQueueHandling;
-using System;
 
 namespace WorkerRole
 {
@@ -16,7 +15,6 @@ namespace WorkerRole
         private const string ServiceBusQueueNameKey = "Microsoft.ServiceBus.QueueName";
 
         private QueueClient _queueClient;
-        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
         private readonly ManualResetEvent _completedEvent = new ManualResetEvent(false);
 
         public override void Run()
@@ -24,37 +22,33 @@ namespace WorkerRole
             try
             {
                 Trace.WriteLine("Starting processing of messages");
-                this.RunAsync(this._cancellationTokenSource.Token).Wait();
+
+                // Initiates the message pump and callback is invoked for each message that is received, calling close on the client will stop the pump.
+                _queueClient.OnMessageAsync(
+                    async receivedMessage =>
+                    {
+                        try
+                        {
+                            // Process the message
+                            Trace.WriteLine("Processing Service Bus message: " + receivedMessage.SequenceNumber.ToString());
+
+                            //Simulate processing of message
+                            Thread.SpinWait(Int32.MaxValue / 1000);
+
+                            await receivedMessage.CompleteAsync();
+                        }
+                        catch
+                        {
+                            receivedMessage.Abandon();
+                        }
+                    });
+
+                _completedEvent.WaitOne();
             }
             finally
             {
-                this._completedEvent.Set();
+                _completedEvent.Set();
             }
-        }
-
-        public async Task RunAsync(CancellationToken cancellationToken)
-        {
-            // Initiates the message pump and callback is invoked for each message that is received, calling close on the client will stop the pump.
-            this._queueClient.OnMessageAsync(
-                async (receivedMessage) =>
-                {
-                    try
-                    {
-                        // Process the message
-                        Trace.WriteLine("Processing Service Bus message: " + receivedMessage.SequenceNumber.ToString());
-
-                        //Simulate processing of message
-                        Thread.SpinWait(Int32.MaxValue / 1000);
-
-                        await receivedMessage.CompleteAsync();
-                    }
-                    catch
-                    {
-                        receivedMessage.Abandon();
-                    }
-                });
-
-            this._completedEvent.WaitOne();
         }
 
         public override bool OnStart()
@@ -66,7 +60,8 @@ namespace WorkerRole
             var serviceBusConnectionString = CloudConfigurationManager.GetSetting(ServiceBusConnectionStringKey);
             var queueName = CloudConfigurationManager.GetSetting(ServiceBusQueueNameKey);
             var serviceBusQueueHandler = new ServiceBusQueueHandler(serviceBusConnectionString);
-            this._queueClient = serviceBusQueueHandler.GetQueueClientAsync(queueName).Result;
+
+            _queueClient = serviceBusQueueHandler.GetQueueClientAsync(queueName).Result;
 
             return base.OnStart();
         }
@@ -74,8 +69,8 @@ namespace WorkerRole
         public override void OnStop()
         {
             // Close the connection to Service Bus Queue
-            this._queueClient.Close();
-            this._completedEvent.Set();
+            _queueClient.Close();
+            _completedEvent.Set();
             base.OnStop();
         }
     }

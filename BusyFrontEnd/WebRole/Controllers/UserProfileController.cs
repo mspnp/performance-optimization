@@ -3,11 +3,11 @@ using WebRole.Models;
 
 namespace WebRole.Controllers
 {
-public class UserProfileController : ApiController
-{
-    public UserProfile Get()
+    public class UserProfileController : ApiController
     {
-        return new UserProfile() { FirstName = "Alton", LastName = "Hudgens" };
+        public UserProfile Get()
+        {
+            return new UserProfile() { FirstName = "Alton", LastName = "Hudgens" };
+        }
     }
-}
 }

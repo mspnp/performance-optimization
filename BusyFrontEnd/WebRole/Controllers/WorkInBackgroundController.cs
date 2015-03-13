@@ -2,8 +2,6 @@
 using System.Web.Http;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.ServiceRuntime;
-using Microsoft.WindowsAzure.Storage;
 using ServiceBusQueueHandling;
 
 namespace WebRole.Controllers
@@ -14,10 +12,10 @@ namespace WebRole.Controllers
 
         private const string ServiceBusQueueNameKey = "Microsoft.ServiceBus.QueueName";
 
-        static readonly QueueClient QueueClient;
-        static readonly string QueueName;
-        static readonly ServiceBusQueueHandler ServiceBusQueueHandler;
-        
+        private static readonly QueueClient QueueClient;
+        private static readonly string QueueName;
+        private static readonly ServiceBusQueueHandler ServiceBusQueueHandler;
+
         static WorkInBackgroundController()
         {
             var serviceBusConnectionString = CloudConfigurationManager.GetSetting(ServiceBusConnectionStringKey);
@@ -30,10 +28,7 @@ namespace WebRole.Controllers
         [Route("api/workinbackground")]
         public Task<long> Post()
         {
-            return ServiceBusQueueHandler.AddWorkLoadToQueueAsync(
-                    QueueClient,
-                    QueueName,
-                    0);
+            return ServiceBusQueueHandler.AddWorkLoadToQueueAsync(QueueClient, QueueName, 0);
         }
     }
 }
