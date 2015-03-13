@@ -89,7 +89,6 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\ChattyProductController.cs" />
     <Compile Include="Controllers\ChunkyProductController.cs" />
-    <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
@@ -106,7 +105,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ChattyIO.DataAccess\ChattyIO.DataAccess.csproj">
