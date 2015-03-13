@@ -19,7 +19,7 @@ namespace TooMuchProcSql.WebApi.Controllers
             using (var connection = new SqlConnection(ConfigurationManager.AppSettings["connectionString"]))
             {
                 await connection.OpenAsync(new System.Threading.CancellationToken());
-                string commandString = SupportFiles.GetQuery("LessSql");                
+                string commandString = TooMuchProcUtil.GetQuery("LessSql");                
                 using (SqlCommand command = new SqlCommand(commandString, connection))
                 {
                     command.CommandType = CommandType.Text;

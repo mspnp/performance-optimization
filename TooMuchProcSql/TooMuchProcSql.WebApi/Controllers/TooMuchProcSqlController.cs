@@ -23,12 +23,11 @@ namespace TooMuchProcSql.WebApi.Controllers
         public async Task GetNameConcat(int Id)
         {
        
- 
             using (var connection = new SqlConnection(ConfigurationManager.AppSettings["connectionString"]))
             {
                 await connection.OpenAsync(new System.Threading.CancellationToken());               
                 //get query from memory
-                string commandString = SupportFiles.GetQuery("TooMuchSql");               
+                string commandString = TooMuchProcUtil.GetQuery("TooMuchSql");               
                 using (SqlCommand command = new SqlCommand(commandString, connection))
                 {
                     command.CommandType = CommandType.Text;

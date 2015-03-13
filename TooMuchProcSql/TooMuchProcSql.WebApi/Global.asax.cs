@@ -14,15 +14,11 @@ namespace TooMuchProcSql.WebApi
     {
         protected void Application_Start()
         {
-            SupportFiles.PutQuery("TooMuchSql", "TooMuchProcSql3.txt");
-            SupportFiles.PutQuery("LessSql", "LessProcSql2.txt");
-
-
-      //      AreaRegistration.RegisterAllAreas();
+           
             GlobalConfiguration.Configure(WebApiConfig.Register);
-        //    FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
-        //    RouteConfig.RegisterRoutes(RouteTable.Routes);
-        //    BundleConfig.RegisterBundles(BundleTable.Bundles);
+            TooMuchProcUtil.PutQuery("TooMuchSql", "TooMuchProcSql3.txt");
+            TooMuchProcUtil.PutQuery("LessSql", "LessProcSql2.txt");
+     
         }
     }
 }
