@@ -2,8 +2,6 @@
 using System.Web.Http;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.ServiceRuntime;
-using Microsoft.WindowsAzure.Storage;
 using ServiceBusQueueHandling;
 
 namespace WebRole.Controllers
