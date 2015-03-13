@@ -58,7 +58,7 @@ The primary concern with this web application is the resource requirements of th
 
 Symptoms of a busy front end in an application include high latency during periods when resource-intensive tasks are being performed. These tasks can starve other requests of the processing power they require, causing them to run more slowly. End-users are likely to report extended response times and possible failures caused by services timing out due to lack of processing resources in the web server. These failures could also manifest themselves as HTTP 500 (Internal Server) errors or HTTP 503 (Service Unavailable) errors. In these cases, you should examine the event logs for the web server which are likely to contain more detailed information about the causes and circumstances of the errors.
 
-You can perform the following steps to help identify the causes of any problems:
+You can perform the following steps to help identify this problem:
 
 1. Identify points at which response times slow down by performing process monitoring of the production system.
 
