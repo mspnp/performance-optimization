@@ -1,10 +1,6 @@
-﻿using RetrievingTooMuchData.DataAccess.Mapping;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
+using RetrievingTooMuchData.DataAccess.Mapping;
 
 namespace RetrievingTooMuchData.DataAccess
 {
@@ -26,8 +22,7 @@ namespace RetrievingTooMuchData.DataAccess
         {
         }
 
-        public AdventureWorksContext(string connectionString,
-            System.Data.Entity.Infrastructure.DbCompiledModel model)
+        public AdventureWorksContext(string connectionString, DbCompiledModel model)
             : base(connectionString, model)
         {
         }

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace RetrievingTooMuchData.DataAccess
 {
@@ -37,8 +34,8 @@ namespace RetrievingTooMuchData.DataAccess
         {
             MakeFlag = true;
             FinishedGoodsFlag = true;
-            Rowguid = System.Guid.NewGuid();
-            ModifiedDate = System.DateTime.Now;
+            Rowguid = Guid.NewGuid();
+            ModifiedDate = DateTime.Now;
         }
     }
 }
