@@ -12,8 +12,8 @@ namespace WebRole
     /// </summary>
     public class ProductRepository : IProductRepository, IDisposable
     {
-        private bool disposed = false;
-        private HttpClient httpClient;
+        private bool _disposed;
+        private readonly HttpClient _httpClient;
 
         public ProductRepository()
         {
@@ -21,19 +21,19 @@ namespace WebRole
             Thread.Sleep(100);
 
             //HttpClient is thread-safe in that you can submit many requests concurrently.
-            //HttpClient instances should be shared, otherwise you will run out of TCP sockets.
-            httpClient = new HttpClient();
+            //HttpClient instances should be shared, otherwise you could run out of TCP sockets.
+            _httpClient = new HttpClient();
         }
 
         public async Task<Product> GetProductByIdAsync(string productId)
         {
             //Opportunity to look for product in cache.
 
-            var result = await httpClient.GetStringAsync("http://www.microsoft.com").ConfigureAwait(false);
-            
+            var result = await _httpClient.GetStringAsync("http://www.microsoft.com").ConfigureAwait(false);
+
             //opportunity to save result to cache
 
-            return new Product() { Name = result };
+            return new Product { Name = result };
         }
 
         public void Dispose()
@@ -44,14 +44,14 @@ namespace WebRole
 
         protected virtual void Dispose(bool disposing)
         {
-            if (disposed) return;
+            if (_disposed) return;
 
             if (disposing)
             {
-                httpClient.Dispose();
+                _httpClient.Dispose();
             }
 
-            disposed = true;
+            _disposed = true;
         }
     }
 }
