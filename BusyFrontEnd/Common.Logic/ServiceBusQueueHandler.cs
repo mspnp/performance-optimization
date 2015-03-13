@@ -7,8 +7,8 @@ namespace ServiceBusQueueHandling
 {
     public class ServiceBusQueueHandler
     {
-        private NamespaceManager _namespaceManager;
-        private string _serviceBusConnectionString;
+        private readonly NamespaceManager _namespaceManager;
+        private readonly string _serviceBusConnectionString;
 
         public ServiceBusQueueHandler(string serviceBusConnectionString)
         {
