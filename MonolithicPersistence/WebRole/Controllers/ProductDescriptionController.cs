@@ -23,17 +23,12 @@ namespace WebRole.Controllers
             string result = "";
             try
             {
-                MonoglotEventSource.Log.Startup();
-                MonoglotEventSource.Log.PageStart(id, this.Url.Request.RequestUri.AbsoluteUri.ToString());
                 string queryString = "SELECT Description FROM Production.ProductDescription WHERE ProductDescriptionID=@inputId";
                 using (SqlConnection cn = new SqlConnection(sqlServerConnectionString))
                 {
                     using (SqlCommand cmd = new SqlCommand(queryString, cn))
                     {
                         cmd.Parameters.AddWithValue("@inputId", id);
-                        MonoglotEventSource.Log.ReadDataStart();
-                        Stopwatch watch = new Stopwatch();
-                        watch.Start();
                         cn.Open();
                         SqlDataReader reader = cmd.ExecuteReader();
                         if (reader.Read())
@@ -41,11 +36,8 @@ namespace WebRole.Controllers
                             result = String.Format("Description = {0}", reader[0]);
                         }
                         reader.Close();
-                        watch.Stop();
-                        MonoglotEventSource.Log.ReadDataFinish(watch.ElapsedMilliseconds);
                     }
                 }
-                MonoglotEventSource.Log.PageEnd();
             }
             catch (Exception ex)
             {
