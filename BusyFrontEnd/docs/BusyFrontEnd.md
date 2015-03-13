@@ -80,7 +80,7 @@ The following sections apply these steps to the sample application described ear
 
 Instrumenting each method to track the duration and resources consumed by each requests and then monitoring the live system can help to provide an overall view of how the requests compete with each other. During periods of stress, slow-running resource hungry requests will likely impact other operations, and this behavior can be observed by monitoring the system and noting the drop-off in performance. 
 
-The following image shows the Business Transactions pane in AppDyanamics monitoring the sample application. Initially the system is lightly loaded but then users start requesting the `UserProfile` GET operation. The performance is reasonably quick until other users start issuing requests to the `WorkInFrontEnd` controller, when the response time suddenly increases dramatically (see the Response Time (ms) graph in the image). The response time only improves once the volume of requests to the `WorkInFrontEnd` controller diminishes (see the Calls/min graph.)
+The following image shows the Business Transactions pane in AppDyanamics monitoring the sample application. Initially the system is lightly loaded but then users start requesting the `UserProfile` GET operation. The performance is reasonably quick until other users start issuing requests to the `WorkInFrontEnd` controller, when the response time suddenly increases dramatically (see the graphic in the Response Time (ms) column in the image). The response time only improves once the volume of requests to the `WorkInFrontEnd` controller diminishes (see the graphic in the Calls/min column.)
 
 ![AppDynamics Business Transactions pane showing the effects of the response times of all requests when the WorkInFrontEnd controller is used][AppDynamics-Transactions-Front-End-Requests]
 
@@ -96,11 +96,9 @@ From the information provided by identifying the points of slow down and the tel
 
 Having identified the possible source of disruptive requests in the system, you should perform tests in a controlled environment to demonstrate any correlations between these requests and the overall performance of the system. As an example, you can perform a series of load tests that include and then omit each request in turn to see the effects. 
 
-The graph below shows the results of a load-test performed against an identical deployment of the cloud service used for the previous tests. The load test used a constant load of 500 users performing the `Get` operation in the `UserProfile` controller alongside a step-load of users performing requests against the `WorkInFrontEnd` controller. Initially, the step-load was 0, so the only active users were performing the `UserProfile` requests and the system was capable of supporting 700 requests per second. After 60 seconds, a load of 100 additional users was started, and these users sent POST requests to the `WorkInFrontEnd` controller. Almost immediately, the request rate for the `UserProfile` controller dropped to about 300 requests per second. As more users were added (in steps of 100) performing POST requests against the `WorkInFrontEnd` controller, the request rate against the `UserProfile` controller gradually diminished further. The volume of requests performed against the `WorkInFrontEnd` controller remained relatively constant. The saturation of the system becomes apparent as the overall rate of both requests tends towards a steady but low limit.
+The graph below shows the results of a load-test performed against an identical deployment of the cloud service used for the previous tests. The load test used a constant load of 500 users performing the `Get` operation in the `UserProfile` controller alongside a step-load of users performing requests against the `WorkInFrontEnd` controller. Initially, the step-load was 0, so the only active users were performing the `UserProfile` requests and the system was capable of supporting 700 requests per second. After 60 seconds, a load of 100 additional users was started, and these users sent POST requests to the `WorkInFrontEnd` controller. Almost immediately, the request rate for the `UserProfile` controller dropped to about 150 requests per second. As more users were added (in steps of 100) performing POST requests against the `WorkInFrontEnd` controller, the request rate against the `UserProfile` controller gradually diminished further. The volume of requests serviced by the `WorkInFrontEnd` controller remained relatively constant. The saturation of the system becomes apparent as the overall rate of both requests tends towards a steady but low limit.
 
 ![Initial load-test results for the WorkInFrontEnd controller][Initial-Load-Test-Results-Front-End]
-
-It is also worth noting the average test time of both sets of requests for future comparison.
 
 ### Reviewing the source code
 
@@ -221,7 +219,7 @@ Repeating the controlled load-test over 5 minutes for users submitting a mixture
 
 ![Load-test results for the BackgroundImageProcessing controller][Load-Test-Results-Background]
 
-This graph confirms the improvement in performance of the system as a result of offloading the intensive processing to the worker role. The overall volume of tests and the average test time is greatly improved compared to the earlier tests.
+This graph confirms the improvement in performance of the system as a result of offloading the intensive processing to the worker role. The overall volume of requests serviced is greatly improved compared to the earlier tests.
 
 Relocating resource-hungry processing to a separate set of processes should improve responsiveness for most requests, but the resource-hungry processing itself may take longer (this duration is not illustrated in the two graphs above, and requires instrumenting and monitoring the worker role.) If there are insufficient worker role instances available to perform the resource-hungry workload, jobs might be queued or otherwise held pending for an indeterminate period. However, it might be possible to expedite critical jobs that must be performed quickly by using a priority queuing mechanism.
 
