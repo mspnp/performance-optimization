@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.WindowsAzure;
+using Microsoft.WindowsAzure.Storage.Shared.Protocol;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
@@ -8,27 +10,28 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using WebRole;
 
 namespace WebRole.Controllers
 {
-    public class MonoglotController : ApiController
+    public class PoliglotController : ApiController
     {
-        private string sqlServerConnectionString = ConfigurationManager.ConnectionStrings["sqlServerConnectionString"].ConnectionString;
+        private string sqlServerConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
+
+        // GET: api/Poliglot/5
         public string Get(int id)
         {
             string result = "";
             try
             {
-                MonoglotEventSource.Log.Startup();
-                MonoglotEventSource.Log.PageStart(id, this.Url.Request.RequestUri.AbsoluteUri.ToString());
+                PoliglotEventSource.Log.Startup();
+                PoliglotEventSource.Log.PageStart(id, this.Url.Request.RequestUri.AbsoluteUri.ToString());
                 string queryString = "SELECT Description FROM Production.ProductDescription WHERE ProductDescriptionID=@inputId";
                 using (SqlConnection cn = new SqlConnection(sqlServerConnectionString))
                 {
                     using (SqlCommand cmd = new SqlCommand(queryString, cn))
                     {
                         cmd.Parameters.AddWithValue("@inputId", id);
-                        MonoglotEventSource.Log.ReadDataStart();
+                        PoliglotEventSource.Log.ReadDataStart();
                         Stopwatch watch = new Stopwatch();
                         watch.Start();
                         cn.Open();
@@ -39,10 +42,10 @@ namespace WebRole.Controllers
                         }
                         reader.Close();
                         watch.Stop();
-                        MonoglotEventSource.Log.ReadDataFinish(watch.ElapsedMilliseconds);
+                        PoliglotEventSource.Log.ReadDataFinish(watch.ElapsedMilliseconds);
                     }
                 }
-                MonoglotEventSource.Log.PageEnd();
+                PoliglotEventSource.Log.PageEnd();
             }
             catch (Exception ex)
             {
@@ -56,8 +59,8 @@ namespace WebRole.Controllers
         {
             try
             {
-                MonoglotEventSource.Log.Startup();
-                MonoglotEventSource.Log.PageStart(1, this.Url.Request.RequestUri.AbsoluteUri.ToString());
+                PoliglotEventSource.Log.Startup();
+                PoliglotEventSource.Log.PageStart(1, this.Url.Request.RequestUri.AbsoluteUri.ToString());
                 string queryString =
                     "INSERT INTO Purchasing.PurchaseOrderHeader(" +
                     " RevisionNumber, Status, EmployeeID, VendorID, ShipMethodID, OrderDate, ShipDate, SubTotal, TaxAmt, Freight, ModifiedDate)" +
@@ -68,7 +71,7 @@ namespace WebRole.Controllers
                 {
                     using (SqlCommand cmd = new SqlCommand(queryString, cn))
                     {
-                        MonoglotEventSource.Log.WriteDataStart();
+                        PoliglotEventSource.Log.WriteDataStart();
 
                         cmd.Parameters.Add("@RevisionNumber", SqlDbType.TinyInt).Value = 1;
                         cmd.Parameters.Add("@Status", SqlDbType.TinyInt).Value = 4;
@@ -81,17 +84,16 @@ namespace WebRole.Controllers
                         cmd.Parameters.Add("@TaxAmt", SqlDbType.Money).Value = 12.34;
                         cmd.Parameters.Add("@Freight", SqlDbType.Money).Value = 5.76;
                         cmd.Parameters.Add("@ModifiedDate", SqlDbType.DateTime).Value = dt;
-
                         Stopwatch watch = new Stopwatch();
                         watch.Start();
                         cn.Open();
                         cmd.ExecuteNonQuery();
                         watch.Stop();
-                        MonoglotEventSource.Log.WriteDataFinish(watch.ElapsedMilliseconds);
+                        PoliglotEventSource.Log.WriteDataFinish(watch.ElapsedMilliseconds);
                     }
                 }
 
-                MonoglotEventSource.Log.PageEnd();
+                PoliglotEventSource.Log.PageEnd();
             }
             catch (Exception ex)
             {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.WindowsAzure;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
@@ -24,7 +25,7 @@ namespace WebRole
         }
         private static void ResetPurchaseOrderHeaderTable()
         {
-            string sqlServerConnectionString = ConfigurationManager.ConnectionStrings["sqlServerConnectionString"].ConnectionString;
+            string sqlServerConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
             String queryString = "DELETE FROM Purchasing.PurchaseOrderHeader WHERE PUrchaseOrderID > 4012";
             using (SqlConnection cn = new SqlConnection(sqlServerConnectionString))
             {
