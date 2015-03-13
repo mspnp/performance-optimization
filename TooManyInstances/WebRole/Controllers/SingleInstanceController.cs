@@ -18,9 +18,9 @@ namespace WebRole.Controllers
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public Task<Product> GetProductAsync(string id)
+        public async Task<Product> GetProductAsync(string id)
         {
-            return ProductRepository.GetProductByIdAsync(id);
+            return await ProductRepository.GetProductByIdAsync(id);
         }
     }
 }
