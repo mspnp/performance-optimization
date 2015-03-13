@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 using WebRole;
 
@@ -16,7 +17,7 @@ namespace WebRole.Controllers
     public class PurchaseOrderHeaderController : ApiController
     {
         private string sqlServerConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
-        public void Post([FromBody]string value)
+        public async Task PostAsync([FromBody]string value)
         {
             try
             {
@@ -30,8 +31,6 @@ namespace WebRole.Controllers
                 {
                     using (SqlCommand cmd = new SqlCommand(queryString, cn))
                     {
-                        MonoglotEventSource.Log.WriteDataStart();
-
                         cmd.Parameters.Add("@RevisionNumber", SqlDbType.TinyInt).Value = 1;
                         cmd.Parameters.Add("@Status", SqlDbType.TinyInt).Value = 4;
                         cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = 258;
@@ -45,7 +44,7 @@ namespace WebRole.Controllers
                         cmd.Parameters.Add("@ModifiedDate", SqlDbType.DateTime).Value = dt;
 
                         cn.Open();
-                        cmd.ExecuteNonQuery();
+                        await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
                 }
             }
