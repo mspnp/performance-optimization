@@ -13,7 +13,7 @@ namespace WebRole.Controllers
         {
             using (var productRepository = new ProductRepository())
             {
-                return await productRepository.GetProductByIdAsync(id).ConfigureAwait(false);
+                return await productRepository.GetProductByIdAsync(id);
             }
         }
     }
