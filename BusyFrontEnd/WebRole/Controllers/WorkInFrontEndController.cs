@@ -12,7 +12,9 @@ namespace WebRole.Controllers
         [Route("api/workinfrontend")]
         public HttpResponseMessage Post()
         {
-            new Thread(() =>
+            // Never create your own thread directly, this is the negative example.
+
+            new Thread(() =>  
             {
                 //Simulate processing
                 Thread.SpinWait(Int32.MaxValue / 100);
