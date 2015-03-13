@@ -15,7 +15,7 @@ namespace WebRole.Controllers
         static readonly QueueClient QueueClient;
         static readonly string QueueName;
         static readonly ServiceBusQueueHandler ServiceBusQueueHandler;
-        
+
         static WorkInBackgroundController()
         {
             var serviceBusConnectionString = CloudConfigurationManager.GetSetting(ServiceBusConnectionStringKey);

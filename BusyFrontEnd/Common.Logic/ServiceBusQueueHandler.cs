@@ -18,7 +18,7 @@ namespace ServiceBusQueueHandling
 
         public async Task<QueueClient> GetQueueClientAsync(string queueName)
         {
-            
+
             if (!_namespaceManager.QueueExists(queueName))
             {
                 await _namespaceManager.CreateQueueAsync(queueName).ConfigureAwait(false);
