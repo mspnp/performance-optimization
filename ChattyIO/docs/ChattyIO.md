@@ -21,27 +21,29 @@ public class ChattyProductController : ApiController
     [Route("chattyproduct/products/{subcategoryId}")]
     public async Task<ProductSubcategory> GetProductsInSubCategoryAsync(int subcategoryId)
     {
-        ProductSubcategory productSubcategory = null;
-
         using (var context = GetContext())
         {
-            productSubcategory = await context.ProductSubcategories
-                 .Where((psc) => psc.ProductSubcategoryId == subcategoryId)
-                 .SingleOrDefaultAsync();
+            var productSubcategory = await context.ProductSubcategories
+                   .Where(psc => psc.ProductSubcategoryId == subcategoryId)
+                   .FirstOrDefaultAsync();
+
             productSubcategory.Product = await context.Products
-                .Where((p) => subcategoryId == p.ProductSubcategoryId)
+                .Where(p => subcategoryId == p.ProductSubcategoryId)
                 .ToListAsync();
 
             foreach (var prod in productSubcategory.Product)
             {
+                int productId = prod.ProductId;
+
                 var productListPriceHistory = await context.ProductListPriceHistory
-                   .Where((pl) => pl.ProductId == prod.ProductId)
+                   .Where(pl => pl.ProductId == productId)
                    .ToListAsync();
+
                 prod.ProductListPriceHistory = productListPriceHistory;
             }
 
+            return productSubcategory;
         }
-        return productSubcategory;
     }
     ...
 }
@@ -154,15 +156,35 @@ private async Task SaveCustomerToFileAsync(Customer cust)
 
 Symptoms of chatty I/O include high latency and low throughput. End-users are likely to report extended response times and possible failures caused by services timing out due to increased contention for I/O resources.
 
+You can perform the following steps to help identify the causes of any problems:
+
+1. Identify operations with poor response times by performing process monitoring of the production system.
+
+2. Perform controlled load testing of each operation identified in step 1.
+
+3. Monitor the system under test to gather telemetry data about the data access requests made by each operation.
+
+4. Gather detailed data access statistics for each request sent to a data store by each operation.
+
+5. If necessary, profile the application in the test environment to establish where possible I/O bottlenecks might be occurring.
+
+The following sections apply these steps to the sample application described earlier.
+
+----------
+
+**Note:** If you already have an insight into where problems might lie, you may be able to skip some of these steps. However, you should avoid making unfounded or biased assumptions. Performing a thorough analysis can sometimes lead to the identification of unexpected causes of performance problems. The following sections are formulated to help you to examine applications and services systematically.
+
+----------
+
 ### Load-testing the application
 
-The key task in determining the possible causes of poor performance is to examine operations that are running slowly. With this in mind, performing load-testing against suspect areas of functionality can help to establish a baseline, and monitoring how the application runs while executing the load-tests can provide useful insights into how the system might be optimized. 
+The key task in determining the possible causes of poor performance is to examine operations that are running slowly. With this in mind, performing load-testing in a controlled environment against suspect areas of functionality can help to establish a baseline, and monitoring how the application runs while executing the load-tests can provide useful insights into how the system might be optimized. 
 
 Running load-tests against the `GetProductsInSubCategoryAsync` in the `ChattyProduct` controller in sample application yields the following results:
 
 ![Key indicators load-test results for the Chatty I/O sample application][key-indicators-chatty-io]
 
-This load test was performed by using a simulated workload of 500 concurrent users. The graph shows a high degree of latency; apart from the ramp-up period at the start of the test and a spike caused by errors at the end, the median time was between 40 and 50 seconds per request (the average page time can be discounted in this case). If each test represents a user querying the product catalog to find the details of products in a specified subcategory then a user might have to wait for nearly a minute to see the results under this load.
+This load test was performed by using a simulated workload of 500 concurrent users. The graph shows a high degree of latency; the median response time was over 60 seconds per request. If each test represents a user querying the product catalog to find the details of products in a specified subcategory then a user might have to wait for over a minute to see the results under this load.
 
 ----------
 
@@ -178,7 +200,7 @@ Using the New Relic Azure Cloud Database plugin, you can monitor the SQL load of
 
 ![Overview of traffic hitting the AdventureWorks2012 database][database]
 
-### Using data access statistics
+### Gather detailed data access information
 
 Examining data access statistics and other information provided by the data store acting as the repository can yield detailed information about the frequency with which specific data is requested. For example, Windows Azure SQL Database provides access to query statistics using the Query Performance pane in the management portal. This pane shows information about all recently executed queries:
 
@@ -251,9 +273,9 @@ public class ChunkyProductController : ApiController
         using (var context = GetContext())
         {
             var subCategory = await context.ProductSubcategories
-                  .Where((psc) => psc.ProductSubcategoryId == subCategoryId)
-                  .Include("Product.ProductListPriceHistory"))
-                  .SingleOrDefaultAsync();
+                  .Where(psc => psc.ProductSubcategoryId == subCategoryId)
+                  .Include("Product.ProductListPriceHistory")
+                  .FirstOrDefaultAsync();
             return subCategory;
         }
     }
