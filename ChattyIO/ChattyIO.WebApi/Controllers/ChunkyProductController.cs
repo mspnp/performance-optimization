@@ -16,7 +16,7 @@ namespace ChattyIO.WebApi.Controllers
             using (var context = GetContext())
             {
                 var subCategory = await context.ProductSubcategories
-                      .Where((psc) => psc.ProductSubcategoryId == subCategoryId)
+                      .Where(psc => psc.ProductSubcategoryId == subCategoryId)
                       .Include("Product.ProductListPriceHistory")
                       .FirstOrDefaultAsync();
                 return subCategory;
