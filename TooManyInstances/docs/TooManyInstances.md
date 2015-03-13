@@ -195,6 +195,12 @@ You can use load-testing based on workloads that emulate the typical sequence of
 
 ![Throughput of the sample application creating a new instance of an HttpClient object for each requests][throughput-new-instance]
 
+----------
+
+**Note:** In this graph, the scale of the average response time is ten times that of the requests/second and errors/second data. This scaling makes the response times more visible on the graph.
+
+----------
+
 ### Reviewing the code
 
 If you have managed to identify which parts of an application are causing exceptions due to resource exhaustion, perform a review of the code or use profiling to find out how objects that wrap external resources are being instantiated, used, and destroyed. Where appropriate, refactor code to cache and reuse objects, as described in the following section.
