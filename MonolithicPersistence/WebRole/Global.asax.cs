@@ -9,6 +9,8 @@ using System.Web;
 using System.Web.Http;
 using System.Web.Routing;
 using WebRole.Controllers;
+using WebRole.App_Start;
+
 
 namespace WebRole
 {
@@ -16,6 +18,7 @@ namespace WebRole
     {
         protected void Application_Start()
         {
+            SqldbLogConfig.CreateSqldbLogTableIfNotExist();
             GlobalConfiguration.Configure(WebApiConfig.Register);
         }
     }

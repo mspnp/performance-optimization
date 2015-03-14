@@ -13,8 +13,6 @@ namespace WebRole
     {
         public static void Register(HttpConfiguration config)
         {
-            CreateSqldbLogTableIfNotExist();
-
             // Web API routes
             config.MapHttpAttributeRoutes();
 
@@ -24,17 +22,5 @@ namespace WebRole
                 defaults: new { id = RouteParameter.Optional }
             );
         }
-        private static void CreateSqldbLogTableIfNotExist()
-        {
-            string sqlServerConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
-            using (SqlConnection connection = new SqlConnection(sqlServerConnectionString))
-            {
-                var queryString = "IF OBJECT_ID('dbo.SqldbLog', 'U') IS NULL CREATE TABLE SqldbLog (ID int IDENTITY(1,1) PRIMARY KEY, Message TEXT, LogDate DATE)";
-                var command = new SqlCommand(queryString, connection);
-                connection.Open();
-                command.ExecuteNonQuery();
-            }
-        }
-
     }
 }

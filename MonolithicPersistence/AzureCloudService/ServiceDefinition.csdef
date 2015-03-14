@@ -13,6 +13,10 @@
     </Endpoints>
     <ConfigurationSettings>
       <Setting name="SQLDBConnectionString" />
+      <Setting name="EventHubName" />
+      <Setting name="EventHubNamespace" />
+      <Setting name="LogPolicyName" />
+      <Setting name="LogPolicyKey" />
     </ConfigurationSettings>
   </WebRole>
 </ServiceDefinition>

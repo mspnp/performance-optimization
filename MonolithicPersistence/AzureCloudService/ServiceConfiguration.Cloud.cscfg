@@ -4,6 +4,11 @@
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="SQLDBConnectionString" value="[Your SQLDB connection string goes here]" />
+      <Setting name="AzureStorageConnectionString" value="[Your storage account]" />
+      <Setting name="EventHubName" value="[Your event hub name]" />
+      <Setting name="EventHubNamespace" value="[Your event hub namespace]" />
+      <Setting name="LogPolicyName" value="[your shared access policy name]" />
+      <Setting name="LogPolicyKey" value="[your shared access policy key]" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>

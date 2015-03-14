@@ -16,35 +16,26 @@ namespace WebRole.Controllers
 {
     public class ProductDescriptionController : ApiController
     {
-        //private string sqlServerConnectionString = ConfigurationManager.ConnectionStrings["sqlServerConnectionString"].ConnectionString;
-        private string sqlServerConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
+        private string sqlDBConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
 
         public async Task<string> GetAsync(int id)
         {
             string result = "";
-            try
+            string queryString = "SELECT Description FROM Production.ProductDescription WHERE ProductDescriptionID=@inputId";
+            using (SqlConnection cn = new SqlConnection(sqlDBConnectionString))
             {
-                string queryString = "SELECT Description FROM Production.ProductDescription WHERE ProductDescriptionID=@inputId";
-                using (SqlConnection cn = new SqlConnection(sqlServerConnectionString))
+                using (SqlCommand cmd = new SqlCommand(queryString, cn))
                 {
-                    using (SqlCommand cmd = new SqlCommand(queryString, cn))
+                    cmd.Parameters.AddWithValue("@inputId", id);
+                    await cn.OpenAsync();
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
                     {
-                        cmd.Parameters.AddWithValue("@inputId", id);
-                        cn.Open();
-                        using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                        if (await reader.ReadAsync().ConfigureAwait(false))
                         {
-                            if (await reader.ReadAsync())
-                            {
-                                result = reader.GetFieldValue<string>(0); ;
-                            }
+                            result = reader.GetFieldValue<string>(0); ;
                         }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                // Log to table storage in case of SQL error 
-                throw new HttpResponseException(HttpStatusCode.InternalServerError);
             }
             return result;
         }

@@ -16,43 +16,36 @@ namespace WebRole.Controllers
 {
     public class PurchaseOrderHeaderController : ApiController
     {
-        private string sqlServerConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
-        public async Task PostAsync([FromBody]string value)
+        private string sqlDBConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
+        public async Task<IHttpActionResult> PostAsync([FromBody]string value)
         {
-            try
-            {
-                string queryString =
+            string queryString =
                     "INSERT INTO Purchasing.PurchaseOrderHeader(" +
                     " RevisionNumber, Status, EmployeeID, VendorID, ShipMethodID, OrderDate, ShipDate, SubTotal, TaxAmt, Freight, ModifiedDate)" +
                     " VALUES(" +
                     "@RevisionNumber,@Status,@EmployeeID,@VendorID,@ShipMethodID,@OrderDate,@ShipDate,@SubTotal,@TaxAmt,@Freight,@ModifiedDate)";
-                var dt = DateTime.Now;
-                using (SqlConnection cn = new SqlConnection(sqlServerConnectionString))
+            var dt = DateTime.UtcNow;
+            using (SqlConnection cn = new SqlConnection(sqlDBConnectionString))
+            {
+                using (SqlCommand cmd = new SqlCommand(queryString, cn))
                 {
-                    using (SqlCommand cmd = new SqlCommand(queryString, cn))
-                    {
-                        cmd.Parameters.Add("@RevisionNumber", SqlDbType.TinyInt).Value = 1;
-                        cmd.Parameters.Add("@Status", SqlDbType.TinyInt).Value = 4;
-                        cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = 258;
-                        cmd.Parameters.Add("@VendorID", SqlDbType.Int).Value = 1580;
-                        cmd.Parameters.Add("@ShipMethodID", SqlDbType.Int).Value = 3;
-                        cmd.Parameters.Add("@OrderDate", SqlDbType.DateTime).Value = dt;
-                        cmd.Parameters.Add("@ShipDate", SqlDbType.DateTime).Value = dt;
-                        cmd.Parameters.Add("@SubTotal", SqlDbType.Money).Value = 123.40;
-                        cmd.Parameters.Add("@TaxAmt", SqlDbType.Money).Value = 12.34;
-                        cmd.Parameters.Add("@Freight", SqlDbType.Money).Value = 5.76;
-                        cmd.Parameters.Add("@ModifiedDate", SqlDbType.DateTime).Value = dt;
+                    cmd.Parameters.Add("@RevisionNumber", SqlDbType.TinyInt).Value = 1;
+                    cmd.Parameters.Add("@Status", SqlDbType.TinyInt).Value = 4;
+                    cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = 258;
+                    cmd.Parameters.Add("@VendorID", SqlDbType.Int).Value = 1580;
+                    cmd.Parameters.Add("@ShipMethodID", SqlDbType.Int).Value = 3;
+                    cmd.Parameters.Add("@OrderDate", SqlDbType.DateTime).Value = dt;
+                    cmd.Parameters.Add("@ShipDate", SqlDbType.DateTime).Value = dt;
+                    cmd.Parameters.Add("@SubTotal", SqlDbType.Money).Value = 123.40;
+                    cmd.Parameters.Add("@TaxAmt", SqlDbType.Money).Value = 12.34;
+                    cmd.Parameters.Add("@Freight", SqlDbType.Money).Value = 5.76;
+                    cmd.Parameters.Add("@ModifiedDate", SqlDbType.DateTime).Value = dt;
 
-                        cn.Open();
-                        await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    }
+                    await cn.OpenAsync();
+                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
-            catch (Exception ex)
-            {
-                //SQL Server Store is probably not available, log to table storage
-                throw new HttpResponseException(HttpStatusCode.InternalServerError);
-            }
+            return Ok();
         }
     }
 }

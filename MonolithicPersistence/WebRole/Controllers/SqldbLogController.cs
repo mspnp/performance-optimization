@@ -11,34 +11,36 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
 using WebRole;
+using WebRole.Models;
 
 namespace WebRole.Controllers
 {
     public class SqldbLogController : ApiController
     {
-        private string sqlServerConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
-        public async Task PostAsync([FromBody]string value)
+        private static string sqlDBConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
+        public async Task<IHttpActionResult> PostAsync([FromBody]string value)
         {
-            try
+            LogMessage logMessage = new LogMessage();
+            await LogToSqldbAsync(logMessage).ConfigureAwait(false);
+            return Ok();
+        }
+
+        private static async Task LogToSqldbAsync(LogMessage logMessage)
+        {
+            string queryString = "INSERT INTO dbo.SqldbLog(Message, LogId, LogTime) VALUES(@Message, @LogId, @LogTime)";
+            using (SqlConnection cn = new SqlConnection(sqlDBConnectionString))
             {
-                string queryString = "INSERT INTO dbo.SqldbLog(Message, LogDate) VALUES(@Message, @LogDate)";
-                var dt = DateTime.UtcNow;
-                using (SqlConnection cn = new SqlConnection(sqlServerConnectionString))
+                using (SqlCommand cmd = new SqlCommand(queryString, cn))
                 {
-                    using (SqlCommand cmd = new SqlCommand(queryString, cn))
-                    {
-                        cmd.Parameters.Add("@Message", SqlDbType.NText).Value = "My Random Log Message " + new Random().Next();
-                        cmd.Parameters.Add("@LogDate", SqlDbType.DateTime).Value = dt;
-                        cn.Open();
-                        await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    }
+                    cmd.Parameters.Add("@LogId", SqlDbType.NChar, 32).Value = logMessage.LogId;
+                    cmd.Parameters.Add("@Message", SqlDbType.NText).Value = logMessage.Message;
+                    cmd.Parameters.Add("@LogTime", SqlDbType.DateTime).Value = logMessage.LogTime;
+                    await cn.OpenAsync();
+                    await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
-            catch (Exception ex)
-            {
-                //SQL Server Store is probably not available, log to table storage
-                throw new HttpResponseException(HttpStatusCode.InternalServerError);
-            }
+
         }
+
     }
 }
