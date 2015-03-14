@@ -29,13 +29,5 @@ namespace RetrievingTooMuchData.DataAccess
         public DateTime? DiscontinuedDate { get; set; } // DiscontinuedDate
         public Guid Rowguid { get; set; } // rowguid
         public DateTime ModifiedDate { get; set; } // ModifiedDate
-
-        public Product()
-        {
-            MakeFlag = true;
-            FinishedGoodsFlag = true;
-            Rowguid = Guid.NewGuid();
-            ModifiedDate = DateTime.Now;
-        }
     }
 }

@@ -20,12 +20,6 @@ namespace RetrievingTooMuchData.DataAccess
 
         public SalesPerson()
         {
-            Bonus = 0.00m;
-            CommissionPct = 0.00m;
-            SalesYtd = 0.00m;
-            SalesLastYear = 0.00m;
-            Rowguid = Guid.NewGuid();
-            ModifiedDate = DateTime.Now;
             SalesOrderHeaders = new List<SalesOrderHeader>();
         }
     }
