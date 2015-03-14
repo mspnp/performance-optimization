@@ -130,9 +130,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\AzureTableLogController.cs" />
     <Compile Include="Controllers\ProductDescriptionController.cs" />
     <Compile Include="Controllers\PoliglotController.cs" />
     <Compile Include="Controllers\PurchaseOrderHeaderController.cs" />
+    <Compile Include="Controllers\SqldbLogController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Http;
 using System.Web.Routing;
@@ -16,26 +17,28 @@ namespace WebRole
         protected void Application_Start()
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
-            //ResetPurchaseOrderHeaderTable();
+            CreateSQldbLogTable();
             Logging.Start();
         }
         protected void Application_End()
         {
             Logging.End();
         }
-        private static void ResetPurchaseOrderHeaderTable()
+
+        private static void CreateSQldbLogTable()
         {
             string sqlServerConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
-            String queryString = "DELETE FROM Purchasing.PurchaseOrderHeader WHERE PUrchaseOrderID > 4012";
-            using (SqlConnection cn = new SqlConnection(sqlServerConnectionString))
+            using (SqlConnection connection = new SqlConnection(sqlServerConnectionString))
             {
-                using (SqlCommand cmd = new SqlCommand(queryString, cn))
-                {
-                    cn.Open();
-                    cmd.ExecuteNonQuery();
-                    cn.Close();
-                }
+                String queryString = null;
+                SqlCommand command = null;
+
+                queryString = "IF OBJECT_ID('dbo.SqldbLog', 'U') IS NULL CREATE TABLE SqldbLog (ID int IDENTITY(1,1) PRIMARY KEY, Message TEXT, LogDate DATE)";
+                command = new SqlCommand(queryString, connection);
+                connection.Open();
+                command.ExecuteNonQuery();
             }
         }
+
     }
 }
