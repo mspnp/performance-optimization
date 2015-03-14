@@ -5,9 +5,12 @@ namespace WebRole.Controllers
 {
     public class UserProfileController : ApiController
     {
-        public UserProfile Get()
+        [HttpGet]
+        [Route("api/userprofile/{id}")]
+        public UserProfile Get(int id)
         {
-            return new UserProfile() { FirstName = "Alton", LastName = "Hudgens" };
+            //Simulate processing
+            return new UserProfile() {FirstName = "Alton", LastName = "Hudgens"};
         }
     }
 }
