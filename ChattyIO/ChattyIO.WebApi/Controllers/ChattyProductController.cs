@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
 using ChattyIO.DataAccess;
-using ChattyIO.DataAccess.Models;
 
 namespace ChattyIO.WebApi.Controllers
 {
@@ -15,7 +14,7 @@ namespace ChattyIO.WebApi.Controllers
 
         [HttpGet]
         [Route("chattyproduct/products/{subcategoryId}")]
-        public async Task<ProductSubcategory> GetProductsInSubCategoryAsync(int subcategoryId)
+        public async Task<IHttpActionResult> GetProductsInSubCategoryAsync(int subcategoryId)
         {
             using (var context = GetContext())
             {
@@ -26,7 +25,7 @@ namespace ChattyIO.WebApi.Controllers
                 if (productSubcategory == null)
                 {
                     // The subcategory was not found.
-                    return null;
+                    return NotFound();
                 }
 
                 productSubcategory.Product = await context.Products
@@ -44,7 +43,7 @@ namespace ChattyIO.WebApi.Controllers
                     prod.ProductListPriceHistory = productListPriceHistory;
                 }
 
-                return productSubcategory;
+                return Ok(productSubcategory);
             }
         }
 
