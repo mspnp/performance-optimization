@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -13,24 +14,23 @@ namespace WebRole.Controllers
         [Route("toomanyrows/sales/total_aggregate_on_client")]
         public async Task<decimal> GetTotalSalesAggregateOnClientAsync()
         {
-            decimal total = 0;
-
-            using(var context = GetContext())
+            using (var context = GetContext())
             {
                 var salesPersons = await context.SalesPersons
-                                                .Include( sp => sp.SalesOrderHeaders) //This include here forces eager loading.
+                                                .Include(sp => sp.SalesOrderHeaders) // This include forces eager loading.
                                                 .ToListAsync()
                                                 .ConfigureAwait(false);
 
+                decimal total = 0;
                 foreach (var salesPerson in salesPersons)
                 {
                     var orderHeaders = salesPerson.SalesOrderHeaders;
 
                     total += orderHeaders.Sum(x => x.TotalDue);
                 }
-            }
 
-            return total;
+                return total;
+            }
         }
 
         [HttpGet]
