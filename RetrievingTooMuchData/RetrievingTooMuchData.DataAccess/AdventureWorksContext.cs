@@ -1,5 +1,4 @@
 ﻿using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
 using RetrievingTooMuchData.DataAccess.Mapping;
 
 namespace RetrievingTooMuchData.DataAccess
@@ -14,16 +13,10 @@ namespace RetrievingTooMuchData.DataAccess
         public AdventureWorksContext()
             : base("Name=AdventureWorksContext")
         {
-
         }
 
         public AdventureWorksContext(string connectionString)
             : base(connectionString)
-        {
-        }
-
-        public AdventureWorksContext(string connectionString, DbCompiledModel model)
-            : base(connectionString, model)
         {
         }
 
