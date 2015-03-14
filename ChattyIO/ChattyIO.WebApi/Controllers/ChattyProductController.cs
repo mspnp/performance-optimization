@@ -23,6 +23,12 @@ namespace ChattyIO.WebApi.Controllers
                        .Where(psc => psc.ProductSubcategoryId == subcategoryId)
                        .FirstOrDefaultAsync();
 
+                if (productSubcategory == null)
+                {
+                    // The subcategory was not found.
+                    return null;
+                }
+
                 productSubcategory.Product = await context.Products
                     .Where(p => subcategoryId == p.ProductSubcategoryId)
                     .ToListAsync();
