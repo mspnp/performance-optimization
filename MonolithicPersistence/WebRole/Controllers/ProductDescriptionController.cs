@@ -44,7 +44,6 @@ namespace WebRole.Controllers
             catch (Exception ex)
             {
                 // Log to table storage in case of SQL error 
-                PersistenceErrorEventSource.Log.Failure(ex.Message);
                 throw new HttpResponseException(HttpStatusCode.InternalServerError);
             }
             return result;

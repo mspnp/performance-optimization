@@ -132,16 +132,11 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AzureTableLogController.cs" />
     <Compile Include="Controllers\ProductDescriptionController.cs" />
-    <Compile Include="Controllers\PoliglotController.cs" />
     <Compile Include="Controllers\PurchaseOrderHeaderController.cs" />
     <Compile Include="Controllers\SqldbLogController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Logging\Logging.cs" />
-    <Compile Include="Logging\MonoglotEventSource.cs" />
-    <Compile Include="Logging\PersistenceErrorEventSource.cs" />
-    <Compile Include="Logging\PoliglotEventSource.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebRole.cs" />
   </ItemGroup>
@@ -156,7 +151,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

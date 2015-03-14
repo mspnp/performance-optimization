@@ -51,7 +51,6 @@ namespace WebRole.Controllers
             catch (Exception ex)
             {
                 //SQL Server Store is probably not available, log to table storage
-                PersistenceErrorEventSource.Log.Failure(ex.Message);
                 throw new HttpResponseException(HttpStatusCode.InternalServerError);
             }
         }
