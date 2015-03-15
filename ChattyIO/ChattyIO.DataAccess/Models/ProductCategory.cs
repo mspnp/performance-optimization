@@ -1,7 +1,7 @@
-namespace ChattyIO.DataAccess
-{
-    using System.Collections.Generic;
+using System.Collections.Generic;
 
+namespace ChattyIO.DataAccess.Models
+{
     public class ProductCategory
     {
         public ProductCategory()
@@ -9,9 +9,12 @@ namespace ChattyIO.DataAccess
             ProductSubcategory = new List<ProductSubcategory>();
         }
 
-        public int ProductCategoryId { get; set; }
         // ProductCategoryID (Primary key). Primary key for ProductCategory records.
-        public string Name { get; set; } // Name. Category description.
+        public int ProductCategoryId { get; set; }
+
+        // Name. Category description.
+        public string Name { get; set; }
+
         // Reverse navigation
         public virtual ICollection<ProductSubcategory> ProductSubcategory { get; set; }
     }

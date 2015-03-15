@@ -1,37 +1,32 @@
-﻿namespace ChattyIO.Tests
+﻿using System;
+using System.Configuration;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
+using ChattyIO.DataAccess.Models;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace ChattyIO.Tests
 {
-    using System;
-    using System.Configuration;
-    using System.Net.Http;
-    using System.Threading.Tasks;
-    using System.Net.Http.Headers;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-    using ChattyIO.DataAccess;
-
     [TestClass]
     public class ChattyProductListPriceHistoryPerfFixture
     {
-        private static HttpClient httpClient = null;
-        private TestContext testContextInstance;
+        private static readonly HttpClient HttpClient;
+        
         static ChattyProductListPriceHistoryPerfFixture()
         {
-            httpClient = new HttpClient();
-            httpClient.BaseAddress = new Uri(ConfigurationManager.AppSettings["endpointbaseaddress"]);
-            httpClient.DefaultRequestHeaders.Accept.Clear();
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            HttpClient = new HttpClient {BaseAddress = new Uri(ConfigurationManager.AppSettings["endpointbaseaddress"])};
+            HttpClient.DefaultRequestHeaders.Accept.Clear();
+            HttpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 
         [TestMethod]
         public async Task WhenUsingChattyAPI_ToGet_AllProductListPriceHistory_ForCategories()
         {
-            
             for (int i = 1; i < 5; i++)
             {
-               
-                    var subCategoryResponse =
-                        await httpClient.GetAsync("chattyproduct/products/" + i.ToString());
-                    var subCategory = await subCategoryResponse.Content.ReadAsAsync<ProductSubcategory>();
+                var subCategoryResponse = await HttpClient.GetAsync("chattyproduct/products/" + i);
+                var subCategory = await subCategoryResponse.Content.ReadAsAsync<ProductSubcategory>();
             }
         }
 
@@ -40,20 +35,8 @@
         {
             for (int i = 1; i < 5; i++)
             {
-                var subCategoryResponse = await httpClient.GetAsync("chunkyproduct/products/" + i.ToString());
+                var subCategoryResponse = await HttpClient.GetAsync("chunkyproduct/products/" + i);
                 var subCategory = await subCategoryResponse.Content.ReadAsAsync<ProductSubcategory>();
-            }
-        }
-
-        public TestContext TestContext
-        {
-            get
-            {
-                return testContextInstance;
-            }
-            set
-            {
-                testContextInstance = value;
             }
         }
     }

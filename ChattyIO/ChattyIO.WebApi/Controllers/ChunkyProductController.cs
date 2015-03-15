@@ -1,27 +1,29 @@
-﻿namespace ChattyIO.Api.Web.Controllers
+﻿using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Http;
+using ChattyIO.DataAccess;
+
+namespace ChattyIO.WebApi.Controllers
 {
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Web.Http;
-    using System.Data.Entity;
-
-    using ChattyIO.DataAccess;
-
     public class ChunkyProductController : ApiController
     {
         [HttpGet]
         [Route("chunkyproduct/products/{subCategoryId}")]
-        public async Task<ProductSubcategory> GetProductCategoryDetailsAsync(int subCategoryId)
+        public async Task<IHttpActionResult> GetProductCategoryDetailsAsync(int subCategoryId)
         {
             using (var context = GetContext())
             {
                 var subCategory = await context.ProductSubcategories
-                      .Where((psc) => psc.ProductSubcategoryId == subCategoryId)
+                      .Where(psc => psc.ProductSubcategoryId == subCategoryId)
                       .Include("Product.ProductListPriceHistory")
-                      .SingleOrDefaultAsync();
-                return subCategory;
-            }
+                      .FirstOrDefaultAsync();
 
+                if (subCategory == null)
+                    return NotFound();
+                
+                return Ok(subCategory);
+            }
         }
         private AdventureWorksProductContext GetContext()
         {

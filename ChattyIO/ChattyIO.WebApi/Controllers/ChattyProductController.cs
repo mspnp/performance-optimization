@@ -1,43 +1,50 @@
-﻿namespace ChattyIO.Api.Web.Controllers
+﻿using System.Data.Entity;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web.Http;
+using ChattyIO.DataAccess;
+
+namespace ChattyIO.WebApi.Controllers
 {
-    using System.Collections.Generic;
-    using System.Data.Entity;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using System.Web.Http;
+    // We are using the db context directly here since the purpose of this is to illustrate perf anti-patterns.
+    // Consider using the Repository pattern instead in a real app.
 
-    using ChattyIO.DataAccess;
-
-    //We are using the context directly here since the purpose of this is to illustrate perf anti-patterns
-    //consider using the Repository pattern instead in a real app.
     public class ChattyProductController : ApiController
     {
 
         [HttpGet]
         [Route("chattyproduct/products/{subcategoryId}")]
-        public async Task<ProductSubcategory> GetProductsInSubCategoryAsync(int subcategoryId)
+        public async Task<IHttpActionResult> GetProductsInSubCategoryAsync(int subcategoryId)
         {
-            ProductSubcategory productSubcategory = null;
-     
             using (var context = GetContext())
             {
-               productSubcategory = await context.ProductSubcategories
-                      .Where((psc) => psc.ProductSubcategoryId == subcategoryId)
-                      .SingleOrDefaultAsync();
+                var productSubcategory = await context.ProductSubcategories
+                       .Where(psc => psc.ProductSubcategoryId == subcategoryId)
+                       .FirstOrDefaultAsync();
+
+                if (productSubcategory == null)
+                {
+                    // The subcategory was not found.
+                    return NotFound();
+                }
+
                 productSubcategory.Product = await context.Products
-                    .Where((p) => subcategoryId == p.ProductSubcategoryId)
+                    .Where(p => subcategoryId == p.ProductSubcategoryId)
                     .ToListAsync();
 
                 foreach (var prod in productSubcategory.Product)
                 {
+                    int productId = prod.ProductId;
+
                     var productListPriceHistory = await context.ProductListPriceHistory
-                       .Where((pl) => pl.ProductId == prod.ProductId)
+                       .Where(pl => pl.ProductId == productId)
                        .ToListAsync();
+
                     prod.ProductListPriceHistory = productListPriceHistory;
                 }
 
+                return Ok(productSubcategory);
             }
-            return productSubcategory;
         }
 
 

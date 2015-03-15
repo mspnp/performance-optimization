@@ -3,11 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{4816FC39-008C-4CC3-B17D-CDA5C1DE5A6F}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\packages.config = .nuget\packages.config
-	EndProjectSection
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChattyIO.DataAccess", "ChattyIO.DataAccess\ChattyIO.DataAccess.csproj", "{71798002-E345-4C51-A177-571FF9D71AB7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChattyIO.WebApi", "ChattyIO.WebApi\ChattyIO.WebApi.csproj", "{F8C34AFB-5694-4028-B665-4075EA420C7B}"

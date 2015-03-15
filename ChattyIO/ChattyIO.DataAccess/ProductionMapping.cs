@@ -1,8 +1,9 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Entity.ModelConfiguration;
+using ChattyIO.DataAccess.Models;
+
 namespace ChattyIO.DataAccess
 {
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Data.Entity.ModelConfiguration;
-
     //Product
     internal class ProductConfiguration : EntityTypeConfiguration<Product>
     {
