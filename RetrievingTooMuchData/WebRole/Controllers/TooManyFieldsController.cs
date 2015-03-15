@@ -1,14 +1,11 @@
-﻿using Microsoft.WindowsAzure;
-using RetrievingTooMuchData.DataAccess;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
+using Microsoft.WindowsAzure;
+using RetrievingTooMuchData.DataAccess;
 using WebRole.Models;
-using System.Data.Entity;
 
 namespace WebRole.Controllers
 {
@@ -21,10 +18,10 @@ namespace WebRole.Controllers
             using (var context = GetContext())
             {
                 var products = await context.Products
-                                            .ToListAsync() //Execute query.
+                                            .ToListAsync() // Execute query.
                                             .ConfigureAwait(false);
 
-                return products.Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name }); //Project fields.;            
+                return products.Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name }); // Project fields.
             }
         }
 
@@ -35,8 +32,8 @@ namespace WebRole.Controllers
             using (var context = GetContext())
             {
                 return await context.Products
-                                    .Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name }) //Project fields.
-                                    .ToListAsync() //Execute query.
+                                    .Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name }) // Project fields.
+                                    .ToListAsync() // Execute query.
                                     .ConfigureAwait(false);
             }
         }

@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace RetrievingTooMuchData.DataAccess
 {
@@ -35,18 +32,5 @@ namespace RetrievingTooMuchData.DataAccess
         public DateTime ModifiedDate { get; set; } // ModifiedDate
 
         public virtual SalesPerson SalesPerson { get; set; }
-
-        public SalesOrderHeader()
-        {
-            RevisionNumber = 0;
-            OrderDate = System.DateTime.Now;
-            Status = 1;
-            OnlineOrderFlag = true;
-            SubTotal = 0.00m;
-            TaxAmt = 0.00m;
-            Freight = 0.00m;
-            Rowguid = System.Guid.NewGuid();
-            ModifiedDate = System.DateTime.Now;
-        }
     }
 }

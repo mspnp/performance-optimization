@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace RetrievingTooMuchData.DataAccess
 {
@@ -22,12 +20,6 @@ namespace RetrievingTooMuchData.DataAccess
 
         public SalesPerson()
         {
-            Bonus = 0.00m;
-            CommissionPct = 0.00m;
-            SalesYtd = 0.00m;
-            SalesLastYear = 0.00m;
-            Rowguid = System.Guid.NewGuid();
-            ModifiedDate = System.DateTime.Now;
             SalesOrderHeaders = new List<SalesOrderHeader>();
         }
     }

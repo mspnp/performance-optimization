@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace RetrievingTooMuchData.DataAccess
 {
@@ -32,13 +29,5 @@ namespace RetrievingTooMuchData.DataAccess
         public DateTime? DiscontinuedDate { get; set; } // DiscontinuedDate
         public Guid Rowguid { get; set; } // rowguid
         public DateTime ModifiedDate { get; set; } // ModifiedDate
-
-        public Product()
-        {
-            MakeFlag = true;
-            FinishedGoodsFlag = true;
-            Rowguid = System.Guid.NewGuid();
-            ModifiedDate = System.DateTime.Now;
-        }
     }
 }
