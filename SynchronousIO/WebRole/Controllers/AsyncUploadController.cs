@@ -1,4 +1,7 @@
-﻿using System.IO;
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.IO;
 using System.Threading.Tasks;
 using System.Web.Hosting;
 using System.Web.Http;
@@ -16,14 +19,14 @@ namespace WebRole.Controllers
             var blobClient = storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference("uploadedfiles");
             
-            await container.CreateIfNotExistsAsync().ConfigureAwait(false);
+            await container.CreateIfNotExistsAsync();
 
             var blockBlob = container.GetBlockBlobReference("myblob");
 
             // Create or overwrite the "myblob" blob with contents from a local file.
             using (var fileStream = File.OpenRead(HostingEnvironment.MapPath("~/FileToUpload.txt")))
             {
-                await blockBlob.UploadFromStreamAsync(fileStream).ConfigureAwait(false);
+                await blockBlob.UploadFromStreamAsync(fileStream);
             }
         }
     }

@@ -1,4 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System.Threading.Tasks;
 using System.Web.Http;
 using WebRole.Models;
 
@@ -16,9 +19,9 @@ namespace WebRole.Controllers
         /// <summary>
         /// This is an asynchronous method that calls the Task based GetUserProfileAsync method.
         /// </summary>
-        public Task<UserProfile> GetUserProfileAsync()
+        public async Task<UserProfile> GetUserProfileAsync()
         {
-            return _userProfileService.GetUserProfileAsync();
+            return await _userProfileService.GetUserProfileAsync();
         }
     }
 }
