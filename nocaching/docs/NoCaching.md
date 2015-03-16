@@ -8,14 +8,17 @@ The following code snippet shows an example method that uses Entity Framework to
 **C#**
 
 ```C#
-public async Task<Person> GetByIdAsync(int id)
+public class PersonRepository : IPersonRepository
 {
-    using (AdventureWorksContext context = new AdventureWorksContext())
+    public async Task<Person> GetAsync(int id)
     {
-        return await context.People
-            .Where(p => p.BusinessEntityId == id)
-            .SingleOrDefaultAsync()
-            .ConfigureAwait(false);
+        using (var context = new AdventureWorksContext())
+        {
+            return await context.People
+                .Where(p => p.Id == id)
+                .FirstOrDefaultAsync()
+                .ConfigureAwait(false);
+        }
     }
 }
 ```
@@ -40,6 +43,26 @@ This anti-pattern typically occurs because:
 ## How to detect the problem
 A complete lack of caching can lead to poor response times when retrieving data due to the latency when accessing a remote data store, increased contention in the data store, and an associated lack of scalability as more users request data from the store. 
 
+You can perform the following steps to help identify whether lack of caching is causing performance problems in an application:
+
+1. Review the application with the designers and developers.
+
+2. Instrument the application and monitor the live system to assess how frequently the application retrieves data or calculates information, and the sources of this data.
+
+3. Profiling the application in a test environment to capture low-level metrics about the overheads associated with repeated data access operations or other frequently performed calculations.
+
+4. Perform load testing of each possible operation to identify how the system responds under a normal workload and under duress.
+
+5. If appropriate, examine the data access statistics for the underlying data stores and review how frequently data requests are repeated.
+
+The following sections apply these steps to the sample application described earlier.
+
+----------
+
+**Note:** If you already have an insight into where problems might lie, you may be able to skip some of these steps. However, you should avoid making unfounded or biased assumptions. Performing a thorough analysis can sometimes lead to the identification of unexpected causes of performance problems. The following sections are formulated to help you to examine applications and services systematically.
+
+----------
+
 ### Reviewing the application
 
 If you are a designer or developer familiar with the structure of the application, and you are aware that the application does not use caching, then this is often an indication that adding a cache might be useful. To identify the information to cache, you need to determine exactly which resources are likely to be accessed most frequently. Slow changing or static reference data that is read frequently are good initial candidates; this could be data retrieved from storage or returned from a web application or remote service. However, all resource access should be verified to ascertain which resources are most suitable; depending on the nature of the application, fast-moving data that is written frequently may also benefit from caching (see the considerations in the [How to correct the problem](#HowToCorrectTheProblem) section for more information.)
@@ -50,22 +73,29 @@ If you are a designer or developer familiar with the structure of the applicatio
 
 ----------
 
+### Instrumenting the application and monitoring the live system
+
+You should instrument the system and monitor it in productions to provide more information about the specific requests that users make while the application is in production. You can then analyze the results to group them by operation. You can use lightweight logging  frameworks such as [NLog][NLog] or [Log4Net][Log4Net] to gather this information. You can also deploy more powerful tools such as [Microsoft Application Insights][AppInsights], [New Relic][NewRelic], or [AppDynamics][AppDynamics] to collect and analyze instrumentation information, but these tools incur more overhead than simple logging, and they should be disabled when not required. 
+
+As an example, if you configure the CachingDemo to capture monitoring data by using [New Relic][NewRelic], the analytics generated can quickly show you the frequency with which each server request occurs, as shown by the image below. In this case, the only HTTP GET operation performed is `Person/GetAsync` (the load-test simply repeats this same request each time), but in a live environment knowing the relative frequency with which each request is performed gives you an insight into which resources might best be cached: 
+
+![New Relic showing server requests for the CachingDemo application][NewRelic-server-requests]
+
+### Profiling the application
+
+If you require a deeper analysis of the application you can use a profiler to capture and examine low-level performance information in a controlled environment (not the production system). You should examine metrics such as I/O request rates, memory usage, and CPU utilization. Performing a detailed profiling of the system may reveal a large number of requests to a data store or service, or repeated processing that performs the same calculation. You can sort the profile data by the number of requests to help identify candidate information for caching. 
+
+Note that there may be some restrictions on the environment in which you can perform profiling. For example, you may not be able to profile an application running as an Azure Web site. In these situations, you will need to profile the application running locally. Furthermore, profiling might not provide the same data under the same load as a production system, and the results can be skewed as a result of the additional profiling overhead. However, you may be able to adjust the results to take this overhead into account.
+
 ### Load-testing the application
-Performing load testing can help to highlight any problems. Load-testing should simulate the pattern of data access observed in the production environment. You can use a tool such as [Visual Studio Online][VisualStudioOnline] to run load tests and examine the results. 
 
-The following output was generated from load-testing the CachingDemo sample application without using caching. The load-test simulates 500 concurrent users performing a series of HTTP GET operations targeted at 99 different resources (`Person 1` through `Person 99`). The test runs for 5 minutes, generating many thousands of requests.
+Performing load-testing in a test environment can help to highlight any problems. Load-testing should simulate the pattern of data access observed in the production environment using realistic workloads. You can use a tool such as [Visual Studio Online][VisualStudioOnline] to run load tests and examine the results. 
 
-The following graph shows the performance summary. This graph shows that the average response time during the load-test was 19.6 seconds:
+The following graph was generated from load-testing the CachingDemo sample application without using caching. The load-test simulates a step load of up to 1000 users in 100 user increments performing a typical series of operations against the system. Notice that the capacity of the system as measured by the number of successful tests performed each seconds reaches a plateau, and additional requests are slowed as a result - the average test time steadily increases up to 10 milliseconds with the work-load:
 
 ![Performance load-test results for the uncached scenario][Performance-Load-Test-Results-Uncached]
 
-The throughput summary graph shows that the application was able to support 24.58 requests per second on average, and each request was successful:
-
-![Throughput load-test results for the uncached scenario][Throughput-Load-Test-Results-Uncached]
-
-The average response time is relatively long. If a business operation involves accessing three or four entities a user may be forced to wait for a minute for the operation to complete. Additionally, the throughput may fall below that required for a system that may need to support thousands of concurrent users.
- 
-### Using data access statistics
+### Examine data access statistics
 
 Examining data access statistics and other information provided by a data store acting as the repository can yield some useful information, such as which queries being repeated most frequently. For example, Microsoft SQL Server provides the `sys.dm_exec_query_stats` management view which contains statistical information for recently executed queries. The text for each query is available in the `sys.dm_exec-query_plan` view. You can use a tool such as SQL Server Management Studio to run the following SQL query and determine the frequency with which queries are performed:
 
@@ -101,22 +131,10 @@ In the [CachingDemo sample application][fullDemonstrationOfProblem] shown earlie
 
 ----------
 
-### Instrumenting the application
-
-While statistical information from the data store may be useful to identify common queries, you should also consider instrumenting applications to provide more information about the specific requests that users make while the application is in production. You can then analyze the results to group them by operation. You can use lightweight logging  frameworks such as [NLog][NLog] or [Log4Net][Log4Net] to gather this information. You can also deploy more powerful tools such as [Microsoft Application Insights][AppInsights], [New Relic][NewRelic], or [AppDynamics][AppDynamics] to collect and analyze instrumentation information, but these tools incur more overhead than simple logging, and they should be disabled when not required. 
-
-As an example, if you configure the CachingDemo to capture monitoring data by using [New Relic][NewRelic], the analytics generated can quickly show you the frequency with which each server request occurs, as shown by the image below. In this case, the only HTTP GET operation performed is `Person/GetAsync` (the load-test simply repeats this same request each time), but in a live environment knowing the relative frequency with which each request is performed gives you an insight into which resources might best be cached: 
-
-![New Relic showing server requests for the CachingDemo application][NewRelic-server-requests]
-
-### Profiling the application
-
-If you require a deeper analysis of the application you can use a profiler such as [PerfView][PerfView] or [ANTS][ANTS] to capture and examine low-level performance information such as I/O request rates, memory usage, and CPU utilization. Performing a detailed profiling of the system may reveal a large number of requests to a data store or service, or repeated processing that performs the same calculation. You can sort the profile data by the number of requests to help identify candidate information for caching. Note that there may be some restrictions on the environment in which you can perform profiling. For example, you may not be able to profile an application running as an Azure Web site. In these situations, you will need to profile the application running locally. Furthermore, profiling might not provide the same data under the same load as a production system, and the results can be skewed as a result of the additional profiling overhead. However, you may be able to adjust the results to take this overhead into account.
-
 ## <a name="HowToCorrectTheProblem"></a>How to correct the problem
 You can use several strategies to implement caching. The most popular is the *on-demand* or [*cache-aside*][cache-aside-pattern] strategy. In this strategy, the application attempts to retrieve data from the cache. If the data is not present, the application retrieves it from the data store and adds it to the cache so it will be found next time. To prevent the data from becoming stale, many caching solutions support configurable timeouts, allowing data to automatically expire and be removed from the cache after a specified interval. If the application modifies data, it should write the change directly to the data store and remove the old value from the cache; it will be retrieved and added to the cache the next time it is required. 
 
-This approach is suitable for data that changes regularly, although there may be a window of opportunity during which an application might be served with out-of-date information. The following code snippet shows the `GetByIdAsync` method presented earlier but now including the cache-aside pattern.
+This approach is suitable for data that changes regularly, although there may be a window of opportunity during which an application might be served with out-of-date information. The following code snippet shows a version of the `GetAsync` method presented earlier that uses caching. The `CachedPersonRepository` class makes use of the generic `CacheService` class to retrieve data. The `GetAsync` method in this class implements the Cache-Aside pattern; it examines the cache to see whether an item with a matching key is available in the cache, and if so the method returns this item. If no such item is cached, it is retrieved from the database and added to the cache.
 
 ----------
 
@@ -124,31 +142,48 @@ This approach is suitable for data that changes regularly, although there may be
 
 ----------
 
-
 **C#**
 
 ```C#
-
-public async Task<Person> GetByIdAsync(int id)
+public class CachedPersonRepository : IPersonRepository
 {
-    // Connect to Azure Redis Cache
-    IDatabase cache = ...;
+    private readonly PersonRepository _innerRepository;
 
-    // Attempt to retrieve the product from the cache
-    string key = string.Format("{0}:{1}", ..., id); // Azure Redis Cache expects the key to be passed as a formatted string
-    Person value = await cache.GetAsync<T>(key).ConfigureAwait(false);
-
-    // If the item is not currently in the cache, then retrieve it from the database and add it to the cache
-    if (value == null)
+    public CachedPersonRepository(PersonRepository innerRepository)
     {
-        value = ...; // Retrieve the data from the database
-        if (value != null)
-        {
-            await cache.SetAsync(key, value).ConfigureAwait(false); // Add the data to the cache
-        }
+        _innerRepository = innerRepository;
     }
 
-    return value;
+    public async Task<Person> GetAsync(int id)
+    {
+        return await CacheService.GetAsync<Person>("p:" + id, () => _innerRepository.GetAsync(id)).ConfigureAwait(false);
+    }
+}
+
+...
+
+public class CacheService
+{
+    private static ConnectionMultiplexer _connection;
+    ...
+
+    public static async Task<T> GetAsync<T>(string key, Func<Task<T>> loadCache, double expirationTimeInMinutes)
+    {
+        ...
+        IDatabase cache = Connection.GetDatabase();
+        T value = await GetAsync<T>(cache, key).ConfigureAwait(false);
+        if (value == null)
+        {
+            value = await loadCache().ConfigureAwait(false);
+            if (value != null)
+            {
+                await SetAsync(cache, key, value, expirationTimeInMinutes).ConfigureAwait(false);
+            }
+        }
+
+        return value;
+    }
+    ...
 }
 ```
 
@@ -177,15 +212,15 @@ You should consider the following points concerning caching:
 ## Consequences of the solution
 Implementing caching may lead to a lack of immediate consistency; applications may not always read the most recent version of a data item. Applications should be designed around the principle of eventual consistency and tolerate being presented with old data. Applying time-based eviction policies to the cache can help to prevent cached data from becoming too stale, but any such policy must be balanced against the expected volatility of the data; data that is highly static and read often can reside in the cache for longer periods than dynamic information that may become stale quickly and which should be evicted more frequently.
 
-To determine the efficacy of any caching strategy, you should repeat load-testing after incorporating a cache and compare the results to those generated before the cache was added. The following results are the output generated by load testing the CachingDemo sample solution with caching enabled. The performance summary graph shows that the average response time is now 0.41 seconds. Compared to a response time of 19.6 seconds for the uncached example this is an enormous increase throughput (by a factor of 47):
+To determine the efficacy of any caching strategy, you should repeat load-testing after incorporating a cache and compare the results to those generated before the cache was added. The following results show the graph generated by load testing the CachingDemo sample solution with caching enabled. The volume of successful tests still reaches a plateau, but the rate is approximately 2.5 times that of the uncached solution. Similarly, although the average test time still increases with load, the maximum response time is approximately half that of the previous tests:
 
 ![Performance load-test results for the cached scenario][Performance-Load-Test-Results-Cached]
- 
-However, the number of requests per second should not be considered the only measure of success. The increased volume of requests may have an adverse affect on a service, resulting in transient availability errors if it becomes overloaded at any point. The throughput graph indicates that although the load-test performed an average of 1034.86 requests per second (compared to 24.58 for the uncached scenario), when the rate exceeded approximately 550 requests per second many errors occurred (the details of these errors are available on the Details tab in the load-test results pane):
 
-![Throughput load-test results for the cached scenario][Throughput-Load-Test-Results-Cached]
+----------
 
-The additional traffic overwhelmed the service causing a large number of HTTP 403 (Forbidden) and HTTP 503 (Service Unavailable) messages, indicating that the web site hosting the service was temporarily unavailable. **This is a common concern; increasing the potential throughput of the application can require that the infrastructure on which the application runs be scaled to handle the additional load.**
+**Note:** Lack of caching sometimes acts as a natural regulator of throughput, and once this restriction is relaxed the increasing volume of traffic that a web site can support by using caching might result in the system being overwhelmed. This is typified by the system returning a large number of HTTP 403 (Forbidden) and HTTP 503 (Service Unavailable) messages, indicating that the web site hosting the service was temporarily unavailable. **This is a common concern; increasing the potential throughput of the application can require that the infrastructure on which the application runs be scaled to handle the additional load.**
+
+----------
 
 ## Related resources
 - [The Cache-Aside Pattern][cache-aside-pattern].
@@ -214,8 +249,6 @@ The additional traffic overwhelmed the service causing a large number of HTTP 40
 [ANTS]: http://www.red-gate.com/products/dotnet-development/ants-performance-profiler/
 [VisualStudioOnline]: http://www.visualstudio.com/get-started/load-test-your-app-vs.aspx
 [NewRelic-server-requests]: Figures/New-Relic.jpg
-[Performance-Load-Test-Results-Uncached]:Figures/VSOLoadTest1.jpg
-[Throughput-Load-Test-Results-Uncached]: Figures/VSOLoadTest2.jpg
+[Performance-Load-Test-Results-Uncached]:Figures/InitialLoadTestResults.jpg
 [Dynamic-Management-Views]: Figures/SQLServerManagementStudio.jpg
-[Performance-Load-Test-Results-Cached]: Figures/VSOLoadTest3.jpg
-[Throughput-Load-Test-Results-Cached]: Figures/VSOLoadTest4.jpg
+[Performance-Load-Test-Results-Cached]: Figures/CachedLoadTestResults.jpg
