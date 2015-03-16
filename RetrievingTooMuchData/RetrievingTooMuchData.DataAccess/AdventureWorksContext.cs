@@ -1,5 +1,5 @@
-﻿using System.Data.Entity;
-using RetrievingTooMuchData.DataAccess.Mapping;
+﻿using RetrievingTooMuchData.DataAccess.Mapping;
+using System.Data.Entity;
 
 namespace RetrievingTooMuchData.DataAccess
 {
