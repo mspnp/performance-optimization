@@ -19,13 +19,19 @@ public class ChattyProductController : ApiController
 {
     [HttpGet]
     [Route("chattyproduct/products/{subcategoryId}")]
-    public async Task<ProductSubcategory> GetProductsInSubCategoryAsync(int subcategoryId)
+    public async Task<IHttpActionResult> GetProductsInSubCategoryAsync(int subcategoryId)
     {
         using (var context = GetContext())
         {
             var productSubcategory = await context.ProductSubcategories
                    .Where(psc => psc.ProductSubcategoryId == subcategoryId)
                    .FirstOrDefaultAsync();
+
+            if (productSubcategory == null)
+            {
+                // The subcategory was not found.
+                return NotFound();
+            }
 
             productSubcategory.Product = await context.Products
                 .Where(p => subcategoryId == p.ProductSubcategoryId)
@@ -42,7 +48,7 @@ public class ChattyProductController : ApiController
                 prod.ProductListPriceHistory = productListPriceHistory;
             }
 
-            return productSubcategory;
+            return Ok(productSubcategory);
         }
     }
     ...
@@ -180,15 +186,15 @@ The following sections apply these steps to the sample application described ear
 
 The key task in determining the possible causes of poor performance is to examine operations that are running slowly. With this in mind, performing load-testing in a controlled environment against suspect areas of functionality can help to establish a baseline, and monitoring how the application runs while executing the load-tests can provide useful insights into how the system might be optimized. 
 
-Running load-tests against the `GetProductsInSubCategoryAsync` in the `ChattyProduct` controller in sample application yields the following results:
+Running load-tests against the `GetProductsInSubCategoryAsync` operation in the `ChattyProduct` controller in sample application yields the following results:
 
 ![Key indicators load-test results for the Chatty I/O sample application][key-indicators-chatty-io]
 
-This load test was performed by using a simulated workload of 500 concurrent users. The graph shows a high degree of latency; the median response time was over 60 seconds per request. If each test represents a user querying the product catalog to find the details of products in a specified subcategory then a user might have to wait for over a minute to see the results under this load.
+This load test was performed by using a simulated step workload of up to 1000 concurrent users. The graph shows a high degree of latency; the median response time is measured in 10s of seconds per request. If each test represents a user querying the product catalog to find the details of products in a specified subcategory then with a loading of 1000 users, a customer might have to wait for nearly a minute to see the results under this load.
 
 ----------
 
-**Note:** The application was deployed as a web role on a single-instance cloud service. The results shown in the [Consequences of this solution](#Consequences) section were generated using the same load on the same deployment. A production system would have more nodes and should be able to support more users, but the general principle remains the same.
+**Note:** The application was deployed as a medium size Azure website. The database was deployed on a premium P3 instance of Azure SQL Database configured with a connection pool supporting up to 1000 concurrent connections (to reduce the chances of connecting to the database itself causing contention.) The results shown in the [Consequences of this solution](#Consequences) section were generated using the same stepped load on the same deployment. 
 
 ----------
 
@@ -268,7 +274,7 @@ public class ChunkyProductController : ApiController
 {
     [HttpGet]
     [Route("chunkyproduct/products/{subCategoryId}")]
-    public async Task<ProductSubcategory> GetProductCategoryDetailsAsync(int subCategoryId)
+    public async Task<IHttpActionResult> GetProductCategoryDetailsAsync(int subCategoryId)
     {
         using (var context = GetContext())
         {
@@ -276,10 +282,15 @@ public class ChunkyProductController : ApiController
                   .Where(psc => psc.ProductSubcategoryId == subCategoryId)
                   .Include("Product.ProductListPriceHistory")
                   .FirstOrDefaultAsync();
-            return subCategory;
+
+            if (subCategory == null)
+                return NotFound();
+            
+            return Ok(subCategory);
         }
     }
     ...
+}
 ```
 
 - In the `UserController` example shown earlier, rather than exposing individual properties of `User` objects through the REST interface, provide a method that retrieves an entire User object within a single request.
@@ -384,11 +395,11 @@ You should consider the following points:
 
 The system should spend less time performing I/O, and contention for I/O resources should be decreased. This should manifest itself as an improvement in response time and throughput in an application. However, you should ensure that each request only fetches the data that is likely to be required. Making requests that are far too big can be as damaging for performance as making lots of small requests; avoid retrieving data speculatively. For more information, see the [Retrieving Too Much Data][retrieving-too-much-data] anti-pattern.
 
-Performing load-testing against the Chatty I/O sample application by using the `chunky` API yields the following results:
+Performing load-testing against the Chatty I/O sample application by using the `chunky` API generated the following results:
 
 ![Key indicators load-test results for the Chunky API in the Chatty I/O sample application][key-indicators-chunky-io]
 
-This load-test was performed on the same deployment and using the same simulated workload of 500 concurrent users as before. This time the graph shows much lower latency; discounting the errors at the end, each request takes between 7 and 8 seconds on average. A user querying the product catalog to find the details of products in a specified subcategory will now wait for less than 10 seconds to see the results.
+This load-test was performed on the same deployment and using the same simulated step workload of up to 1000 concurrent users as before. This time the graph shows much lower latency; the average request time at 1000 users is between 5 and 6 seconds. A user querying the product catalog to find the details of products in a specified subcategory will now wait for significantly less than 10 seconds to see the results compared to nearly a minute in the earlier tests.
 
 For comparison purposes, the following image shows the SQL load generated by the load-test. This information was captured by using the New Relic Azure Cloud Database plugin. This time, the peak volume of read requests was approximately 8100 per second. The Successful Connections graph to the right indicates that the database was handling 101 connections per minute for much of the time. These figures imply that each connection was responsible for making 80 read requests on average, compared to 156 read requests for the earlier load-test:
 
