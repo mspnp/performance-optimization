@@ -19,15 +19,16 @@ This anti-pattern typically occurs because:
 **C#**
 
 ``` C#
-CloudStorageAccount storageAccount = ...;
-CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-CloudBlobContainer container = blobClient.GetContainerReference("uploadedfiles");
+var storageAccount = CloudStorageAccount.Parse(...);
+var blobClient = storageAccount.CreateCloudBlobClient();
+var container = blobClient.GetContainerReference("uploadedfiles");
+
 container.CreateIfNotExists();
 
-CloudBlockBlob blockBlob = container.GetBlockBlobReference("myblob");
+var blockBlob = container.GetBlockBlobReference("myblob");
 
 // Create or overwrite the "myblob" blob with contents from a local file.
-using (var fileStream = System.IO.File.OpenRead(HttpContext.Current.Server.MapPath(@"../FileToUpload.txt")))
+using (var fileStream = File.OpenRead(HostingEnvironment.MapPath("~/FileToUpload.txt")))
 {
     blockBlob.UploadFromStream(fileStream);
 }
@@ -141,21 +142,22 @@ Some libraries provide asynchronous versions of the available I/O operations. Fo
 **C#**
 
 ``` C#
-CloudStorageAccount storageAccount = ...;
-CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-CloudBlobContainer container = blobClient.GetContainerReference("uploadedfiles");
-await container.CreateIfNotExistsAsync().ConfigureAwait(false);
+var storageAccount = CloudStorageAccount.Parse(...);
+var blobClient = storageAccount.CreateCloudBlobClient();
+var container = blobClient.GetContainerReference("uploadedfiles");
 
-CloudBlockBlob blockBlob = container.GetBlockBlobReference("myblob");
+await container.CreateIfNotExistsAsync();
+
+var blockBlob = container.GetBlockBlobReference("myblob");
 
 // Create or overwrite the "myblob" blob with contents from a local file.
 using (var fileStream = File.OpenRead(HostingEnvironment.MapPath("~/FileToUpload.txt")))
 {
-    await blockBlob.UploadFromStreamAsync(fileStream).ConfigureAwait(false);
+    await blockBlob.UploadFromStreamAsync(fileStream);
 }
 ```
 
-The `UploadFromStreamAsync` method creates a new `Task` on which to perform the file upload operation. This I/O operation is started and the thread is released, becoming available to perform other work. When the I/O operation completes, the next available thread is used to continue the processing for the remainder of the method (the call to `ConfigureAwait(false)` indicates that this does not have to be the same thread that initiated the task.)
+This code creates a new `Task` on which to perform the file upload operation. The I/O operation is started and the thread is released, becoming available to perform other work. When the I/O operation completes, the next available thread is used to continue the processing for the remainder of the method (the call to `ConfigureAwait(false)` indicates that this does not have to be the same thread that initiated the task.)
 
 
 ----------
