@@ -1,6 +1,6 @@
 # Busy Front End
 
-In a business application, resource-intensive tasks can impact the response times and cause high latency operations. One often-considered technique to improve response times is to offload a resource-intensive task onto a separate thread. This strategy enables the business application to remain responsive while the processing is performed in the background. However, this approach still consumes resources and can impact the performance of other concurrent tasks running as part of the same process that share these resources.
+Resource-intensive tasks can impact the response times of user requests and cause high latency in operations performed by an application. One often-considered technique to improve response times is to offload a resource-intensive task onto a separate thread. This strategy enables the application to remain responsive while the processing is performed in the background. However, tasks still consume resources regardless of whether they are running in the foreground or on a background thread. Performing asynchronous work in a large number of background threads can starve other concurrent foreground tasks of resources, decreasing response times to unacceptable levels. 
 
 ----------
 
@@ -8,7 +8,7 @@ In a business application, resource-intensive tasks can impact the response time
 
 ----------
 
-This problem typically occurs when an application is developed as a monolithic whole, with the entire business processing combined into a single tier shared with the user interface.
+This problem typically occurs when an application is developed as single monolithic piece of code, with the entire business processing combined into a single tier shared with the user interface.
 
 As an example, the following conceptual sample code shows part of a web application built by using Web API. The web application contains two controllers:
 
@@ -72,7 +72,7 @@ The following sections apply these steps to the sample application described ear
 
 ----------
 
-**Note:** If you already have an insight into where problems might lie, you may be able to skip some of these steps. However, you should avoid making unfounded or biased assumptions. Performing a thorough analysis can sometimes lead to the identification of unexpected causes of performance problems. The following sections are formulated to help you to examine applications and services systematically.
+**Note:** If you already have an insight into where problems might lie, you may be able to skip some of these steps. However, you should avoid making unfounded or biased assumptions. Performing a thorough analysis can sometimes lead to the identification of unexpected causes of performance problems. The following sections are formulated to help you examine applications and services systematically.
 
 ----------
 
@@ -96,13 +96,15 @@ From the information provided by identifying the points of slow down and the tel
 
 Having identified the possible source of disruptive requests in the system, you should perform tests in a controlled environment to demonstrate any correlations between these requests and the overall performance of the system. As an example, you can perform a series of load tests that include and then omit each request in turn to see the effects. 
 
-The graph below shows the results of a load-test performed against an identical deployment of the cloud service used for the previous tests. The load test used a constant load of 500 users performing the `Get` operation in the `UserProfile` controller alongside a step-load of users performing requests against the `WorkInFrontEnd` controller. Initially, the step-load was 0, so the only active users were performing the `UserProfile` requests and the system was capable of supporting 700 requests per second. After 60 seconds, a load of 100 additional users was started, and these users sent POST requests to the `WorkInFrontEnd` controller. Almost immediately, the request rate for the `UserProfile` controller dropped to about 150 requests per second. As more users were added (in steps of 100) performing POST requests against the `WorkInFrontEnd` controller, the request rate against the `UserProfile` controller gradually diminished further. The volume of requests serviced by the `WorkInFrontEnd` controller remained relatively constant. The saturation of the system becomes apparent as the overall rate of both requests tends towards a steady but low limit.
+The graph below shows the results of a load-test performed against an identical deployment of the cloud service used for the previous tests. The load test used a constant load of 500 users performing the `Get` operation in the `UserProfile` controller alongside a step-load of users performing requests against the `WorkInFrontEnd` controller. Initially, the step-load was 0, so the only active users were performing the `UserProfile` requests and the system was capable of responding to approximately 500 requests per second. After 60 seconds, a load of 100 additional users was started, and these users sent POST requests to the `WorkInFrontEnd` controller. Almost immediately, the workload sent to the `UserProfile` controller dropped to about 150 requests per second. This is due to the way in which the load-test runner functions; it waits for a response before sending the next request, so the longer it takes to receive a response the lower the subsequent request rate.
+
+As more users were added (in steps of 100) performing POST requests against the `WorkInFrontEnd` controller, the response rate against the `UserProfile` controller gradually diminished further. The volume of requests serviced by the `WorkInFrontEnd` controller remained relatively constant. The saturation of the system becomes apparent as the overall rate of both requests tends towards a steady but low limit.
 
 ![Initial load-test results for the WorkInFrontEnd controller][Initial-Load-Test-Results-Front-End]
 
 ### Reviewing the source code
 
-The final stage is to examine the source code for each of the `bad actors` previously identified. In the case of the `Post` method in the `WorkInFrontEnd` controller, the development team was aware that this request could take a considerable amount of time which is why the processing is performed on an asynchronous thread. In this way a user issuing the request does not have to wait for processing to complete before being able to continue with the next task:
+The final stage is to examine the source code for each of the `bad actors` previously identified. In the case of the `Post` method in the `WorkInFrontEnd` controller, the development team was aware that this request could take a considerable amount of time which is why the processing is performed on a different thread running asynchronously. In this way a user issuing the request does not have to wait for processing to complete before being able to continue with the next task:
 
 **C#**
 ```C#
@@ -118,31 +120,29 @@ public void Post()
 }
 ```
 
-However, although this approach notionally improves response time for the user, it introduces a small overhead associated with creating and managing a new thread. Additionally, the work performed by this method still consumes CPU, memory, and other resources. Enabling this process to run asynchronously might actually be damaging to performance as users can possibly trigger a large number of these operations simultaneously, in an uncontrolled manner. In turn, this has an effect on any other operations that the server is attempting to perform.
+However, although this approach notionally improves response time for the user, it introduces a small overhead associated with creating and managing a new thread. Additionally, the work performed by this method still consumes CPU, memory, and other resources. Enabling this process to run asynchronously might actually be damaging to performance as users can possibly trigger a large number of these operations simultaneously, in an uncontrolled manner. In turn, this has an effect on any other operations that the server is attempting to perform. Furthermore, there is a finite limit to the number of threads that a server can run, determined by a number of factors such as available computing resource capacity and the number of CPU cores. When the system reaches its limit, applications are likely to receive an exception when they attempt to start a new thread. 
 
 ## How to correct the problem
 
-You should move processes that might consume significant resources to a separate tier, and control the way in which these processes run to prevent competition from causing resource starvation. 
+You should move processes that might consume significant resources to a separate tier, and control the way in which these processes run to prevent competition from causing resource starvation. For more information, see the [Compute Partitioning Guidance][ComputePartitioning] available on the Microsoft website.
 
-With Azure, you can offload the image processing work to a set of worker roles. The POST request in the `DoWorkInFrontEnd` controller can submit the details of the request to a queue, and instances of the web role can pick up these requests and perform the necessary tasks. The web role is then free to focus on user-facing tasks. Furthermore, the queue acts as a natural load-leveller, buffering requests until a worker role instance is available. If the queue length becomes too long, you can configure auto-scaling to start additional worker role instances, and shut these instances down when the workload eases.
-
-The following code snippet shows an alternative version of the `WorkInFrontEnd` controller:
+With Azure, you can offload the image processing work to a set of worker roles. The POST request in the `WorkInBackground` controller shown below submits the details of the request to a queue, and instances of the web role can pick up these requests and perform the necessary tasks. The web role is then free to focus on user-facing tasks. Furthermore, the queue acts as a natural load-leveller, buffering requests until a worker role instance is available. If the queue length becomes too long, you can configure auto-scaling to start additional worker role instances, and shut these instances down when the workload eases:
 
 **C# web API**
 ```C#
 public class WorkInBackgroundController : ApiController
 {
-    private const string ServiceBusConnectionString = ...;
-    private const string AppSettingKeyServiceBusQueueName = ...;
-
-    private readonly QueueClient QueueClient;
-    private readonly string QueueName;
+    ...
+    private static readonly QueueClient QueueClient;
+    private static readonly string QueueName;
+    private static readonly ServiceBusQueueHandler ServiceBusQueueHandler;
 
     public WorkInBackgroundController()
     {
         var serviceBusConnectionString = ...;
         QueueName = ...;
-        QueueClient = ServiceBusQueueHandler.GetQueueClientAsync(serviceBusConnectionString, QueueName).Result;
+        ServiceBusQueueHandler = new ServiceBusQueueHandler(serviceBusConnectionString);
+        QueueClient = ServiceBusQueueHandler.GetQueueClientAsync(QueueName).Result;
     }
 
     ...
@@ -202,7 +202,7 @@ You should consider the following points:
 
 - The processing environment must be sufficiently scalable to handle the expected workload and meet the required throughput targets.
 
-- Using a worker role is simply one solution. Azure also provide other options such as [WebJobs][WebJobs]. 
+- Using a worker role is simply one solution. If you are using Azure Websites, you can use other options such as [WebJobs][WebJobs]. 
 
 
 ## Consequences of the solution
@@ -225,6 +225,8 @@ Relocating resource-hungry processing to a separate set of processes should impr
 
 ## Related resources
 
+- [Compute Partitioning Guidance][ComputePartitioning]
+
 - [Azure Service Bus Queues][ServiceBusQueues]
 
 - [Queue-Based Load Leveling Pattern][QueueBasedLoadLeveling] 
@@ -234,6 +236,7 @@ Relocating resource-hungry processing to a separate set of processes should impr
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
 [WebJobs]: http://www.hanselman.com/blog/IntroducingWindowsAzureWebJobs.aspx
+[ComputePartitioning]: https://msdn.microsoft.com/library/dn589773.aspx
 [ServiceBusQueues]: https://msdn.microsoft.com/library/azure/hh367516.aspx
 [QueueBasedLoadLeveling]: https://msdn.microsoft.com/library/dn589783.aspx
 [PriorityQueue]: https://msdn.microsoft.com/library/dn589794.aspx
