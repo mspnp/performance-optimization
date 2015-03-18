@@ -5,8 +5,6 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Web.Http;
 using System.Web.Http.Tracing;
-using WebApiContrib.Tracing.Slab;
-
 namespace WebRole
 {
     public static class WebApiConfig
