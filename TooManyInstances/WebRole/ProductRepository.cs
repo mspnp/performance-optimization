@@ -1,7 +1,11 @@
-﻿using System;
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using WebRole.Models;
 
 namespace WebRole
@@ -29,8 +33,9 @@ namespace WebRole
         {
             //Opportunity to look for product in cache.
 
-            var result = await _httpClient.GetStringAsync("http://www.microsoft.com").ConfigureAwait(false);
-
+            var hostName = HttpContext.Current.Request.Url.Host;
+            var result = await _httpClient.GetStringAsync(string.Format("http://{0}:8080", hostName)).ConfigureAwait(false);
+            
             //opportunity to save result to cache
 
             return new Product { Name = result };
