@@ -20,24 +20,22 @@ This anti-pattern typically occurs because:
 
 ```C#
 [HttpGet]
-[Route("toomanyfields/products/project_all_fields")]
-public async Task<IEnumerable<ProductInfo>> GetProductsProjectAllFieldsAsync()
+[Route("api/allfields")]
+public async Task<IEnumerable<ProductInfo>> GetAllFieldsAsync()
 {
     using (var context = GetContext())
     {
-        // Fetch all of the details of every product
         var products = await context.Products
-                                    .ToListAsync() //Execute query.
+                                    .ToListAsync() // Execute query.
                                     .ConfigureAwait(false);
 
-        // Return only the fields in which the user is interested
-        return products.Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name }); //Project fields.;            
+        return products.Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name }); // Project fields.
     }
 }
 ...
 private AdventureWorksContext GetContext()
 {
-    var connectionString = CloudConfigurationManager.GetSetting("AdventureWorksContext");
+    var connectionString = ConfigurationManager.ConnectionStrings["AdventureWorksContext"].ConnectionString;
     return new AdventureWorksContext(connectionString);
 }
 ```
@@ -50,23 +48,21 @@ private AdventureWorksContext GetContext()
 
 ```C#
 [HttpGet]
-[Route("toomanyrows/sales/total_aggregate_on_client")]
-public async Task<decimal> GetTotalSalesAggregateOnClientAsync()
+[Route("api/aggregateonclient")]
+public async Task<decimal> AggregateOnClientAsync()
 {
     decimal total = 0;
 
-    using(var context = GetEagerLoadingContext())
+    using (var context = GetEagerLoadingContext())
     {
-        // NOTE: This context uses EAGER loading.
-        // By loading all the SalePerson records this query also fetches all related SalesOrderHeader collections.
         var salesPersons = await context.SalesPersons
-                                        .Include( sp => sp.SalesOrderHeaders)
+                                        .Include(sp => sp.SalesOrderHeaders) // This include forces eager loading.
                                         .ToListAsync()
                                         .ConfigureAwait(false);
 
         foreach (var salesPerson in salesPersons)
         {
-            var orderHeaders = salesPerson.SalesOrderHeaders.ToList();
+            var orderHeaders = salesPerson.SalesOrderHeaders;
 
             total += orderHeaders.Sum(x => x.TotalDue);
         }
@@ -77,12 +73,12 @@ public async Task<decimal> GetTotalSalesAggregateOnClientAsync()
 ...
 private AdventureWorksContext GetEagerLoadingContext()
 {
-    var connectionString = CloudConfigurationManager.GetSetting("AdventureWorksContext");
+    var connectionString = ConfigurationManager.ConnectionStrings["AdventureWorksContext"].ConnectionString;
     var context = new AdventureWorksContext(connectionString);
+
     // load eagerly
     context.Configuration.LazyLoadingEnabled = false;
     context.Configuration.ProxyCreationEnabled = false;
-
     return context;
 }
 ```
@@ -106,9 +102,9 @@ Symptoms of retrieving too much data in an application include high latency and 
 
 You can perform the following steps to help identify the causes of any problems:
 
-1. Identify slow workloads or transactions by performing load-testing, process monitoring, or other form of instrumentation.
+1. Identify slow workloads or transactions by performing load-testing, process monitoring, or other methods of capturing instrumentation data.
 
-2. Capture any behavioral patterns exhibited by the system. For example, does the performance get worse at 5pm each day, and what happens when the workload exceeds a specific limit in terms of transactions per second or volume of users?
+2. Observe any behavioral patterns exhibited by the system. For example, does the performance get worse at 5pm each day, and what happens when the workload exceeds a specific limit in terms of transactions per second or volume of users?
 
 3. Identify the source of the data and the data stores being used.
 
@@ -132,17 +128,17 @@ The following sections apply these steps to the sample application described ear
 
 ### Identifying slow workloads
 
-An initial analysis will likely be based on user reports concerning functionality that is running slowly or raising exceptions. Load testing this functionality in a controlled test environment could indicate high latency and low throughput. As an example, the following performance results were obtained by using a load test that simulated 100 concurrent users against the `GetProductsProjectAllFieldsAsync` and `GetTotalSalesAggregateOnClientAsync` methods in the [sample code][fullDemonstrationOfProblem].
+An initial analysis will likely be based on user reports concerning functionality that is running slowly or raising exceptions. Load testing this functionality in a controlled test environment could indicate high latency and low throughput. As an example, the following performance results were obtained by using a load test that simulated up to 1000 concurrent users running the `GetAllFieldsAsync` operation in the [sample code][fullDemonstrationOfProblem].
 
-![Load-test results for the GetProductsProjectAllFieldsAsync and GetTotalSalesAggregateOnClientAsync methods][Load-Test-Results-Client-Side]
+![Load-test results for the GetAllFieldsAsync method][Load-Test-Results-Client-Side1]
 
-The average response time was 35.7 seconds, but a customer that visits the ecommerce web site using this deployment may have to wait between 22 and 44 seconds to see product information after submitting a request. This is too slow for many users.
+As the workload increased throughput hit a peak and then started to diminish slowly. With 1000 users, the load-test levelled out and the system was capable of supporting approximately 200 tests per second. The average response time grew with user load, and at 1000 users the average response time for each test was approximately 5 seconds.
 
-----------
+Performing a similar load-test for the `AggregateOnClientAsync` operation has the following results:
 
-**Note:** The deployment used for the load-test was relatively small, but the user load was equally small. The results for the *corrected* solution described in the [Consequences of the solution](#ConsequencesOfTheSolution) section were tested using the same deployment and user load to show the effects of optimizing the data access strategy. The same general principles apply for a larger-scale deployment with more users; the pattern should be similar.
+![Load-test results for the AggregateOnClientAsync method][Load-Test-Results-Client-Side2]
 
-----------
+This load test showed much the same pattern albeit the throughput was significantly lower due to the additional work being performed by the database effectively limiting the volume of requests that could be processed.
 
 Profiling an application in a test environment can help to identify the following symptoms that characterize operations that retrieve large amounts of data. The exact symptoms will depend on the nature of the resources being accessed but may include:
 
@@ -154,13 +150,11 @@ Profiling an application in a test environment can help to identify the followin
 
 - Applications and services spending significant time waiting for I/O to complete.
 
-### Capturing behavioral patterns
+### Observing behavioral patterns
 
 Determining whether behavior is influenced by time is a matter of monitoring the performance of the production system over an appropriate period and examining the usage statistics. Any correlation between regular periods of high usage and slowing performance can indicate areas of concern. The performance profile of functionality that is suspected to be slow-running should be closely examined to ascertain whether it matches that of the load-testing performed earlier.
 
-**INFO ON USING APPDYNAMICS OR OTHER MONTORING TOOLS TO BE ADDED HERE?**
-
-Load-testing (in a test environment) this same functionality using step-based user loads can help to highlight the point at which the performance drops significantly. If this load is within the bounds of that expected at periods of peak activity, then the way in which the functionality is implemented should be examined further.
+Load-testing to destruction (in a test environment) over the same functionality using step-based user loads can help to highlight the point at which the performance drops significantly or fails completely. If load at which the system fails or performance drops to unacceptable levels is within the bounds of that expected at periods of peak activity, then the way in which the functionality is implemented should be examined further.
 
 ### Identifying data sources
 
@@ -363,14 +357,14 @@ Only fetch the data that is required; avoid transmitting large volumes of data t
 
 ```C#
 [HttpGet]
-[Route("toomanyfields/products/project_only_required_fields")]
-public async Task<IEnumerable<ProductInfo>> GetProductsProjectOnlyRequiredFieldsAsync()
+[Route("api/requiredfields")]
+public async Task<IEnumerable<ProductInfo>> GetRequiredFieldsAsync()
 {
     using (var context = GetContext())
     {
         return await context.Products
-                            .Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name }) //Project fields.
-                            .ToListAsync() //Execute query.
+                            .Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name }) // Project fields.
+                            .ToListAsync() // Execute query.
                             .ConfigureAwait(false);
     }
 }
@@ -388,8 +382,8 @@ public async Task<IEnumerable<ProductInfo>> GetProductsProjectOnlyRequiredFields
 
 ```C#
 [HttpGet]
-[Route("toomanyrows/sales/total_aggregate_on_database")]
-public async Task<decimal> GetTotalSalesAsync()
+[Route("api/aggregateondatabase")]
+public async Task<decimal> AggregateOnDatabaseAsync()
 {
     using (var context = GetContext())
     {
@@ -469,7 +463,9 @@ The increased throughput and performance is reflected by the increased number of
 [IEnumerableVsIQueryable]: https://www.sellsbrothers.com/posts/Details/12614
 [full-product-table]:Figures/ProductTable.jpg
 [product-sales-tables]:Figures/SalesPersonAndSalesOrderHeaderTables.jpg
-[Load-Test-Results-Client-Side]:Figures/LoadTestResultsClientSide.jpg
-[Load-Test-Results-Database-Side]:Figures/LoadTestResultsDatabaseSide.jpg
+[Load-Test-Results-Client-Side1]:Figures/LoadTestResultsClientSide1.jpg
+[Load-Test-Results-Client-Side2]:Figures/LoadTestResultsClientSide2.jpg
+[Load-Test-Results-Database-Side1]:Figures/LoadTestResultsDatabaseSide1.jpg
+[Load-Test-Results-Database-Side2]:Figures/LoadTestResultsDatabaseSide2.jpg
 [QueryPerformanceZoomed]: Figures/QueryPerformanceZoomed.jpg
 [QueryDetails]: Figures/QueryDetails.jpg
