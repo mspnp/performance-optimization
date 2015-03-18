@@ -3,17 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AzureCloudService", "AzureCloudService\AzureCloudService.ccproj", "{C0724644-138A-446B-906A-C896AC9E4D96}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRole", "WebRole\WebRole.csproj", "{84EB7279-6E83-4A65-8409-9BF9E870A81F}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrievingTooMuchData.DataAccess", "RetrievingTooMuchData.DataAccess\RetrievingTooMuchData.DataAccess.csproj", "{35AA1C25-E5CE-456B-A88C-6E8A69BECB2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrievingTooMuchData.LoadTest", "RetrievingTooMuchData.LoadTest\RetrievingTooMuchData.LoadTest.csproj", "{BF2276C6-5CD4-4062-870A-935ED4874B49}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{BF516024-F6D4-4AFD-957A-FAB05D02EC4A}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{CEF41986-D5A6-4D45-BB10-FF083B85316D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrievingTooMuchData.WebApi", "RetrievingTooMuchData.WebApi\RetrievingTooMuchData.WebApi.csproj", "{6EF1565F-1384-4C18-8556-8913388D9281}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PublishScripts", "PublishScripts", "{2BADC12D-79BC-4340-AD68-B786A3BA981C}"
 	ProjectSection(SolutionItems) = preProject
-		Local.testsettings = Local.testsettings
+		PublishScripts\AzureWebsitePublishModule.psm1 = PublishScripts\AzureWebsitePublishModule.psm1
+		PublishScripts\Publish-WebApplicationWebsite.ps1 = PublishScripts\Publish-WebApplicationWebsite.ps1
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configurations", "Configurations", "{43FE0805-7615-469A-B36F-F6F6BF288607}"
+	ProjectSection(SolutionItems) = preProject
+		PublishScripts\Configurations\RetrievingTooMuchDataWebApi-WAWS-dev.json = PublishScripts\Configurations\RetrievingTooMuchDataWebApi-WAWS-dev.json
 	EndProjectSection
 EndProject
 Global
@@ -22,24 +26,19 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C0724644-138A-446B-906A-C896AC9E4D96}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C0724644-138A-446B-906A-C896AC9E4D96}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C0724644-138A-446B-906A-C896AC9E4D96}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C0724644-138A-446B-906A-C896AC9E4D96}.Release|Any CPU.Build.0 = Release|Any CPU
-		{84EB7279-6E83-4A65-8409-9BF9E870A81F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{84EB7279-6E83-4A65-8409-9BF9E870A81F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{84EB7279-6E83-4A65-8409-9BF9E870A81F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{84EB7279-6E83-4A65-8409-9BF9E870A81F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{35AA1C25-E5CE-456B-A88C-6E8A69BECB2E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{35AA1C25-E5CE-456B-A88C-6E8A69BECB2E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{35AA1C25-E5CE-456B-A88C-6E8A69BECB2E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{35AA1C25-E5CE-456B-A88C-6E8A69BECB2E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BF2276C6-5CD4-4062-870A-935ED4874B49}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BF2276C6-5CD4-4062-870A-935ED4874B49}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BF2276C6-5CD4-4062-870A-935ED4874B49}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BF2276C6-5CD4-4062-870A-935ED4874B49}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6EF1565F-1384-4C18-8556-8913388D9281}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6EF1565F-1384-4C18-8556-8913388D9281}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6EF1565F-1384-4C18-8556-8913388D9281}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6EF1565F-1384-4C18-8556-8913388D9281}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{43FE0805-7615-469A-B36F-F6F6BF288607} = {2BADC12D-79BC-4340-AD68-B786A3BA981C}
 	EndGlobalSection
 EndGlobal
