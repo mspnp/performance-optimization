@@ -16,8 +16,14 @@ namespace WebRole.Controllers
 {
     public class PurchaseOrderHeaderController : ApiController
     {
-        private string sqlDBConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
+        private static string sqlDBConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
         public async Task<IHttpActionResult> PostAsync([FromBody]string value)
+        {
+            await InsertToPurchaseOrderHeaderTableAsync().ConfigureAwait(false);
+            return Ok();
+        }
+
+        private static async Task InsertToPurchaseOrderHeaderTableAsync()
         {
             string queryString =
                     "INSERT INTO Purchasing.PurchaseOrderHeader(" +
@@ -45,7 +51,7 @@ namespace WebRole.Controllers
                     await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
-            return Ok();
         }
+
     }
 }

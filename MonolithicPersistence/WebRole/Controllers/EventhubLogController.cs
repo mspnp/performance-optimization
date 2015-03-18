@@ -41,8 +41,7 @@ namespace WebRole.Controllers
         }
         private static async Task LogToEventhubAsync(LogMessage logMessage)
         {
-            // Configure JSON to serialize properties using camelCase
-            JsonConvert.DefaultSettings = () => new JsonSerializerSettings(); /*{ ContractResolver = new CamelCasePropertyNamesContractResolver() }*/;
+            JsonConvert.DefaultSettings = () => new JsonSerializerSettings();
             var serializedString = JsonConvert.SerializeObject(logMessage);
             var bytes = Encoding.UTF8.GetBytes(serializedString);
             using (EventData data = new EventData(bytes))
