@@ -8,41 +8,56 @@ namespace WebRole.Controllers
 {
     public class CacheController : ApiController
     {
-        public async Task<Person> GetPerson(int id)
+        public async Task<IHttpActionResult> GetPerson(int id)
         {
             IPersonRepository repository = new CachedPersonRepository(new PersonRepository());
-            return await repository.GetAsync(id);
+            var person = await repository.GetAsync(id);
+
+            if (person == null) return NotFound();
+            return Ok(person);
         }
 
-        public async Task<Customer> GetCustomer(int id)
+        public async Task<IHttpActionResult> GetCustomer(int id)
         {
             ICustomerRepository repository = new CachedCustomerRepository(new CustomerRepository());
-            return await repository.GetAsync(id);
+            var customer = await repository.GetAsync(id);
+
+            if (customer == null) return NotFound();
+            return Ok(customer);
         }
 
-        public async Task<Employee> GetEmployee(int id)
+        public async Task<IHttpActionResult> GetEmployee(int id)
         {
             IEmployeeRepository repository = new CachedEmployeeRepository(new EmployeeRepository());
-            return await repository.GetAsync(id);
+            var employee = await repository.GetAsync(id);
+
+            if (employee == null) return NotFound();
+            return Ok(employee);
         }
 
-        public async Task<ICollection<SalesOrderHeader>> GetTopTenSalesOrders()
+        public async Task<IHttpActionResult> GetTopTenSalesOrders()
         {
             ISalesOrderRepository repository = new CachedSalesOrderRepository(new SalesOrderRepository());
-            return await repository.GetTopTenSalesOrdersAsync();
+            var results = await repository.GetTopTenSalesOrdersAsync();
+
+            if (results == null) return NotFound();
+            return Ok(results);
         }
 
-        public async Task<ICollection<SalesPersonTotalSales>> GetTopTenSalesPeople()
+        public async Task<IHttpActionResult> GetTopTenSalesPeople()
         {
             ISalesPersonRepository repository = new CachedSalesPersonRepository(new SalesPersonRepository());
-            return await repository.GetTopTenSalesPeopleAsync();
+            var results = repository.GetTopTenSalesPeopleAsync();
+
+            if (results == null) return NotFound();
+            return Ok(results);
         }
 
         [HttpGet]
         public async Task<IHttpActionResult> Flush()
         {
             await CacheService.FlushAsync();
-            return this.Ok();
+            return Ok();
         }
     }
 }
