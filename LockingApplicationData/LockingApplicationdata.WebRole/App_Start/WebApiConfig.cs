@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
 
-namespace LockingApplicationData.WebApi
+namespace LockingApplicationdata.WebRole
 {
     public static class WebApiConfig
     {

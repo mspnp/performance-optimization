@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("LockingApplicationData.WebApi")]
+[assembly: AssemblyTitle("LockingApplicationdata.WebRole")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("LockingApplicationData.WebApi")]
+[assembly: AssemblyProduct("LockingApplicationdata.WebRole")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("405da46b-9631-4f4a-bba3-52f3eb1dc4e2")]
+[assembly: Guid("9b990dc2-b128-47e9-8046-81b01c744469")]
 
 // Version information for an assembly consists of the following four values:
 //
