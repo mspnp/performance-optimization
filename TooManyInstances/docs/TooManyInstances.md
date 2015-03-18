@@ -191,7 +191,7 @@ During periods of stress, operations that continually create and destroy large o
 
 ### Performing load-testing
 
-You can use load-testing based on workloads that emulate the typical sequence of operations that users might perform to help identify which parts of a system suffer with resource-exhaustion under varying loads. You should perform these tests in a controlled environment rather than the production system. The following graph shows the throughput of requests directed at the `NewInstancePerRequest` controller in the sample application as the user load is increased from 100 to 1,000 users. Note that as the user load passes 600 concurrent users the number of failed requests suddenly increases. These failures are reported by the load test as HTTP 500 (Internal Server) errors.
+You can use load-testing based on workloads that emulate the typical sequence of operations that users might perform to help identify which parts of a system suffer with resource-exhaustion under varying loads. You should perform these tests in a controlled environment rather than the production system. The following graph shows the throughput of requests directed at the `NewInstancePerRequest` controller in the sample application as the user load is increased up to 100  concurrent users. Note that as the user load passes 60 concurrent users the number of failed requests suddenly increases. These failures are reported by the load test as HTTP 500 (Internal Server) errors.
 
 ![Throughput of the sample application creating a new instance of an HttpClient object for each requests][throughput-new-instance]
 
@@ -256,7 +256,7 @@ The system should should be more scalable, offer a higher throughput (the system
 
 ![Key indicators load-test results for the Chunky API in the Chatty I/O sample application][throughput-single-instance]
 
-No errors were reported, and the request rate remained relatively static at over 600 requests per second on average (this compares with 135 requests per second for the earlier example).
+No errors were reported, and the system was amply able to handle an increasing load with relatively little change in the response time.
 
 ## Related resources
 
