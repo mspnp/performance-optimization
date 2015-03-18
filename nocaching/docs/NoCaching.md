@@ -95,7 +95,15 @@ The following graph was generated from load-testing the CachingDemo sample appli
 
 ![Performance load-test results for the uncached scenario][Performance-Load-Test-Results-Uncached]
 
-### Examine data access statistics
+----------
+
+**Note:** This graph illustrates the general profile of a system running without using caching. The throughput and response times are a function of the edition of Azure SQL Database being used. Using the Premium service tier for the database will likely display more exaggerated results than utilizing a lower service tier due to the additional performance capabilities.
+
+Additionally, the scenario itself is very simplified to highlight the general performance pattern. A production environment with a more mixed workload should generate a similar pattern, but the results might be more or less magnified.
+
+----------
+
+### Examining data access statistics
 
 Examining data access statistics and other information provided by a data store acting as the repository can yield some useful information, such as which queries being repeated most frequently. For example, Microsoft SQL Server provides the `sys.dm_exec_query_stats` management view which contains statistical information for recently executed queries. The text for each query is available in the `sys.dm_exec-query_plan` view. You can use a tool such as SQL Server Management Studio to run the following SQL query and determine the frequency with which queries are performed:
 
