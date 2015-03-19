@@ -191,15 +191,11 @@ During periods of stress, operations that continually create and destroy large o
 
 ### Performing load-testing
 
-You can use load-testing based on workloads that emulate the typical sequence of operations that users might perform to help identify which parts of a system suffer with resource-exhaustion under varying loads. You should perform these tests in a controlled environment rather than the production system. The following graph shows the throughput of requests directed at the `NewInstancePerRequest` controller in the sample application as the user load is increased up to 100  concurrent users. Note that as the user load passes 60 concurrent users the number of failed requests suddenly increases. These failures are reported by the load test as HTTP 500 (Internal Server) errors.
+You can use load-testing based on workloads that emulate the typical sequence of operations that users might perform to help identify which parts of a system suffer with resource-exhaustion under varying loads. You should perform these tests in a controlled environment rather than the production system. The following graph shows the throughput of requests directed at the `NewInstancePerRequest` controller in the sample application as the user load is increased up to 450  concurrent users. Note that as the user load passes 200 concurrent users the number of failed requests suddenly increases. These failures are reported by the load test as HTTP 500 (Internal Server) errors.
 
 ![Throughput of the sample application creating a new instance of an HttpClient object for each requests][throughput-new-instance]
 
-----------
-
-**Note:** In this graph, the scale of the average response time is ten times that of the requests/second and errors/second data. This scaling makes the response times more visible on the graph.
-
-----------
+In this graph, the scale of the throughput and response times is logarithmic to enable these measures to be shown effectively on the graph. After the initial loading the system stabilizes, supporting approximately 300 requests/second (oscillating between successful and failed requests) with an average response time of between 0.5 and 1 second per request.
 
 ### Reviewing the code
 
@@ -256,7 +252,7 @@ The system should should be more scalable, offer a higher throughput (the system
 
 ![Key indicators load-test results for the Chunky API in the Chatty I/O sample application][throughput-single-instance]
 
-No errors were reported, and the system was amply able to handle an increasing load with relatively little change in the response time.
+No errors were reported, and the system was amply able to handle an increasing load (up to nearly 3000 requests per second) with relatively low response time (between 0.07 and 0.15 seconds on average per request).
 
 ## Related resources
 
