@@ -9,8 +9,6 @@ using System.Reflection;
 namespace BusyDatabase.Support
 {
 
-   
-
     public class BusyDatabaseUtil
     {
         private static Dictionary<string, string> Query = new Dictionary<string, string>();
@@ -35,6 +33,8 @@ namespace BusyDatabase.Support
         {                    
             Query.Add(key, GetSqlQuery(file));
         }
+
+      
 
        
 

@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ServiceConfiguration serviceName="DeployToAzure" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2014-06.2.4">
   <Role name="BusyDatabase.WebApi">
-    <Instances count="1" />
-    <ConfigurationSettings />
+    <Instances count="2" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="administrator1" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountEncryptedPassword" value="MIIBnQYJKoZIhvcNAQcDoIIBjjCCAYoCAQAxggFOMIIBSgIBADAyMB4xHDAaBgNVBAMME1dpbmRvd3MgQXp1cmUgVG9vbHMCEHoJQueSGyG2R+Wp1jq29HAwDQYJKoZIhvcNAQEBBQAEggEAK/QTAge32pF7585h2zCYNpD6Okfeg1FcDLEFqMXsZn6Fyg8+EoRiUizFczMU+pGQHH58arPzG7kz0VgflKSY8PKsSQOnA6xnFdQUPPpf6DO8f9SkEkNUm0ctlUnnqtmc8V3PJ2QCC2Af9oN6+xY+QoVOyjSU7HblFEA25gLf7TH0tBqY4ddnCmVCBcz4rAG0XoClUaq+D4rqi4euSV0HBOVp9hqYMxneFpVPcpPHSGgkioR6/zX3b0X8QXj9VZTXsDBmm5HP5IIfIJP3nLwZfzl4H7YO97lh9Yb065ELwZu6wZqpNq1wBVV2Oz7nmKcUulR0V1MltBiR/AfqLDMB/TAzBgkqhkiG9w0BBwEwFAYIKoZIhvcNAwcECLKXeWIVgPZWgBBIzK6IK99HGRuJ2vnr/yhE" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountExpiration" value="2016-03-17T23:59:59.0000000-07:00" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteForwarder.Enabled" value="true" />
+    </ConfigurationSettings>
+    <Certificates>
+      <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="2061AFE4519693BBD1A7F9F4D773D8D7C42C2F43" thumbprintAlgorithm="sha1" />
+    </Certificates>
   </Role>
 </ServiceConfiguration>
