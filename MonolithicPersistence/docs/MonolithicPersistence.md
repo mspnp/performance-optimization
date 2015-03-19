@@ -171,9 +171,11 @@ The following sections apply these steps to the sample application described ear
 
 This step is a matter of configuring the system to record the key statistics required to capture the performance signature of the application. You should capture timing information for each operation as well as the points at which the application reads and writes data. If possible, monitor the system running for a few days in a production environment and capture the telemetry of obtain a real-world view of how the system is used. If this is not possible, then perform scripted load-testing using a realistic volume of virtual users performing a typical series of operations.
 
-As an example, the following graph shows the load-test results for **FINISH THIS OFF WHEN LOAD TESTS ARE AVAILABLE***
+As an example, the following graph shows the load-test results for a scenario in which a constant load of 500 concurrent users issue a mixture of HTTP GET requests to the to the `ProductDescription` controller and HTTP POST requests to the `PurchaseOrderHeader` controller. At the same time, a step workload of up to 300 concurrent users performs logging requests by send HTTP POST requests to the `SqldbLog` controller.
 
-![Load-test performance results for the SQL-based controller][]
+![Load-test performance results for the SQL-based controller][LoadTestWithSQLLogging]
+
+**START HERE - NOT SURE HOW EFFECTIVE THE CURRENT GRAPH IS.**
 
 ### Identifying periods of poor performance
 
@@ -273,11 +275,11 @@ You should consider the following points when determining the most appropriate s
 
 Spreading the load across data stores reduces contention and helps to improve overall the performance of the system under load. You could also take the opportunity to assess the data storage technologies used and rework selected parts of the system to use a more appropriate storage mechanism, although making changes such as this may involve thorough retesting of the system functionality.
 
-**REWRITE THIS For comparison purposes, the following graph shows the results of perform the same load-tests as before but running them against the `EventhubLog` controller.**
+For comparison purposes, the following graph shows the results of perform the same load-tests as before but running them against the `EventhubLog` controller.
 
-![Load-test performance results using the EventhubLog controller][]
+![Load-test performance results using the EventhubLog controller][LoadTestWithEventHubLogging]
 
-NEED TO WRITE ABOUT WHAT THESE RESULTS SHOW!
+**NEED TO WRITE ABOUT WHAT THESE RESULTS SHOW!**
 
 ## Related resources
 
@@ -293,7 +295,6 @@ NEED TO WRITE ABOUT WHAT THESE RESULTS SHOW!
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
 [AdventureWorks2012]: http://msftdbprodsamples.codeplex.com/releases/view/37304
-[SLAB]: https://msdn.microsoft.com/library/dn775006.aspx
 
 [DocumentDB]: http://azure.microsoft.com/services/documentdb/
 [Azure-cache]: http://azure.microsoft.com/documentation/services/cache/
@@ -301,4 +302,6 @@ NEED TO WRITE ABOUT WHAT THESE RESULTS SHOW!
 [Azure-Table-Storage]: http://azure.microsoft.com/documentation/articles/storage-dotnet-how-to-use-tables/
 [TableStorageVersusDatabase]: https://msdn.microsoft.com/library/azure/jj553018.aspx
 [EventHub]: http://azure.microsoft.com/services/event-hubs/
+[LoadTestWithSQLLogging]: Figures/LoadTestWithSQLLogging.jpg
+[LoadTestWithEventHubLogging]: Figures/LoadTestWithEventHubLogging.jpg
 
