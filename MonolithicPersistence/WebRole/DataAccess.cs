@@ -13,17 +13,24 @@ using WebRole.Models;
 
 namespace WebRole
 {
-    public class DataAccess
+    public static class DataAccess
     {
-        static string eventHubName = CloudConfigurationManager.GetSetting("EventHubName");
-        static string eventHubNamespace = CloudConfigurationManager.GetSetting("EventHubNamespace");
-        static string devicesSharedAccessPolicyName = CloudConfigurationManager.GetSetting("LogPolicyName");
-        static string devicesSharedAccessPolicyKey = CloudConfigurationManager.GetSetting("LogPolicyKey");
-        static string eventHubConnectionString = string.Format("Endpoint=sb://{0}.servicebus.windows.net/;SharedAccessKeyName={1};SharedAccessKey={2};TransportType=Amqp",
-            eventHubNamespace, devicesSharedAccessPolicyName, devicesSharedAccessPolicyKey);
-        static EventHubClient client = EventHubClient.CreateFromConnectionString(eventHubConnectionString, eventHubName);
+        private static readonly EventHubClient EvtHubClient;
+        private static readonly string SqlDbConnectionString;
 
-        private static string sqlDBConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
+        static DataAccess()
+        {
+            string eventHubName = CloudConfigurationManager.GetSetting("EventHubName");
+            string eventHubNamespace = CloudConfigurationManager.GetSetting("EventHubNamespace");
+            string devicesSharedAccessPolicyName = CloudConfigurationManager.GetSetting("LogPolicyName");
+            string devicesSharedAccessPolicyKey = CloudConfigurationManager.GetSetting("LogPolicyKey");
+            string eventHubConnectionString = string.Format("Endpoint=sb://{0}.servicebus.windows.net/;SharedAccessKeyName={1};SharedAccessKey={2};TransportType=Amqp",
+                eventHubNamespace, devicesSharedAccessPolicyName, devicesSharedAccessPolicyKey);
+
+            EvtHubClient = EventHubClient.CreateFromConnectionString(eventHubConnectionString, eventHubName);
+            SqlDbConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
+        }
+
         public static async Task InsertToPurchaseOrderHeaderTableAsync()
         {
             string queryString =
@@ -32,7 +39,7 @@ namespace WebRole
                     " VALUES(" +
                     "@RevisionNumber,@Status,@EmployeeID,@VendorID,@ShipMethodID,@OrderDate,@ShipDate,@SubTotal,@TaxAmt,@Freight,@ModifiedDate)";
             var dt = DateTime.UtcNow;
-            using (SqlConnection cn = new SqlConnection(sqlDBConnectionString))
+            using (SqlConnection cn = new SqlConnection(SqlDbConnectionString))
             {
                 using (SqlCommand cmd = new SqlCommand(queryString, cn))
                 {
@@ -58,7 +65,7 @@ namespace WebRole
         {
             string result = "";
             string queryString = "SELECT Description FROM Production.ProductDescription WHERE ProductDescriptionID=@inputId";
-            using (SqlConnection cn = new SqlConnection(sqlDBConnectionString))
+            using (SqlConnection cn = new SqlConnection(SqlDbConnectionString))
             {
                 using (SqlCommand cmd = new SqlCommand(queryString, cn))
                 {
@@ -79,7 +86,7 @@ namespace WebRole
         public static async Task LogToSqldbAsync(LogMessage logMessage)
         {
             string queryString = "INSERT INTO dbo.SqldbLog(Message, LogId, LogTime) VALUES(@Message, @LogId, @LogTime)";
-            using (SqlConnection cn = new SqlConnection(sqlDBConnectionString))
+            using (SqlConnection cn = new SqlConnection(SqlDbConnectionString))
             {
                 using (SqlCommand cmd = new SqlCommand(queryString, cn))
                 {
@@ -100,7 +107,7 @@ namespace WebRole
 
             using (EventData data = new EventData(bytes))
             {
-                await client.SendAsync(data).ConfigureAwait(false);
+                await EvtHubClient.SendAsync(data).ConfigureAwait(false);
             }
         }
 
