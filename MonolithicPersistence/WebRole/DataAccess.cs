@@ -1,4 +1,7 @@
-﻿using Microsoft.ServiceBus.Messaging;
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure;
 using Newtonsoft.Json;
 using System;
