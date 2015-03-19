@@ -15,13 +15,14 @@ namespace WebRole.Controllers
             int logCount = Convert.ToInt32(value);
             for (int i = 0; i < logCount; i++)
             {
-                LogMessage logMessage = new LogMessage();
+                var logMessage = new LogMessage();
                 await DataAccess.LogToSqldbAsync(logMessage);
             }
+
             await DataAccess.SelectProductDescriptionAsync(321);
             await DataAccess.InsertToPurchaseOrderHeaderTableAsync();
+
             return Ok();
         }
-
     }
 }

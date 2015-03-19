@@ -33,15 +33,17 @@ namespace WebRole
 
         public static async Task InsertToPurchaseOrderHeaderTableAsync()
         {
-            string queryString =
-                    "INSERT INTO Purchasing.PurchaseOrderHeader(" +
-                    " RevisionNumber, Status, EmployeeID, VendorID, ShipMethodID, OrderDate, ShipDate, SubTotal, TaxAmt, Freight, ModifiedDate)" +
-                    " VALUES(" +
-                    "@RevisionNumber,@Status,@EmployeeID,@VendorID,@ShipMethodID,@OrderDate,@ShipDate,@SubTotal,@TaxAmt,@Freight,@ModifiedDate)";
+            const string queryString =
+                "INSERT INTO Purchasing.PurchaseOrderHeader " +
+                "(RevisionNumber, Status, EmployeeID, VendorID, ShipMethodID, OrderDate, ShipDate, SubTotal, TaxAmt, Freight, ModifiedDate) " +
+                "VALUES " +
+                "(@RevisionNumber, @Status, @EmployeeID, @VendorID, @ShipMethodID, @OrderDate, @ShipDate, @SubTotal, @TaxAmt, @Freight, @ModifiedDate)";
+
             var dt = DateTime.UtcNow;
-            using (SqlConnection cn = new SqlConnection(SqlDbConnectionString))
+
+            using (var cn = new SqlConnection(SqlDbConnectionString))
             {
-                using (SqlCommand cmd = new SqlCommand(queryString, cn))
+                using (var cmd = new SqlCommand(queryString, cn))
                 {
                     cmd.Parameters.Add("@RevisionNumber", SqlDbType.TinyInt).Value = 1;
                     cmd.Parameters.Add("@Status", SqlDbType.TinyInt).Value = 4;
@@ -64,14 +66,17 @@ namespace WebRole
         public static async Task<string> SelectProductDescriptionAsync(int id)
         {
             string result = "";
-            string queryString = "SELECT Description FROM Production.ProductDescription WHERE ProductDescriptionID=@inputId";
-            using (SqlConnection cn = new SqlConnection(SqlDbConnectionString))
+            const string queryString = "SELECT Description FROM Production.ProductDescription WHERE ProductDescriptionID=@inputId";
+
+            using (var cn = new SqlConnection(SqlDbConnectionString))
             {
-                using (SqlCommand cmd = new SqlCommand(queryString, cn))
+                using (var cmd = new SqlCommand(queryString, cn))
                 {
                     cmd.Parameters.AddWithValue("@inputId", id);
+
                     await cn.OpenAsync();
-                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
+
+                    using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
                     {
                         if (await reader.ReadAsync().ConfigureAwait(false))
                         {
@@ -80,19 +85,22 @@ namespace WebRole
                     }
                 }
             }
+
             return result;
         }
 
         public static async Task LogToSqldbAsync(LogMessage logMessage)
         {
-            string queryString = "INSERT INTO dbo.SqldbLog(Message, LogId, LogTime) VALUES(@Message, @LogId, @LogTime)";
-            using (SqlConnection cn = new SqlConnection(SqlDbConnectionString))
+            const string queryString = "INSERT INTO dbo.SqldbLog(Message, LogId, LogTime) VALUES(@Message, @LogId, @LogTime)";
+
+            using (var cn = new SqlConnection(SqlDbConnectionString))
             {
-                using (SqlCommand cmd = new SqlCommand(queryString, cn))
+                using (var cmd = new SqlCommand(queryString, cn))
                 {
                     cmd.Parameters.Add("@LogId", SqlDbType.NChar, 32).Value = logMessage.LogId;
                     cmd.Parameters.Add("@Message", SqlDbType.NText).Value = logMessage.Message;
                     cmd.Parameters.Add("@LogTime", SqlDbType.DateTime).Value = logMessage.LogTime;
+
                     await cn.OpenAsync();
                     await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
@@ -105,11 +113,10 @@ namespace WebRole
             var serializedString = JsonConvert.SerializeObject(logMessage);
             var bytes = Encoding.UTF8.GetBytes(serializedString);
 
-            using (EventData data = new EventData(bytes))
+            using (var data = new EventData(bytes))
             {
                 await EvtHubClient.SendAsync(data).ConfigureAwait(false);
             }
         }
-
     }
 }
