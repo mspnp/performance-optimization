@@ -1,14 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.WindowsAzure;
-using System;
-using System.Collections.Generic;
 using System.Data.SqlClient;
-using System.Linq;
-using System.Web;
+using Microsoft.Azure;
 
-namespace WebRole.App_Start
+namespace WebRole
 {
     public class SqldbLogConfig
     {
