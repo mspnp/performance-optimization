@@ -14,7 +14,7 @@ namespace BusyDatabase.WebApi.Controllers
 {
     public class LessProcSqlController : ApiController
     {
-        public async Task GetNameConcat()
+        public async Task<IHttpActionResult> GetNameConcat()
         {
             using (var connection = new SqlConnection(ConfigurationManager.AppSettings["connectionString"]))
             {
@@ -28,12 +28,13 @@ namespace BusyDatabase.WebApi.Controllers
                         
                         while (await reader.ReadAsync())
                         {
-                            var field = await reader.GetFieldValueAsync<string>(0); 
-                            field=field.Replace(',',' ').Replace("ca","cat"); 
+                            var field = await reader.GetFieldValueAsync<string>(0);       
+                            field=field.Replace("ca","cat").Replace(',',' ');
                             
                         }
                     }
 
+                    return Ok();
 
                 }
             }

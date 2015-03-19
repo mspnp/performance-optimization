@@ -20,7 +20,7 @@ namespace BusyDatabase.WebApi.Controllers
      
 
      
-        public async Task GetNameConcat()
+        public async Task<IHttpActionResult> GetNameConcat()
         {
 
                              
@@ -41,6 +41,8 @@ namespace BusyDatabase.WebApi.Controllers
                             var value = await reader.GetFieldValueAsync<string>(0);                             
                         }                     
                     }
+
+                    return Ok();
                 }
 
             

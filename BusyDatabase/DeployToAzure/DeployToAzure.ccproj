@@ -47,6 +47,7 @@
 
   <ItemGroup>
     <PublishProfile Include="Profiles\TooMuchProcSqlProduction.azurePubxml" />
+    <PublishProfile Include="Profiles\TooMuchProcSqlProduction1.azurePubxml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BusyDatabase.WebApi\BusyDatabase.WebApi.csproj">
