@@ -1,4 +1,7 @@
-﻿using RetrievingTooMuchData.DataAccess.Mapping;
+﻿// Copyright (c) Microsoft. All rights reserved.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using RetrievingTooMuchData.DataAccess.Mapping;
 using System.Data.Entity;
 
 namespace RetrievingTooMuchData.DataAccess
