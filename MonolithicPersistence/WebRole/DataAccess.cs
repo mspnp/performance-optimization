@@ -65,7 +65,6 @@ namespace WebRole
 
         public static async Task<string> SelectProductDescriptionAsync(int id)
         {
-            string result = "";
             const string queryString = "SELECT Description FROM Production.ProductDescription WHERE ProductDescriptionID=@inputId";
 
             using (var cn = new SqlConnection(SqlDbConnectionString))
@@ -75,18 +74,9 @@ namespace WebRole
                     cmd.Parameters.AddWithValue("@inputId", id);
 
                     await cn.OpenAsync();
-
-                    using (var reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
-                    {
-                        if (await reader.ReadAsync().ConfigureAwait(false))
-                        {
-                            result = reader.GetFieldValue<string>(0); ;
-                        }
-                    }
+                    return (string) await cmd.ExecuteScalarAsync().ConfigureAwait(false);
                 }
             }
-
-            return result;
         }
 
         public static async Task LogToSqldbAsync(LogMessage logMessage)
