@@ -57,7 +57,7 @@ namespace WebRole
                     cmd.Parameters.Add("@Freight", SqlDbType.Money).Value = 5.76;
                     cmd.Parameters.Add("@ModifiedDate", SqlDbType.DateTime).Value = dt;
 
-                    await cn.OpenAsync();
+                    await cn.OpenAsync().ConfigureAwait(false);
                     await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
@@ -73,7 +73,7 @@ namespace WebRole
                 {
                     cmd.Parameters.AddWithValue("@inputId", id);
 
-                    await cn.OpenAsync();
+                    await cn.OpenAsync().ConfigureAwait(false);
                     return (string) await cmd.ExecuteScalarAsync().ConfigureAwait(false);
                 }
             }
@@ -91,7 +91,7 @@ namespace WebRole
                     cmd.Parameters.Add("@Message", SqlDbType.NText).Value = logMessage.Message;
                     cmd.Parameters.Add("@LogTime", SqlDbType.DateTime).Value = logMessage.LogTime;
 
-                    await cn.OpenAsync();
+                    await cn.OpenAsync().ConfigureAwait(false);
                     await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
