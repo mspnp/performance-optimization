@@ -12,6 +12,7 @@ namespace WebRole.Models
     [DataContract]
     public class LogMessage
     {
+        private static Random rand = new Random();
         [DataMember]
         public string LogId { get; set; }
 
@@ -24,7 +25,7 @@ namespace WebRole.Models
         public LogMessage()
         {
             LogId = Guid.NewGuid().ToString();
-            Message = "My Log Message " + new Random().Next();
+            Message = "My Log Message " + rand.Next();
             LogTime = DateTime.UtcNow;
         }
     }
