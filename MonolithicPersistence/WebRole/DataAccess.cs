@@ -99,9 +99,8 @@ namespace WebRole
 
         public static async Task LogToEventhubAsync(LogMessage logMessage)
         {
-            JsonConvert.DefaultSettings = () => new JsonSerializerSettings();
-            var serializedString = JsonConvert.SerializeObject(logMessage);
-            var bytes = Encoding.UTF8.GetBytes(serializedString);
+            var json = JsonConvert.SerializeObject(logMessage);
+            var bytes = Encoding.UTF8.GetBytes(json);
 
             using (var data = new EventData(bytes))
             {
