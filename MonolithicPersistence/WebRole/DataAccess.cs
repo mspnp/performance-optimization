@@ -45,17 +45,17 @@ namespace WebRole
             {
                 using (var cmd = new SqlCommand(queryString, cn))
                 {
-                    cmd.Parameters.Add("@RevisionNumber", SqlDbType.TinyInt).Value = 1;
-                    cmd.Parameters.Add("@Status", SqlDbType.TinyInt).Value = 4;
-                    cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = 258;
-                    cmd.Parameters.Add("@VendorID", SqlDbType.Int).Value = 1580;
-                    cmd.Parameters.Add("@ShipMethodID", SqlDbType.Int).Value = 3;
-                    cmd.Parameters.Add("@OrderDate", SqlDbType.DateTime).Value = dt;
-                    cmd.Parameters.Add("@ShipDate", SqlDbType.DateTime).Value = dt;
-                    cmd.Parameters.Add("@SubTotal", SqlDbType.Money).Value = 123.40;
-                    cmd.Parameters.Add("@TaxAmt", SqlDbType.Money).Value = 12.34;
-                    cmd.Parameters.Add("@Freight", SqlDbType.Money).Value = 5.76;
-                    cmd.Parameters.Add("@ModifiedDate", SqlDbType.DateTime).Value = dt;
+                    cmd.Parameters.AddWithValue("@RevisionNumber", 1);
+                    cmd.Parameters.AddWithValue("@Status", 4);
+                    cmd.Parameters.AddWithValue("@EmployeeID", 258);
+                    cmd.Parameters.AddWithValue("@VendorID", 1580);
+                    cmd.Parameters.AddWithValue("@ShipMethodID", 3);
+                    cmd.Parameters.AddWithValue("@OrderDate", dt);
+                    cmd.Parameters.AddWithValue("@ShipDate", dt);
+                    cmd.Parameters.AddWithValue("@SubTotal", 123.40M);
+                    cmd.Parameters.AddWithValue("@TaxAmt", 12.34M);
+                    cmd.Parameters.AddWithValue("@Freight", 5.76M);
+                    cmd.Parameters.AddWithValue("@ModifiedDate", dt);
 
                     await cn.OpenAsync().ConfigureAwait(false);
                     await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
@@ -74,7 +74,7 @@ namespace WebRole
                     cmd.Parameters.AddWithValue("@inputId", id);
 
                     await cn.OpenAsync().ConfigureAwait(false);
-                    return (string) await cmd.ExecuteScalarAsync().ConfigureAwait(false);
+                    return (string)await cmd.ExecuteScalarAsync().ConfigureAwait(false);
                 }
             }
         }
@@ -87,9 +87,9 @@ namespace WebRole
             {
                 using (var cmd = new SqlCommand(queryString, cn))
                 {
-                    cmd.Parameters.Add("@LogId", SqlDbType.NChar, 32).Value = logMessage.LogId;
-                    cmd.Parameters.Add("@Message", SqlDbType.NText).Value = logMessage.Message;
-                    cmd.Parameters.Add("@LogTime", SqlDbType.DateTime).Value = logMessage.LogTime;
+                    cmd.Parameters.AddWithValue("@LogId", logMessage.LogId);
+                    cmd.Parameters.AddWithValue("@Message", logMessage.Message);
+                    cmd.Parameters.AddWithValue("@LogTime", logMessage.LogTime);
 
                     await cn.OpenAsync().ConfigureAwait(false);
                     await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
