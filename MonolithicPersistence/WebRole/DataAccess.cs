@@ -74,7 +74,7 @@ namespace WebRole
                     cmd.Parameters.AddWithValue("@inputId", id);
 
                     await cn.OpenAsync().ConfigureAwait(false);
-                    return (string)await cmd.ExecuteScalarAsync().ConfigureAwait(false);
+                    return await cmd.ExecuteScalarAsync().ConfigureAwait(false) as string;
                 }
             }
         }
