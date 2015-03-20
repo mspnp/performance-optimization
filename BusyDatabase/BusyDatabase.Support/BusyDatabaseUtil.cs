@@ -3,18 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.IO;
 using System.Reflection;
 
 namespace BusyDatabase.Support
 {
-
     public class BusyDatabaseUtil
     {
-        private static Dictionary<string, string> Query = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> Query = new Dictionary<string, string>();
 
         private const string ResourceFileBase = "BusyDatabase.Support.";
 
@@ -37,19 +33,11 @@ namespace BusyDatabase.Support
             Query.Add(key, GetSqlQuery(file));
         }
 
-      
-
-       
-
-
-
         private static string GetSqlQuery(string file)
         {
-
-
             var resFile = ResourceFileBase + file;
 
-            //Get the assembly that this class is in
+            // Get the assembly that this class is in
             var assembly = Assembly.GetAssembly(typeof(BusyDatabaseUtil));
 
             var stream = assembly.GetManifestResourceStream(resFile);
