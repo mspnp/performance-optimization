@@ -146,7 +146,7 @@ Relocating processing to the client application leaves the database free to focu
 
 ![Load-test results for performing processing in the database][ProcessingInClientApplicationLoadTest]
 
-SPIEL
+The database monitor in the Azure Management console shows the following CPU and DTU utilization. Notice that this time both figures only reached 40% despite the increased throughput and performance of the application:
 
 ![Azure SQL Database monitor showing the performance of the database while performing processing in the client application][ProcessingInClientApplicationMonitor]
 
