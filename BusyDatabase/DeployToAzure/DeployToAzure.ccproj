@@ -38,16 +38,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="BusyDatabase.WebApiContent\" />
-    <Folder Include="BusySql.WebApiContent\" />
+    <Folder Include="Profiles\" />
   </ItemGroup>
   <ItemGroup>
     <DiagnosticsConfiguration Include="BusyDatabase.WebApiContent\diagnostics.wadcfgx" />
-    <DiagnosticsConfiguration Include="BusySql.WebApiContent\diagnostics.wadcfgx" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PublishProfile Include="Profiles\TooMuchProcSqlProduction.azurePubxml" />
-    <PublishProfile Include="Profiles\TooMuchProcSqlProduction1.azurePubxml" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BusyDatabase.WebApi\BusyDatabase.WebApi.csproj">
