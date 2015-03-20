@@ -1,0 +1,1 @@
+﻿select top 20 lastname,MiddleName, firstname  from person.person;
