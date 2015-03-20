@@ -12,11 +12,8 @@
       <InputEndpoint name="Endpoint1" protocol="http" port="80" />
     </Endpoints>
     <ConfigurationSettings>
-      <Setting name="SQLDBConnectionString" />
-      <Setting name="EventHubName" />
-      <Setting name="EventHubNamespace" />
-      <Setting name="LogPolicyName" />
-      <Setting name="LogPolicyKey" />
+      <Setting name="ProductionSqlDbCnStr" />
+      <Setting name="LogSqlDbCnStr" />
     </ConfigurationSettings>
   </WebRole>
 </ServiceDefinition>

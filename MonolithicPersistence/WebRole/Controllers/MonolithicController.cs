@@ -1,24 +1,28 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
+using Microsoft.Azure;
 using System.Threading.Tasks;
 using System.Web.Http;
 using WebRole.Models;
 
 namespace WebRole.Controllers
 {
+
     public class MonolithicController : ApiController
     {
-        public async Task<IHttpActionResult> PostAsync([FromBody]int logCount)
-        {
-            for (int i = 0; i < logCount; i++)
-            {
-                var logMessage = new LogMessage();
-                await DataAccess.LogToSqldbAsync(logMessage);
-            }
+        private static readonly string ProductionDb;
 
-            await DataAccess.SelectProductDescriptionAsync(321);
-            await DataAccess.InsertToPurchaseOrderHeaderTableAsync();
+        static MonolithicController()
+        {
+            ProductionDb = CloudConfigurationManager.GetSetting("ProductionSqlDbCnStr");
+        }
+
+        public async Task<IHttpActionResult> PostAsync([FromBody]string value)
+        {
+            await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
+
+            await DataAccess.LogAsync(ProductionDb);
 
             return Ok();
         }

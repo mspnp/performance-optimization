@@ -15,23 +15,7 @@ namespace WebRole
 {
     public static class DataAccess
     {
-        private static readonly EventHubClient EvtHubClient;
-        private static readonly string SqlDbConnectionString;
-
-        static DataAccess()
-        {
-            string eventHubName = CloudConfigurationManager.GetSetting("EventHubName");
-            string eventHubNamespace = CloudConfigurationManager.GetSetting("EventHubNamespace");
-            string devicesSharedAccessPolicyName = CloudConfigurationManager.GetSetting("LogPolicyName");
-            string devicesSharedAccessPolicyKey = CloudConfigurationManager.GetSetting("LogPolicyKey");
-            string eventHubConnectionString = string.Format("Endpoint=sb://{0}.servicebus.windows.net/;SharedAccessKeyName={1};SharedAccessKey={2};TransportType=Amqp",
-                eventHubNamespace, devicesSharedAccessPolicyName, devicesSharedAccessPolicyKey);
-
-            EvtHubClient = EventHubClient.CreateFromConnectionString(eventHubConnectionString, eventHubName);
-            SqlDbConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
-        }
-
-        public static async Task InsertToPurchaseOrderHeaderTableAsync()
+        public static async Task InsertPurchaseOrderHeaderAsync(string cnStr)
         {
             const string queryString =
                 "INSERT INTO Purchasing.PurchaseOrderHeader " +
@@ -41,7 +25,7 @@ namespace WebRole
 
             var dt = DateTime.UtcNow;
 
-            using (var cn = new SqlConnection(SqlDbConnectionString))
+            using (var cn = new SqlConnection(cnStr))
             {
                 using (var cmd = new SqlCommand(queryString, cn))
                 {
@@ -63,27 +47,14 @@ namespace WebRole
             }
         }
 
-        public static async Task<string> SelectProductDescriptionAsync(int id)
-        {
-            const string queryString = "SELECT Description FROM Production.ProductDescription WHERE ProductDescriptionID=@inputId";
 
-            using (var cn = new SqlConnection(SqlDbConnectionString))
-            {
-                using (var cmd = new SqlCommand(queryString, cn))
-                {
-                    cmd.Parameters.AddWithValue("@inputId", id);
-
-                    await cn.OpenAsync().ConfigureAwait(false);
-                    return await cmd.ExecuteScalarAsync().ConfigureAwait(false) as string;
-                }
-            }
-        }
-
-        public static async Task LogToSqldbAsync(LogMessage logMessage)
+        public static async Task LogAsync(string cnStr)
         {
             const string queryString = "INSERT INTO dbo.SqldbLog(Message, LogId, LogTime) VALUES(@Message, @LogId, @LogTime)";
 
-            using (var cn = new SqlConnection(SqlDbConnectionString))
+            var logMessage = new LogMessage();
+
+            using (var cn = new SqlConnection(cnStr))
             {
                 using (var cmd = new SqlCommand(queryString, cn))
                 {
@@ -94,17 +65,6 @@ namespace WebRole
                     await cn.OpenAsync().ConfigureAwait(false);
                     await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
-            }
-        }
-
-        public static async Task LogToEventhubAsync(LogMessage logMessage)
-        {
-            var json = JsonConvert.SerializeObject(logMessage);
-            var bytes = Encoding.UTF8.GetBytes(json);
-
-            using (var data = new EventData(bytes))
-            {
-                await EvtHubClient.SendAsync(data).ConfigureAwait(false);
             }
         }
     }
