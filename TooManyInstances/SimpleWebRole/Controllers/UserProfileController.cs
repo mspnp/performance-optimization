@@ -3,6 +3,7 @@
 
 using System.Threading.Tasks;
 using System.Web.Http;
+using SimpleWebRole.Models;
 
 namespace SimpleWebRole.Controllers
 {
@@ -15,11 +16,5 @@ namespace SimpleWebRole.Controllers
 
             return new UserProfile() { FirstName = "Alton", LastName = "Hudgens" };
         }
-    }
-
-    public class UserProfile
-    {
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
     }
 }
