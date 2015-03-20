@@ -6,7 +6,7 @@ using System.Data.SqlClient;
 using System.Data;
 using System.Threading.Tasks;
 using BusyDatabase.Support;
-using Microsoft.WindowsAzure;
+using Microsoft.Azure;
 
 namespace BusyDatabase.WebApi.Controllers
 {
