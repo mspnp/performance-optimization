@@ -26,76 +26,32 @@ The temptation might be to try and record all of this information in the same re
 
 ----------
 
-The following code snippets show a pair of web API controllers that part of a web application. The `ProductDescription` controller provides a *Get* HTTP operation that retrieves the description of a product held in the [AdventureWorks2012][AdventureWorks2012] sample Azure SQL database. The `PurchaseOrderHeader` controller contains a *Post* HTTP operation creates new `PurchaseOrderHeader` records in the database:
+The following code snippets show a pair of web API controllers that part of a web application. The `Monolithic` controller provides an HTTP POST operation that performs the following tasks:
+
+- Retrieves the description of a product held in the [AdventureWorks2012][AdventureWorks2012] sample Azure SQL database,
+
+- Creates a new `PurchaseOrderHeader` record in the same database, and
+
+- Writes log records to the same database.
+
+The details of the database operations are implemented by a set of static methods the `DataAccess` class. These methods use the ADO.NET API to interact with the database.
 
 **C# web API**
 ```C#
-public class ProductDescriptionController : ApiController
+public class MonolithicController : ApiController
 {
-    private string sqlDBConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
-
-    public async Task<string> GetAsync(int id)
+    public async Task<IHttpActionResult> PostAsync([FromBody]int logCount)
     {
-        string result = "";
-        string queryString = "SELECT Description FROM Production.ProductDescription WHERE ProductDescriptionID=@inputId";
-        using (SqlConnection cn = new SqlConnection(sqlDBConnectionString))
+        for (int i = 0; i < logCount; i++)
         {
-            using (SqlCommand cmd = new SqlCommand(queryString, cn))
-            {
-                cmd.Parameters.AddWithValue("@inputId", id);
-                await cn.OpenAsync();
-                using (SqlDataReader reader = await cmd.ExecuteReaderAsync().ConfigureAwait(false))
-                {
-                    if (await reader.ReadAsync().ConfigureAwait(false))
-                    {
-                        result = reader.GetFieldValue<string>(0); ;
-                    }
-                }
-            }
+            var logMessage = new LogMessage();
+            await DataAccess.LogToSqldbAsync(logMessage);
         }
-        return result;
-    }
-}
 
-...
+        await DataAccess.SelectProductDescriptionAsync(321);
+        await DataAccess.InsertToPurchaseOrderHeaderTableAsync();
 
-public class PurchaseOrderHeaderController : ApiController
-{
-    private static string sqlDBConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
-    public async Task<IHttpActionResult> PostAsync([FromBody]string value)
-    {
-        await InsertToPurchaseOrderHeaderTableAsync().ConfigureAwait(false);
         return Ok();
-    }
-
-    private static async Task InsertToPurchaseOrderHeaderTableAsync()
-    {
-        string queryString =
-                "INSERT INTO Purchasing.PurchaseOrderHeader(" +
-                " RevisionNumber, Status, EmployeeID, VendorID, ShipMethodID, OrderDate, ShipDate, SubTotal, TaxAmt, Freight, ModifiedDate)" +
-                " VALUES(" +
-                    "@RevisionNumber,@Status,@EmployeeID,@VendorID,@ShipMethodID,@OrderDate,@ShipDate,@SubTotal,@TaxAmt,@Freight,@ModifiedDate)";
-        var dt = DateTime.UtcNow;
-        using (SqlConnection cn = new SqlConnection(sqlDBConnectionString))
-        {
-            using (SqlCommand cmd = new SqlCommand(queryString, cn))
-            {
-                cmd.Parameters.Add("@RevisionNumber", SqlDbType.TinyInt).Value = 1;
-                cmd.Parameters.Add("@Status", SqlDbType.TinyInt).Value = 4;
-                cmd.Parameters.Add("@EmployeeID", SqlDbType.Int).Value = 258;
-                cmd.Parameters.Add("@VendorID", SqlDbType.Int).Value = 1580;
-                cmd.Parameters.Add("@ShipMethodID", SqlDbType.Int).Value = 3;
-                cmd.Parameters.Add("@OrderDate", SqlDbType.DateTime).Value = dt;
-                cmd.Parameters.Add("@ShipDate", SqlDbType.DateTime).Value = dt;
-                cmd.Parameters.Add("@SubTotal", SqlDbType.Money).Value = 123.40;
-                cmd.Parameters.Add("@TaxAmt", SqlDbType.Money).Value = 12.34;
-                cmd.Parameters.Add("@Freight", SqlDbType.Money).Value = 5.76;
-                cmd.Parameters.Add("@ModifiedDate", SqlDbType.DateTime).Value = dt;
-
-                await cn.OpenAsync();
-                await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-            }
-        }
     }
 }
 ```
@@ -106,39 +62,7 @@ public class PurchaseOrderHeaderController : ApiController
 
 ----------
 
-These controllers are reasonable inasmuch as they reference the SQL database for storing and retrieving business data. However, the sample application also includes the following controller which is used for performing logging operations:
-
-**C# web API**
-```C#
-public class SqldbLogController : ApiController
-{
-    private static string sqlDBConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
-    public async Task<IHttpActionResult> PostAsync([FromBody]string value)
-    {
-        LogMessage logMessage = new LogMessage();
-        await LogToSqldbAsync(logMessage).ConfigureAwait(false);
-        return Ok();
-    }
-
-    private static async Task LogToSqldbAsync(LogMessage logMessage)
-    {
-        string queryString = "INSERT INTO dbo.SqldbLog(Message, LogId, LogTime) VALUES(@Message, @LogId, @LogTime)";
-        using (SqlConnection cn = new SqlConnection(sqlDBConnectionString))
-        {
-            using (SqlCommand cmd = new SqlCommand(queryString, cn))
-            {
-                cmd.Parameters.Add("@LogId", SqlDbType.NChar, 32).Value = logMessage.LogId;
-                cmd.Parameters.Add("@Message", SqlDbType.NText).Value = logMessage.Message;
-                cmd.Parameters.Add("@LogTime", SqlDbType.DateTime).Value = logMessage.LogTime;
-                await cn.OpenAsync();
-                await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
-            }
-        }
-    }
-}
-```
-
-This controller stores log information in the `SqldbLog` table in a SQL database. If the application is configured to use the same database for holding business data and operational data (log information), then this database is being used for two quite different purposes simultaneously. The rate at which log records are generated is likely to impact the performance of the business operations that use the same database.
+The application uses the same database for two distinctly different purposes; to store business data and to log operational data. The rate at which log records are generated is likely to impact the performance of the business operations. Additionally, if a third party utility (such as application process monitor) regularly reads and processes the log data, then the activities of this utility can also affect the performance of business operations.
 
 ## How to detect the problem
 
@@ -171,7 +95,9 @@ The following sections apply these steps to the sample application described ear
 
 This step is a matter of configuring the system to record the key statistics required to capture the performance signature of the application. You should capture timing information for each operation as well as the points at which the application reads and writes data. If possible, monitor the system running for a few days in a production environment and capture the telemetry of obtain a real-world view of how the system is used. If this is not possible, then perform scripted load-testing using a realistic volume of virtual users performing a typical series of operations.
 
-As an example, the following graph shows the load-test results for a scenario in which a constant load of 500 concurrent users issue a mixture of HTTP GET requests to the to the `ProductDescription` controller and HTTP POST requests to the `PurchaseOrderHeader` controller. At the same time, a step workload of up to 300 concurrent users performs logging requests by send HTTP POST requests to the `SqldbLog` controller.
+As an example, the following graph shows the load-test results for a scenario in which a step load of up to 1000 concurrent users issue HTTP POST requests to the `Monolithic` controller. 
+
+**NOTE: WHAT WAS LOG_COUNT SET TO?**
 
 ![Load-test performance results for the SQL-based controller][LoadTestWithSQLLogging]
 
@@ -181,31 +107,28 @@ As an example, the following graph shows the load-test results for a scenario in
 
 If you are monitoring the production system, you might notice patterns in the way in which the system performs. For example, response times might drop off significantly at the same time each day, or there could be a critical workload at which throughput suddenly plummets. You should focus on the telemetry data for these events.
 
-**REWRITE THIS. Note that performance patterns might not be periodic. For example, the following graph shows a sudden deterioration in the throughput of `Post` operations in the controller although the user load was not significant. However, at this point there was a lot of log activity; the logs had grown to a large size and were being purged by an operator.**
+You should look for matches in increased response times and throughput against any likely causes, such as increased database activity or I/O to shared resources. If any such correlations exist, then the database or shared resource could be acting as a bottleneck.
 
 ![Monitoring charts from APM tool showing events described in previous paragraph][]
 
+----------
+
+ **Note:** The cause of performance deterioration could be an external event. In the example application, an operator purging the SQL log could generate a significant load on the database server and cause a slow-down in business operations even if the user-load was relatively low at the time.
+
+----------
+
 ### Identifying data stores accessed during periods of poor performance
 
-The instrumentation added to the system should provide an indication of which data stores are being accessed during the periods of poor performance. In the case of the sample application, the data indicated that poor performance coincided with two events:
-
-1. A significant volume of users accessing the system simultaneously.
-
-2. An operator performing log maintenance operations while the system was in use.
-
-In both cases, the telemetry data indicated that the SQL database was the only data store being utilized.
+The instrumentation added to the system should provide an indication of which data stores are being accessed during the periods of poor performance. In the case of the sample application, the data indicated that poor performance coincided with a significant volume of users accessing the system simultaneously. In this time, the telemetry data indicated that the SQL database was the only data store being utilized.
 
 ![Chart from APM tool showing the low-level telemetry of the database][]
 
 ### Capturing low-level telemetry for data stores
 
-**REWRITE THIS The data stores themselves should also be instrumented to capture the low-level details of the activity that occurs. In the sample application, under normal operations the data access statistics showed a mixture of read operations performed against the `ProductDescription` table in the AdventureWorks2012 database, a similar number of write operations performed against the `PurchaseOrderHeader` table, but a much large volume (approximately 5 times the number) of write requests sent to the `Traces` table. **
+The data stores themselves should also be instrumented to capture the low-level details of the activity that occurs. In the sample application, under normal operations the data access statistics showed a mixture of read operations performed against the `ProductDescription` table in the AdventureWorks2012 database, a similar number of write operations performed against the `PurchaseOrderHeader` table, but a much large volume (approximately 5 times the number) of write requests sent to the `Traces` table. **
 
 ![Chart showing the data access stats from Azure SQL database][]
 
-At the times when an operator was clearing the log, the volume of write I/O operations performed against the database greatly increased, to the point at which other requests were starved of access and began timing out.
-
-![Chart showing write stats from Azure SQL database][]
 
 ### Examining contended resources
 
@@ -223,36 +146,24 @@ At this point you can conduct a review of the source code focussing on the point
 
 Data which has different usage patterns or that is logically distinct can be partitioned into separate data stores. The data storage mechanism selected should be appropriate to the pattern of use for each data set. Additionally, you may be able to partition a single data store and structure the data to avoid hot-spots that are subject to high-levels of contention, or replicate data that is read often but written infrequently to spread the load across data stores.
 
-In the sample application, changing the logging mechanism to use an [Azure Event Hub][EventHub] helps to reduce pressure on the Azure SQL database. In the `EventhubLog` controller shown in the code below, the `Post` operation performs the same work that of the corresponding operation in the `SqldbLog` controller. Internally, the new controller writes data to an event hub rather than the SQL database:
+In the sample application, changing the logging mechanism to use an [Azure Event Hub][EventHub] helps to reduce pressure on the Azure SQL database. The code below uses the static `LogToEventHubAsync` method of the `DataAccess` class to write data to an event hub rather than the SQL database:
 
 **C# web API**
 ```C#
-public class EventhubLogController : ApiController
+public class PolyglotController : ApiController
 {
-    static string eventHubName = CloudConfigurationManager.GetSetting("EventHubName");
-    static string eventHubNamespace = CloudConfigurationManager.GetSetting("EventHubNamespace");
-    static string devicesSharedAccessPolicyName = CloudConfigurationManager.GetSetting("LogPolicyName");
-    static string devicesSharedAccessPolicyKey = CloudConfigurationManager.GetSetting("LogPolicyKey");
-    static string eventHubConnectionString = string.Format("Endpoint=sb://{0}.servicebus.windows.net/;SharedAccessKeyName={1};SharedAccessKey={2};TransportType=Amqp",
-        eventHubNamespace, devicesSharedAccessPolicyName, devicesSharedAccessPolicyKey);
-    static EventHubClient client = EventHubClient.CreateFromConnectionString(eventHubConnectionString, eventHubName);
-
-    public async Task<IHttpActionResult> PostAsync([FromBody]string value)
+    public async Task<IHttpActionResult> PostAsync([FromBody]int logCount)
     {
-        LogMessage logMessage = new LogMessage();
-        await LogToEventhubAsync(logMessage).ConfigureAwait(false);
-        return Ok();
-    }
-
-    private static async Task LogToEventhubAsync(LogMessage logMessage)
-    {
-        JsonConvert.DefaultSettings = () => new JsonSerializerSettings();
-        var serializedString = JsonConvert.SerializeObject(logMessage);
-        var bytes = Encoding.UTF8.GetBytes(serializedString);
-        using (EventData data = new EventData(bytes))
+        for (int i = 0; i < logCount; i++)
         {
-            await client.SendAsync(data).ConfigureAwait(false);
+            var logMessage = new LogMessage();
+            await DataAccess.LogToEventhubAsync(logMessage);
         }
+
+        await DataAccess.SelectProductDescriptionAsync(321);
+        await DataAccess.InsertToPurchaseOrderHeaderTableAsync();
+
+        return Ok();
     }
 }
 ```
@@ -275,7 +186,7 @@ You should consider the following points when determining the most appropriate s
 
 Spreading the load across data stores reduces contention and helps to improve overall the performance of the system under load. You could also take the opportunity to assess the data storage technologies used and rework selected parts of the system to use a more appropriate storage mechanism, although making changes such as this may involve thorough retesting of the system functionality.
 
-For comparison purposes, the following graph shows the results of perform the same load-tests as before but running them against the `EventhubLog` controller.
+For comparison purposes, the following graph shows the results of performing the same load-tests as before but logging records to the event hub.
 
 ![Load-test performance results using the EventhubLog controller][LoadTestWithEventHubLogging]
 
