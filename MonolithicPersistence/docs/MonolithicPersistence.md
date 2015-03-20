@@ -66,7 +66,7 @@ The application uses the same database for two distinctly different purposes; to
 
 ## How to detect the problem
 
-Using a single data store for all operational and business data can result in the data store becoming a point of contention; a large number of very different requests could be competing for the same data storage resources. In the case of the sample application, as more and more users access the web application, the system slows down markedly and eventually fails as the system runs out of SQL Server connections and throttles applications attempting to read or write the database.
+Using a single data store for all operational and business data can result in the data store becoming a point of contention; a large number of very different requests could be competing for the same data storage resources. If a single business operation performs one business transaction against the database but also records 5 log records (for example, *start operation*, *submit SQL request*, *retrieve response*, *process response*, *return results*) then the additional of a single user to the workload might increase the volume of database traffic by 6. In the sample application, as more and more users access the web application, the system will likely slow down markedly and eventually fail as the system runs out of SQL Server connections and throttles applications attempting to read or write the database.
 
 You can perform the following steps to help identify the causes of any problems resulting from data store contention:
 

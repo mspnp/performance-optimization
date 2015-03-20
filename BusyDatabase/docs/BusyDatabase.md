@@ -24,25 +24,46 @@ This anti-pattern typically occurs because:
 
 - There is the perception that a database running on powerful hardware is more efficient at performing computations over data than a client application.
 
-As an example, the following code shows **TBD**
+The [sample application][fullDemonstrationOfProblem] available with this anti-pattern illustrates a conceptual example that uses Azure SQL Database to perform a set of string manipulations on some test data by using Transact-SQL (the code replaces all occurrences of "ca" in the data retrieved with "cat", and then replaces all commas with spaces):
 
+**Transact-SQL:**
+```SQL
+declare @Items varchar(8000);
+declare @ItemList varchar(8000);
+DECLARE @DelimIndex     INT;
+DECLARE @Item   VARCHAR(8000);
+SELECT @ItemList = ... /* Retrieve the data to be processed from a table in the database */
+declare @Delimiter varchar(1);
+SET @Delimiter = ',';
+SET @DelimIndex = CHARINDEX(@Delimiter, @ItemList, 0);
+SET @Item = LTRIM(SUBSTRING(@ItemList, 0, @DelimIndex));
+SET @Items = @Item;
+WHILE (@DelimIndex != 0)
+BEGIN
+    SET @ItemList = SUBSTRING(@ItemList, @DelimIndex+1, LEN(@ItemList)-@DelimIndex)
+	SET @DelimIndex = CHARINDEX(@Delimiter, @ItemList, 0)
+	SET @Item = LTRIM(SUBSTRING(@ItemList, 0, @DelimIndex))
+	Set @Item =Replace('ca','ca','cat')
+	SET @Items=CONCAT(@Items,' ',@Item)	
+END; -- End WHILE
+SET @Item = LTRIM(SUBSTRING(@ItemList, 0, @DelimIndex))
+SET @Items=CONCAT(@Items,' ',@Item);	
+select  @Items as FormattedList;
+```
 
-----------
-
-**Note:** The `XYZ` controllers are included in the [sample code][fullDemonstrationOfProblem] available with this anti-pattern.
-
-----------
+The code that invokes this Transact-SQL block is located in the `GetNameConcat` method in the `TooMuchProcSql` web API controller in the sample application.
 
 ## How to detect the problem
 
-**TBD - COMPLETE THIS CONTENT**
-
-
-Symptoms of a busy front end in an application include ...
+Symptoms of a busy database in an application include a disproportionate degradation in throughput and response time in business operations that access the database.  
 
 You can perform the following steps to help identify this problem:
 
-1. Identify ....
+1. Use performance monitoring to identify how much time the system spends performing database activity.
+
+2. Examine the work performed by the database occurring during these periods.
+
+3. If the database activity reveals significant processing but little data traffic, review the source code and determine whether the processing can better be performed elsewhere.
 
 The following sections apply these steps to the sample application described earlier.
 
@@ -52,22 +73,67 @@ The following sections apply these steps to the sample application described ear
 
 ----------
 
-### Monitoring
+### Monitoring the volume of database activity
 
-SPIEL
+You can use a application performance monitor to track the database activity of the system in production. If the volume of database activity is low or response times are relatively fast, then a busy database is unlikely to be a performance problem.
 
-![Azure SQL Database monitor showing the performance of the database while performing processing][ProcessingInDatabaseMonitor]
+If you suspect that particular operations might be cause undue database activity, then you can perform load-testing in a controlled environment. Each test should run a mixture of the suspect operations using a variable user-load to see how the system responds. You should also monitor the test system and examine the telemetry generated while the load test is in operation and observe how the database is used.
 
-### Performing load-testing
-
-SPIEL
+The following graph shows the results of performing a load-test against the sample application using a step-load of up to 1000 concurrent users. The volume of tests that the system can handle quickly reaches a limit and stays at that level, while the response time steadily increases (not that the scale measuring the number of tests and the response time is logarithmic):
 
 ![Load-test results for performing processing in the database][ProcessingInDatabaseLoadTest]
 
+Examining the performance of the SQL Database by using the database monitor in the Azure Management console and capturing the CPU utilization together with the number of database throughput units (DTU) provides a measure of how much processing the database was performing. In the graph below, CPU and DTU utilization both reached 100% during the test (the test ran from 9:05 to 9:30, including some warm-up time)
+
+![Azure SQL Database monitor showing the performance of the database while performing processing][ProcessingInDatabaseMonitor]
+
+### Examining the work performed by the database
+
+It could be that the tasks performed by the database are genuine data access operations, so it is important to understand the SQL statements being run while the database is busy. You can capture this information by using the monitoring information to correlate with the operational requests (user activity) being performed and then retrieve the low-level details of the SQL operations being made by these requests.
+
+**NOTES AND IMAGE SHOWING SQL OPERATIONS FOR A WEB TRANSACTION CAPTURED BY USING NEW RELIC**
+
+### Reviewing the source code
+
+If you identify database operations that perform processing rather than data access operations, review the code that invokes these operations. It might be preferable to implement the processing as application code rather than offloading it to the database server. 
 
 ## How to correct the problem
 
-**TBD**
+Relocate processing from the database server to the client application where appropriate. This will involve refactoring the application code, and it may still be necessary to retrieve some information from the database to implement an operation. Ideally, you should limit the database to performing data access operations, and possibly to summarizing information where appropriate if the database server supports the necessary aggregation functions.
+
+In the sample application, the Transact-SQL code can be replaced with the following statements that simply retrieve the data to be processed from the database:
+
+**Transact-SQL:**
+```SQL
+declare @ItemList varchar(8000);
+SELECT @ItemList = ... /* Retrieve the data to be processed from a table in the 
+```
+
+The processing is performed by the client application using the `Replace` method of the `string` class, as follows:
+
+**C#**
+```C#
+using (SqlCommand command = new SqlCommand(commandString, connection))
+{
+    command.CommandType = CommandType.Text;
+    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+    {
+        while (await reader.ReadAsync())
+        {
+            var field = await reader.GetFieldValueAsync<string>(0);       
+            field=field.Replace("ca","cat").Replace(',',' ');
+        }
+    }
+    ...
+}
+```
+
+
+----------
+
+**Note:** This code is available in the `LessProcSql` controller in the [solution code][fullDemonstrationOfSolution] provided with this anti-pattern.
+
+----------
 
 You should consider the following points:
 
@@ -76,7 +142,7 @@ You should consider the following points:
 
 ## Consequences of the solution
 
-SPIEL
+Relocating processing to the client application leaves the database free to focus on supporting data access operations. The following graph shows the results of repeating the load-test from earlier against the updated code Note that the throughput is significantly higher (nearly 10000 requests per second versus 800 earlier), and the response time is correspondingly much lower (below 0.1 seconds compared to 1 second for the previous test):
 
 ![Load-test results for performing processing in the database][ProcessingInClientApplicationLoadTest]
 
