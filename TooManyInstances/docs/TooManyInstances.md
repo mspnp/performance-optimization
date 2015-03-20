@@ -191,11 +191,11 @@ During periods of stress, operations that continually create and destroy large o
 
 ### Performing load-testing
 
-You can use load-testing based on workloads that emulate the typical sequence of operations that users might perform to help identify which parts of a system suffer with resource-exhaustion under varying loads. You should perform these tests in a controlled environment rather than the production system. The following graph shows the throughput of requests directed at the `NewInstancePerRequest` controller in the sample application as the user load is increased up to 450  concurrent users. Note that as the user load passes 200 concurrent users the number of failed requests suddenly increases. These failures are reported by the load test as HTTP 500 (Internal Server) errors.
+You can use load-testing based on workloads that emulate the typical sequence of operations that users might perform to help identify which parts of a system suffer with resource-exhaustion under varying loads. You should perform these tests in a controlled environment rather than the production system. The following graph shows the throughput of requests directed at the `NewInstancePerRequest` controller in the sample application as the user load is increased up to 100  concurrent users. 
 
-![Throughput of the sample application creating a new instance of an HttpClient object for each requests][throughput-new-instance]
+![Throughput of the sample application creating a new instance of an HttpClient object for each request][throughput-new-instance]
 
-In this graph, the scale of the throughput and response times is logarithmic to enable these measures to be shown effectively on the graph. After the initial loading the system stabilizes, supporting approximately 300 requests/second (oscillating between successful and failed requests) with an average response time of between 0.5 and 1 second per request.
+In this graph, the scale of the throughput and response times is logarithmic to enable these measures to be shown effectively on the graph. AThe volume of requests handled per second increases at the 10-user point due to the increased workload up to approximately 60, but the performance levels out as more users are added and the maximum request rate the system can support is around 150. The average response time remains stable at approximately 330 milliseconds. Note that as the user load passes 50 concurrent users the number of failed requests suddenly increases. These failures are reported by the load test as HTTP 500 (Internal Server) errors.
 
 ### Reviewing the code
 
@@ -228,6 +228,12 @@ public class SingleInstanceController : ApiController
 }
 ```
 
+----------
+
+**Note:** This code is available in the [sample solution][fullDemonstrationOfSolution] prpovided with this anti-pattern.
+
+----------
+
 You should consider the following points:
 
 - In the example shown above, the *pool* consists of a single `ProductRepository` object, and by extension a single `HttpClient` object. If this approach causes contention, consider creating a pool of more than one instance of an object and spreading the workload across these instances.
@@ -244,15 +250,13 @@ Service Bus client objects, such as `QueueClient` or `MessageSender`, are create
 
 - Only use this approach where it is appropriate. You should always release scarce resources once you have finished with them, and acquire them only on an as-needed basis. A common example is a database connection. Retaining an open connection that is not required may prevent other concurrent users from gaining access to the database.
 
-[Link to the related sample][fullDemonstrationOfSolution]
-
 ## Consequences of the solution
 
 The system should should be more scalable, offer a higher throughput (the system is wasting less time acquiring and releasing resources and is therefore able to spend more time doing useful work), and report fewer errors as the workload increases. The following graph shows the load-test results for the sample application, using the same workload as before, but invoking the `GetProductAsync` method in the `SingleInstance` controller:
 
-![Key indicators load-test results for the Chunky API in the Chatty I/O sample application][throughput-single-instance]
+![Throughput of the sample application reusing the same instance of an HttpClient object for each request][throughput-single-instance]
 
-No errors were reported, and the system was amply able to handle an increasing load (up to nearly 3000 requests per second) with relatively low response time (between 0.07 and 0.15 seconds on average per request).
+No errors were reported, and the system was amply able to handle an increasing load  of up to over 500 requests per second. The average response time was close to half that of the previous test (around 170 milliseconds).
 
 ## Related resources
 
