@@ -34,7 +34,7 @@ namespace WebRole
             //Opportunity to look for product in cache.
 
             var hostName = HttpContext.Current.Request.Url.Host;
-            var result = await _httpClient.GetStringAsync(string.Format("http://{0}:8080", hostName)).ConfigureAwait(false);
+            var result = await _httpClient.GetStringAsync(string.Format("http://{0}/api/userprofile:8080", hostName)).ConfigureAwait(false);
             
             //opportunity to save result to cache
 

@@ -39,7 +39,7 @@
   <ItemGroup>
     <ProjectReference Include="..\SimpleWebRole\SimpleWebRole.csproj">
       <Name>SimpleWebRole</Name>
-      <Project>{9b1f095a-91ae-4eba-9b47-a5c14b8d102d}</Project>
+      <Project>{525339ef-e67b-475c-8c6a-1e638a4bd8c1}</Project>
       <Private>True</Private>
       <RoleType>Web</RoleType>
       <RoleName>SimpleWebRole</RoleName>
