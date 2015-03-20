@@ -5,8 +5,8 @@ using System;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
+using Microsoft.Azure;
 using Microsoft.ServiceBus.Messaging;
-using Microsoft.WindowsAzure;
 using Microsoft.WindowsAzure.ServiceRuntime;
 using ServiceBusQueueHandling;
 
