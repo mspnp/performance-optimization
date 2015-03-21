@@ -1,14 +1,14 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using RetrievingTooMuchData.DataAccess;
-using RetrievingTooMuchData.WebApi.Models;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
+using RetrievingTooMuchData.DataAccess;
+using RetrievingTooMuchData.WebApi.Models;
 
 namespace RetrievingTooMuchData.WebApi.Controllers
 {
