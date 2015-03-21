@@ -16,8 +16,6 @@ namespace RetrievingTooMuchData.WebApi.Controllers
         [Route("api/aggregateonclient")]
         public async Task<decimal> AggregateOnClientAsync()
         {
-            decimal total = 0;
-
             using (var context = GetEagerLoadingContext())
             {
                 var salesPersons = await context.SalesPersons
@@ -25,15 +23,15 @@ namespace RetrievingTooMuchData.WebApi.Controllers
                                                 .ToListAsync()
                                                 .ConfigureAwait(false);
 
+                decimal total = 0;
                 foreach (var salesPerson in salesPersons)
                 {
                     var orderHeaders = salesPerson.SalesOrderHeaders;
 
                     total += orderHeaders.Sum(x => x.TotalDue);
                 }
+                return total;
             }
-
-            return total;
         }
 
         [HttpGet]
@@ -62,6 +60,7 @@ namespace RetrievingTooMuchData.WebApi.Controllers
         {
             var connectionString = ConfigurationManager.ConnectionStrings["AdventureWorksContext"].ConnectionString;
             var context = new AdventureWorksContext(connectionString);
+
             // load eagerly
             context.Configuration.LazyLoadingEnabled = false;
             context.Configuration.ProxyCreationEnabled = false;
