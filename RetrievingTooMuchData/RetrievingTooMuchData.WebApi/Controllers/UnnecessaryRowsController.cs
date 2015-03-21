@@ -19,9 +19,8 @@ namespace RetrievingTooMuchData.WebApi.Controllers
             using (var context = GetEagerLoadingContext())
             {
                 var salesPersons = await context.SalesPersons
-                                                .Include(sp => sp.SalesOrderHeaders) // This include forces eager loading.
-                                                .ToListAsync()
-                                                .ConfigureAwait(false);
+                    .Include(sp => sp.SalesOrderHeaders) // This include forces eager loading.
+                    .ToListAsync();
 
                 decimal total = 0;
                 foreach (var salesPerson in salesPersons)
@@ -44,9 +43,7 @@ namespace RetrievingTooMuchData.WebApi.Controllers
                             from soh in sp.SalesOrderHeaders
                             select soh.TotalDue;
 
-                return await query.DefaultIfEmpty(0)
-                                  .SumAsync()
-                                  .ConfigureAwait(false);
+                return await query.DefaultIfEmpty(0).SumAsync();
             }
         }
 
