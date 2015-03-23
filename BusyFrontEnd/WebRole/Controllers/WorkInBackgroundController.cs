@@ -3,8 +3,8 @@
 
 using System.Threading.Tasks;
 using System.Web.Http;
+using Microsoft.Azure;
 using Microsoft.ServiceBus.Messaging;
-using Microsoft.WindowsAzure;
 using ServiceBusQueueHandling;
 
 namespace WebRole.Controllers

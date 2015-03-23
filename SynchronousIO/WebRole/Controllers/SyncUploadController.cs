@@ -4,7 +4,7 @@
 using System.IO;
 using System.Web.Hosting;
 using System.Web.Http;
-using Microsoft.WindowsAzure;
+using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 
 namespace WebRole.Controllers
