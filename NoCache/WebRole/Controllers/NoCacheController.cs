@@ -50,7 +50,7 @@ namespace WebRole.Controllers
         public async Task<IHttpActionResult> GetTopTenSalesPeople()
         {
             ISalesPersonRepository repository = new SalesPersonRepository();
-            var results = repository.GetTopTenSalesPeopleAsync();
+            var results = await repository.GetTopTenSalesPeopleAsync();
 
             if (results == null) return NotFound();
             return Ok(results);
