@@ -14,7 +14,7 @@ namespace RetrievingTooMuchData.WebApi.Controllers
     {
         [HttpGet]
         [Route("api/aggregateonclient")]
-        public async Task<decimal> AggregateOnClientAsync()
+        public async Task<IHttpActionResult> AggregateOnClientAsync()
         {
             using (var context = GetEagerLoadingContext())
             {
@@ -29,13 +29,14 @@ namespace RetrievingTooMuchData.WebApi.Controllers
 
                     total += orderHeaders.Sum(x => x.TotalDue);
                 }
-                return total;
+
+                return Ok(total);
             }
         }
 
         [HttpGet]
         [Route("api/aggregateondatabase")]
-        public async Task<decimal> AggregateOnDatabaseAsync()
+        public async Task<IHttpActionResult> AggregateOnDatabaseAsync()
         {
             using (var context = GetContext())
             {
@@ -43,7 +44,9 @@ namespace RetrievingTooMuchData.WebApi.Controllers
                             from soh in sp.SalesOrderHeaders
                             select soh.TotalDue;
 
-                return await query.DefaultIfEmpty(0).SumAsync();
+                var total = await query.DefaultIfEmpty(0).SumAsync();
+
+                return Ok(total);
             }
         }
 
