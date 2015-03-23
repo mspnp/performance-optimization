@@ -10,7 +10,7 @@ namespace WebRole.Controllers
     public class NewServiceInstancePerRequestController : ApiController
     {
         /// <summary>
-        /// This method creates a new instance of ProductRepository and disposes it for every call to GetProductAsync.
+        /// This method creates a new instance of ExpensiveToCreateService and disposes it for every call to GetProductAsync.
         /// </summary>
         public async Task<Product> GetProductAsync(string id)
         {

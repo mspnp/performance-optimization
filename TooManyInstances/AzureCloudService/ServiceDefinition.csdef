@@ -12,7 +12,7 @@
       <InputEndpoint name="Endpoint1" protocol="http" port="80" />
     </Endpoints>
   </WebRole>
-  <WebRole name="SimpleWebRole" vmsize="Large">
+  <WebRole name="UserProfileServiceWebRole" vmsize="Large">
     <Sites>
       <Site name="Web">
         <Bindings>

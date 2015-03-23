@@ -7,12 +7,7 @@ Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AzureCloudService", "AzureC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRole", "WebRole\WebRole.csproj", "{CC6C8846-E703-4941-801C-4AB574D902D3}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{28E1E5D1-381B-4A9C-9FCC-0C0A7657D621}"
-	ProjectSection(SolutionItems) = preProject
-		Local.testsettings = Local.testsettings
-	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleWebRole", "SimpleWebRole\SimpleWebRole.csproj", "{525339EF-E67B-475C-8C6A-1E638A4BD8C1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserProfileServiceWebRole", "SimpleWebRole\UserProfileServiceWebRole.csproj", "{525339EF-E67B-475C-8C6A-1E638A4BD8C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

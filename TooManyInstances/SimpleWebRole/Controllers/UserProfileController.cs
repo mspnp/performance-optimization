@@ -3,9 +3,9 @@
 
 using System.Threading.Tasks;
 using System.Web.Http;
-using SimpleWebRole.Models;
+using UserProfileServiceWebRole.Models;
 
-namespace SimpleWebRole.Controllers
+namespace UserProfileServiceWebRole.Controllers
 {
     public class UserProfileController : ApiController
     {

@@ -37,13 +37,12 @@
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SimpleWebRole\SimpleWebRole.csproj">
-      <Name>SimpleWebRole</Name>
+    <ProjectReference Include="..\SimpleWebRole\UserProfileServiceWebRole.csproj">
+      <Name>UserProfileServiceWebRole</Name>
       <Project>{525339ef-e67b-475c-8c6a-1e638a4bd8c1}</Project>
       <Private>True</Private>
       <RoleType>Web</RoleType>
-      <RoleName>SimpleWebRole</RoleName>
-      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+      <RoleName>UserProfileServiceWebRole</RoleName>
     </ProjectReference>
     <ProjectReference Include="..\WebRole\WebRole.csproj">
       <Name>WebRole</Name>
