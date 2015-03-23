@@ -4,7 +4,7 @@
     <Instances count="1" />
     <ConfigurationSettings />
   </Role>
-  <Role name="SimpleWebRole">
+  <Role name="UserProfileServiceWebRole">
     <Instances count="1" />
     <ConfigurationSettings />
   </Role>

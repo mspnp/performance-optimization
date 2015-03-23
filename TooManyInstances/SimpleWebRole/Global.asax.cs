@@ -2,17 +2,15 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Web;
-using System.Web.Mvc;
-using System.Web.Routing;
+using System.Web.Http;
 
-namespace SimpleWebRole
+namespace UserProfileServiceWebRole
 {
-    public class MvcApplication : HttpApplication
+    public class WebApiApplication : HttpApplication
     {
         protected void Application_Start()
         {
-            AreaRegistration.RegisterAllAreas();
-            RouteConfig.RegisterRoutes(RouteTable.Routes);
+            GlobalConfiguration.Configure(WebApiConfig.Register);
         }
     }
 }

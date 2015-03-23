@@ -7,23 +7,23 @@ using WebRole.Models;
 
 namespace WebRole.Controllers
 {
-    public class SingleInstanceController : ApiController
+    public class SingleServiceInstanceController : ApiController
     {
-        private static readonly IProductRepository ProductRepository;
+        private static readonly ExpensiveToCreateService ExpensiveToCreateService;
 
-        static SingleInstanceController()
+        static SingleServiceInstanceController()
         {
-            ProductRepository = new ProductRepository();
+            ExpensiveToCreateService = new ExpensiveToCreateService();
         }
 
         /// <summary>
-        /// This method uses the shared instance of IProductRepository for every call to GetProductAsync.
+        /// This method uses the shared instance of ExpensiveToCreateService for every call to GetProductAsync.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
         public async Task<Product> GetProductAsync(string id)
         {
-            return await ProductRepository.GetProductByIdAsync(id);
+            return await ExpensiveToCreateService.GetProductByIdAsync(id);
         }
     }
 }
