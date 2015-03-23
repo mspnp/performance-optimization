@@ -34,8 +34,8 @@ namespace RetrievingTooMuchData.WebApi.Controllers
             using (var context = GetContext())
             {
                 var result = await context.Products
-                                    .Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name }) // Project fields.
-                                    .ToListAsync(); // Execute query.
+                    .Select(p => new ProductInfo {Id = p.ProductId, Name = p.Name}) // Project fields.
+                    .ToListAsync(); // Execute query.
 
                 return Ok(result);
             }
