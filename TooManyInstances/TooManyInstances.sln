@@ -9,6 +9,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRole", "WebRole\WebRole.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UserProfileServiceWebRole", "SimpleWebRole\UserProfileServiceWebRole.csproj", "{525339EF-E67B-475C-8C6A-1E638A4BD8C1}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2CF0AD34-B750-4CD2-8295-B147505089E3}"
+	ProjectSection(SolutionItems) = preProject
+		ReadMe.md = ReadMe.md
+		docs\TooManyInstances.md = docs\TooManyInstances.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

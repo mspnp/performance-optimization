@@ -3,45 +3,86 @@
 The TooManyInstances sample code is composed of:
 * TooManyInstances solution file
 * AzureCloudService
+* UserProfileServiceWebRole
 * WebRole WebAPI project
 
-The WebRole WebAPI project has two controllers:
-* `NewInstancePerRequestController`
-* `SingleInstanceController`
+The WebRole WebAPI project has four controllers:
+* `NewHttpClientInstancePerRequestController`
+* `NewServiceInstancePerRequestController`
+* `SingleHttpClientInstanceController`
+* `SingleServiceInstanceController`
 
-These two WebAPI controllers both call the `ProductRepository.GetProductByIdAsync` method but handle the lifetime of the` `ProductRepository` instance differently. The `NewInstancePerRequestController` creates a new instance of `ProductRepository` and disposes it for every call to `NewInstancePerRequestController.GetProductAsync`.
+The NewServiceInstancePerRequestController and SingleServiceInstanceController both call the `ExpensiveToCreateService.GetProductByIdAsync` method but handle the lifetime of the` `ExpensiveToCreateService` instance differently. 
+The `NewServiceInstancePerRequestController` creates a new instance of `ExpensiveToCreateService` for every call to `NewServiceInstancePerRequestController.GetProductAsync`.
 
 **C#**
 
 ``` C#
 public async Task<Product> GetProductAsync(string id)
 {
-    using (var productRepository = new ProductRepository())
-    {
-        return await productRepository.GetProductByIdAsync(id).ConfigureAwait(false);
-    }
+    var expensiveToCreateService = new ExpensiveToCreateService();
+    return await expensiveToCreateService.GetProductByIdAsync(id);
 }
 ```
 
-The `SingleInstanceController` creates a static instance of `ProductRepository` and uses it during the lifetime of the process.
+The `SingleServiceInstanceController` creates a static instance of `ExpensiveToCreateService` and uses it during the lifetime of the process.
 
 **C#**
 
 ``` C#
-private static readonly IProductRepository ProductRepository;
+private static readonly ExpensiveToCreateService ExpensiveToCreateService;
 
-static SingleInstanceController()
+static SingleServiceInstanceController()
 {
-    ProductRepository = new ProductRepository();
+    ExpensiveToCreateService = new ExpensiveToCreateService();
 }
 
-public Task<Product> GetProductAsync(string id)
+public async Task<Product> GetProductAsync(string id)
 {
-    return ProductRepository.GetProductByIdAsync(id);
+    return await ExpensiveToCreateService.GetProductByIdAsync(id);
 }
 ```
 
-The `ProductRepository` simulates a class whose instance is intended to be shared. This class has an instance member of type `System.Net.Http.HttpClient` and uses a delay to simulate setup and configuration. Instances of `HttpClient` should be shared, otherwise under load, you will run out of TCP sockets.
+The `ExpensiveToCreateService` simulates a class whose instance is intended to be shared. This class uses a delay to simulate setup and configuration. 
+
+The NewHttpClientInstancePerRequestController and SingleHttpClientInstanceController both use 'HttpClient' to call the UserProfileServiceWebRole but handle the lifetime of the 'HttpClient' instance differently. 
+The NewHttpClientInstancePerRequestController creates a new instance of 'HttpClient' and disposes it for every call to 'NewHttpClientInstancePerRequestController.GetProductAsync'.
+
+**C#**
+
+``` C#
+public async Task<Product> GetProductAsync(string id)
+{
+    using (var httpClient = new HttpClient())
+    {
+        var hostName = HttpContext.Current.Request.Url.Host;
+        var result = await httpClient.GetStringAsync(string.Format("http://{0}:8080/api/userprofile", hostName));
+
+        return new Product { Name = result };
+    }
+}
+```
+
+The 'SingleHttpClientInstanceController' creates a static instance of `HttpClient` and uses it during the lifetime of the process.
+
+**C#**
+
+``` C#
+private static readonly HttpClient HttpClient;
+
+static SingleHttpClientInstanceController()
+{
+    HttpClient = new HttpClient();
+}
+
+public async Task<Product> GetProductAsync(string id)
+{
+    var hostName = HttpContext.Current.Request.Url.Host;
+    var result = await HttpClient.GetStringAsync(string.Format("http://{0}:8080/api/userprofile", hostName));
+
+    return new Product { Name = result };
+}
+```
 
 ## Deploying to Azure
 Right-click on the AzureCloudService and select "Publish" to deploy to Azure.
