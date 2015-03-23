@@ -1,11 +1,9 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Web.Http;
 using CachingDemo.Data;
-using CachingDemo.Data.Models;
 
 namespace WebRole.Controllers
 {
@@ -50,7 +48,7 @@ namespace WebRole.Controllers
         public async Task<IHttpActionResult> GetTopTenSalesPeople()
         {
             ISalesPersonRepository repository = new SalesPersonRepository();
-            var results = repository.GetTopTenSalesPeopleAsync();
+            var results = await repository.GetTopTenSalesPeopleAsync();
 
             if (results == null) return NotFound();
             return Ok(results);
