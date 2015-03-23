@@ -2,158 +2,57 @@
 
 Many .NET Framework libraries provide abstractions around external resources. Internally, these classes typically manage their own connections to these external resources, effectively acting as brokers that clients can use to request access to a resource. Examples of such classes frequently used by Azure applications include  `System.Net.Http.HttpClient` to communicate with a web service by using the HTTP protocol, `Microsoft.ServiceBus.Messaging.QueueClient` for posting and receiving messages to a Service Bus queue,  `Microsoft.Azure.Documents.Client.DocumentClient` for connecting to an Azure DocumentDB instance, and `StackExchange.Redis.ConnectionMultiplexer` for accessing Azure Redis Cache.
 
-These *broker* classes can be expensive to create. Instead, they are intended to be instantiated once and reused throughout the life of an application, as shown by the following code snippet that demonstrates the use of the `HttpClient` class in a web API controller:
+These *broker* classes can be expensive to create. Instead, they are intended to be instantiated once and reused throughout the life of an application. However, it is common to misunderstand how these classes are intended to be used, and instead treat them as resources that should be acquired only as necessary and released quickly, as shown by the following code snippet that demonstrates the use of the `HttpClient` class in a web API controller. The `GetProductAsync` method retrieves product information from a remote service:
 
-**C#**
+**C# web API**
 ``` C#
-public class HttpClientDemoController : ApiController
+public class NewHttpClientInstancePerRequestController : ApiController
 {
-    private HttpClient client = null;
+    // This method creates a new instance of HttpClient and disposes it for every call to GetProductAsync.
 
-    public HttpClientDemoController()
+    public async Task<Product> GetProductAsync(string id)
     {
-        client = new HttpClient();
-        client.BaseAddress = ...;
-    }
-
-    ...
-    public string Get(int id)
-    {
-        ...
-        var data = client.GetAsync(...);
-        ...
-        return ...;
-    }
-
-    public void Post([FromBody]string value)
-    {
-        ...
-        client.PostAsync(...);
-        ...
-    }
-    ...
-}
-```
-
-It is often tempting to make each method in a class self-contained by creating the resources needed when the method starts and then releasing them when the method finishes, as shown below. However, creating broker objects when needed and then destroying them when an operation completes can damage the performance of a system, especially if this cycle is repeated on a large scale by thousands of concurrent users:
-
-**C#**
-``` C#
-public class HttpClientDemoController : ApiController
-{
-    public string Get(int id)
-    {
-        using (HttpClient client = new HttpClient())
+        using (var httpClient = new HttpClient())
         {
-            ...
-            var data = client.GetAsync(...);
-            ...
-        } 
-        return ...;
-    }
+            var hostName = HttpContext.Current.Request.Url.Host;
+            var result = await httpClient.GetStringAsync(string.Format("http://{0}:8080/api/userprofile", hostName));
 
-    public void Post([FromBody]string value)
-    {
-        using (HttpClient client = new HttpClient())
-        {
-            ...
-            client.PostAsync(...);
-            ...
+            return new Product { Name = result };
         }
     }
-    ...
 }
 ```
 
-Although you might not follow this approach intentionally, it is very easy to implement it inadvertently. In the following snippet, the disposable `ProductRepository` class encapsulates an HTTP connection to a remote data store. An application can call the `GetProductByIdAsync` method to retrieve the details of a specified product:
-
-**C#**
-``` C#
-public class ProductRepository : IProductRepository, IDisposable
-{
-    private bool disposed = false;
-    private HttpClient httpClient;
-
-    public ProductRepository()
-    {
-        // Create the HTTP connection object
-        httpClient = new HttpClient();
-    }
-
-    public async Task<Product> GetProductByIdAsync(string productId)
-    {
-        // Retrieve the details for the specified product
-        var result = await httpClient.GetStringAsync(...).ConfigureAwait(false);
-        
-        // Parse the results into a new Product object
-        Product product = ...;
-
-        return product;
-    }
-
-    // Close the HTTP connection when the object is disposed
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (disposed) return;
-
-        if (disposing)
-        {
-            httpClient.Dispose();
-        }
-
-        disposed = true;
-    }
-}
-```
-
-An application can use the following code to send a request that fetches the details of a product:
-
-**C#**
-
-``` C#
-using (var productRepository = new ProductRepository())
-{
-    return await productRepository.GetProductByIdAsync(id).ConfigureAwait(false);
-}
-```
 ----------
 
 **Note:** This code forms part of the [TooManyInstances sample application][fullDemonstrationOfProblem].
 
 ----------
 
-Creating an instance of the `ProductRepository` class involves establishing a new HTTP connection by creating a new `HttpClient` object. The resources used by the connection are recycled when the work has completed and the flow of control reaches the end of the `using` block and the `HttpClient` object is disposed. 
+This approach might acceptable for client-side applications where the number of HTTP connections being made is likely to be limited, but in a server-side or web application this technique is not scalable. Each user request results in the creation of a new `HttpClient` object. Under a heavy load, the web server can exhaust the number of sockets available, resulting in `SocketException` errors. 
 
-This approach might acceptable for client-side applications where the number of HTTP connections being made is likely to be limited, but in a server-side or web application this technique is not scalable. For example, if the code is embedded in a web API controller as shown below, this code could be run concurrently by many users:
+This problem is not restricted to the `HttpClient` class. Creating many instances of other classes that wrap resources or are expensice to create might cause similar issues, or at least slow down the performance of the application they are continually created and destroyed. As a second example, consider the following code showing an alternative implementation of the `GetProductAsync` method; this time the data is retrieved from an external service wrapped by using the `ExpensiveToCreateService` class:
 
-**C#**
+**C# web API**
 ``` C#
-public class NewInstancePerRequestController : ApiController
+public class NewServiceInstancePerRequestController : ApiController
 {
-    /// <summary>
-    /// This method creates a new instance of ProductRepository and disposes it for every call to GetProductAsync.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
+    // This method creates a new instance of ProductRepository and disposes it for every call to GetProductAsync.
     public async Task<Product> GetProductAsync(string id)
     {
-        using (var productRepository = new ProductRepository())
-        {
-            return await productRepository.GetProductByIdAsync(id).ConfigureAwait(false);
-        }
+        var expensiveToCreateService = new ExpensiveToCreateService();
+        return await expensiveToCreateService.GetProductByIdAsync(id);
     }
 }
 ```
 
-Each user request results in the creation of a new instance of the `ProductRepository` class, which in turn creates a new `HttpClient` object. Under a heavy load, the web server can exhaust the number of sockets available, resulting in `SocketException` errors. 
+In this code, the `ExpensiveToCreateService` could be any shareable service or broker class that takes considerable effort to construct. As with the `HttpClient` example, continually creating and destroying instances of this class might adversely affect the scalability of the system.
 
-This problem is not restricted to the `HttpClient` class. Creating many instances of other classes that wrap other resources might cause similar issues, or at least slow down the performance of the application as broker objects are continually created and destroyed.
+----------
+
+**Note:** The key element of this anti-pattern is that an application repeatedly creates and destroys instances of a **shareable** object. If a class is not shareable (if it is not thread-safe), then this anti-pattern does not apply.
+
+----------
 
 ## How to detect the problem
 
@@ -161,7 +60,7 @@ Symptoms of the *Too Many Instances* problem include a drop in throughput, possi
 
 You can perform the following steps to help identify this problem:
 
-1. Identify points at which response times slow down by performing process monitoring of the production system.
+1. Identify points at which response times slow down or the system fails due to lack of resources by performing process monitoring of the production system.
 
 2. Examine the telemetry data captured at these points to determine which operations might be creating and destroying large resource-consuming objects at the point of slow-down.
 
@@ -179,60 +78,90 @@ The following sections apply these steps to the sample application described ear
 
 ### Identifying points of slow-down
 
-Instrumenting each operation in the production system to track the duration of each request and then monitoring the live system can help to provide an overall view of how the requests perform. You should also instrument the system to retrieve telemetry data about memory use when operations start and complete, and tracing how frequently the CLR garbage collector is running to reclaim large objects as well as observing the typical lifecycle of broker objects. 
+Instrumenting each operation in the production system to track the duration of each request and then monitoring the live system can help to provide an overall view of how the requests perform. You should monitor the the system and track which operations are long-running or cause exceptions.
 
-**NEED TO SHOW THE SAMPLE APPLICATION PERFORMANCE PROFILE (WHICH OPERATIONS ARE RUNNING, HOW LONG THEY TAKE, ETC) USING NEW RELIC/APPDYNAMICS**
+The following image shows the Overview pane of New Relic, highlighting operations that have a poor response time and the increased error rate while these operations are running. In this case, it is operations that invoke the `GetProductAsync` method in the `NewHttpClientInstancePerRequest` controller that are causing problems:
+
+**SNAPSHOT FROM NEW RELIC (SIMILAR TO THAT PROVIDED BY TRENT) BUT WITH UPDATED METHOD NAMES TO REFLECT THE AMENDED CODE**
 
 ### Examining telemetry data and finding correlations
 
-During periods of stress, operations that continually create and destroy large objects can be observed by monitoring the system and noting which operations cause increased activity in memory use and garbage collection. Depending on the nature of the brokers being used, there may also be increased network, disk, or database connectivity as connections are made, files are opened, or database connections established.
+You should examine stack trace information for operations that are slow-running or that generate exceptions. This information can help to identify whether they are creating and destroying instances of the same type, and exception information can be used to determine whether errors are caused by the system exhausting shared resources.
 
-**NEED TO SHOW THE SAMPLE APPLICATION TELEMETRY IN NEW RELIC/APPDYNAMICS AND CORRELATE WITH THE PERFORMANCE PROFILE FROM STEP 1**
+**SHOW TELEMETRY (STACK INFORMATION AND TRANSACTION TRACE) FOR GetProductAsync CAUSING AN EXCEPTION FROM NEW RELIC**
+
+Additionally, these operations might cause increased activity in memory use and garbage collection, as well as raised levels of increased network, disk, or database connectivity as connections are made, files are opened, or database connections established.
 
 ### Performing load-testing
 
-You can use load-testing based on workloads that emulate the typical sequence of operations that users might perform to help identify which parts of a system suffer with resource-exhaustion under varying loads. You should perform these tests in a controlled environment rather than the production system. The following graph shows the throughput of requests directed at the `NewInstancePerRequest` controller in the sample application as the user load is increased up to 100  concurrent users. 
+You can use load-testing based on workloads that emulate the typical sequence of operations that users might perform to help identify which parts of a system suffer with resource-exhaustion under varying loads. You should perform these tests in a controlled environment rather than the production system. The following graph shows the throughput of requests directed at the `NewHttpClientInstancePerRequest` controller in the sample application as the user load is increased up to 100  concurrent users. 
 
-![Throughput of the sample application creating a new instance of an HttpClient object for each request][throughput-new-instance]
+![Throughput of the sample application creating a new instance of an HttpClient object for each request][throughput-new-HTTPClient-instance]
 
-In this graph, the scale of the throughput and response times is logarithmic to enable these measures to be shown effectively on the graph. AThe volume of requests handled per second increases at the 10-user point due to the increased workload up to approximately 60, but the performance levels out as more users are added and the maximum request rate the system can support is around 150. The average response time remains stable at approximately 330 milliseconds. Note that as the user load passes 50 concurrent users the number of failed requests suddenly increases. These failures are reported by the load test as HTTP 500 (Internal Server) errors.
+The volume of requests handled per second increases at the 10-user point due to the increased workload up to approximately 30 users. At this point, the volume of successful requests reaches a limit and the system starts to generate errors. The volume of these exceptions gradually increases with the user load. These failures are reported by the load test as HTTP 500 (Internal Server) errors. Reviewing the telemetry (shown earlier) for this test case reveals that these errors are caused by the system running out of socket resources as more and more `HttpClient` objects are created.
+
+The second graph below shows the results of a similar test performed by using the `NewServiceInstancePerRequest` controller. This controller does not use `HttpClient` objects, but instead utilizes a custom object (`ExpensiveToCreateService`) to fetch data:
+
+![Throughput of the sample application creating a new instance of the ExpensiveToCreateService for each request][throughput-new-ExpensiveToCreateService-instance]
+
+This time, although the controller does not generate any exceptions, throughput still reaches a plateau while the average response time increases with user-load. *Note that the scale for the response time and throughput are logarithmic, so the rate at which the response time grows is actually more dramatic than might appear at first glance.* Examining the telemetry for this code should reveal that the main causes of this limitation are the time and resources spent creating new instances of the `ExpensiveToCreateService` for each request.
 
 ### Reviewing the code
 
-If you have managed to identify which parts of an application are causing exceptions due to resource exhaustion, perform a review of the code or use profiling to find out how objects that wrap external resources are being instantiated, used, and destroyed. Where appropriate, refactor code to cache and reuse objects, as described in the following section.
+If you have managed to identify which parts of an application are causing exceptions due to resource exhaustion, perform a review of the code or use profiling to find out how shareable objects are being instantiated, used, and destroyed. Where appropriate, refactor code to cache and reuse objects, as described in the following section.
 
 ## How to correct the problem
 
-If the class wrapping the external resource is thread-safe, create a pool of reusable instances of the class. The following code snippet shows a simple example. The `SingleInstance` controller performs the same operation as the `NewInstancePerRequest` controller shown earlier, except that the `ProductRepository` object is created once, in the constructor, rather than each time the `GetProductAsync` operation is invoked. This approach reuses the same `HttpClient` object inside the `ProductRepository`, sharing the connection across all requests.
+If the class wrapping the external resource is shareable and thread-safe, create a *pool* of reusable instances of the class. The following code snippet shows a simple example (in this case, the pool contains a single instance). The `SingleHttpClientInstance` controller performs the same operation as the `NewHttpClientInstancePerRequest` controller shown earlier, except that the `HttpClient` object is created once, in the constructor, rather than each time the `GetProductAsync` operation is invoked. This approach reuses the same `HttpClient` object sharing the connection across all requests.
 
-**C#**
+**C# web API**
 ```C#
-public class SingleInstanceController : ApiController
+public class SingleHttpClientInstanceController : ApiController
 {
-    private static readonly IProductRepository ProductRepository;
+    private static readonly HttpClient HttpClient;
 
-    static SingleInstanceController()
+    static SingleHttpClientInstanceController()
     {
-        ProductRepository = new ProductRepository();
+        HttpClient = new HttpClient();
     }
 
-    /// <summary>
-    /// This method uses the shared instance of IProductRepository for every call to GetProductAsync.
-    /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
-    public Task<Product> GetProductAsync(string id)
+    // This method uses the shared instance of HttpClient for every call to GetProductAsync.
+    public async Task<Product> GetProductAsync(string id)
     {
-        return ProductRepository.GetProductByIdAsync(id);
+        var hostName = HttpContext.Current.Request.Url.Host;
+        var result = await HttpClient.GetStringAsync(string.Format("http://{0}:8080/api/userprofile", hostName));
+
+        return new Product { Name = result };
     }
 }
 ```
 
 ----------
 
-**Note:** This code is available in the [sample solution][fullDemonstrationOfSolution] prpovided with this anti-pattern.
+**Note:** This code is available in the [sample solution][fullDemonstrationOfSolution] provided with this anti-pattern.
 
 ----------
+
+Similarly, assuming that the `ExpensiveToCreateService` was also designed to be shareable, you can refactor the `NewServiceInstancePerRequest` controller in the same manner:
+
+**C# web API**
+```C#
+public class SingleServiceInstanceController : ApiController
+{
+    private static readonly ExpensiveToCreateService ExpensiveToCreateService;
+
+    static SingleServiceInstanceController()
+    {
+        ExpensiveToCreateService = new ExpensiveToCreateService();
+    }
+
+    // This method uses the shared instance of ExpensiveToCreateService for every call to GetProductAsync.
+    public async Task<Product> GetProductAsync(string id)
+    {
+        return await ExpensiveToCreateService.GetProductByIdAsync(id);
+    }
+}
+```
 
 You should consider the following points:
 
@@ -252,11 +181,17 @@ Service Bus client objects, such as `QueueClient` or `MessageSender`, are create
 
 ## Consequences of the solution
 
-The system should should be more scalable, offer a higher throughput (the system is wasting less time acquiring and releasing resources and is therefore able to spend more time doing useful work), and report fewer errors as the workload increases. The following graph shows the load-test results for the sample application, using the same workload as before, but invoking the `GetProductAsync` method in the `SingleInstance` controller:
+The system should should be more scalable, offer a higher throughput (the system is wasting less time acquiring and releasing resources and is therefore able to spend more time doing useful work), and report fewer errors as the workload increases. The following graph shows the load-test results for the sample application, using the same workload as before, but invoking the `GetProductAsync` method in the `SingleHttpClientInstance` controller:
 
-![Throughput of the sample application reusing the same instance of an HttpClient object for each request][throughput-single-instance]
+![Throughput of the sample application reusing the same instance of an HttpClient object for each request][throughput-single-HTTPClient-instance]
 
-No errors were reported, and the system was amply able to handle an increasing load  of up to over 500 requests per second. The average response time was close to half that of the previous test (around 170 milliseconds).
+No errors were reported, and the system was amply able to handle an increasing load  of up to over 500 requests per second; the volume of requests capable of being handled closely mirroring the user-load. The average response time was close to half that of the previous test. The result is a system that is much more scalable than before.
+
+Finally, the graph below shows the results of the equivalent load-test for the `SingleServiceInstance` controller. *Note that as before, the scale for the response time and throughput for this graph are logarithmic.*:
+
+![Throughput of the sample application reusing the same instance of an HttpClient object for each request][throughput-single-ExpensiveToCreateService-instance]
+
+The volume of requests handled increases in line with the user-load while the average response time remains low. This is similar to the profile of the code that creates a single `HttpClient` instance.
 
 ## Related resources
 
@@ -273,5 +208,7 @@ No errors were reported, and the system was amply able to handle an increasing l
 [redis-multiplexer-usage]: https://github.com/StackExchange/StackExchange.Redis/blob/master/Docs/Basics.md
 [NewRelic]: http://newrelic.com/azure
 [AppDynamics]: http://www.appdynamics.co.uk/cloud/windows-azure
-[throughput-new-instance]: Figures/InstancePerRequest.jpg
-[throughput-single-instance]: Figures/SingleInstance.jpg
+[throughput-new-HTTPClient-instance]: Figures/HttpClientInstancePerRequest.jpg
+[throughput-new-ExpensiveToCreateService-instance]: Figures/ServiceInstancePerRequest.jpg
+[throughput-single-HTTPClient-instance]: Figures/SingleHttpClientInstance.jpg
+[throughput-single-ExpensiveToCreateService-instance]: Figures/SingleServiceInstance.jpg
