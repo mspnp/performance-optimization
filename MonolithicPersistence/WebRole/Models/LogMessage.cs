@@ -12,7 +12,7 @@ namespace WebRole.Models
         private static readonly Random Rand = new Random();
 
         [DataMember]
-        public string LogId { get; set; }
+        public Guid LogId { get; set; }
 
         [DataMember]
         public string Message { get; set; }
@@ -22,7 +22,7 @@ namespace WebRole.Models
 
         public LogMessage()
         {
-            LogId = Guid.NewGuid().ToString();
+            LogId = Guid.NewGuid();
             Message = "My Log Message " + Rand.Next();
             LogTime = DateTime.UtcNow;
         }

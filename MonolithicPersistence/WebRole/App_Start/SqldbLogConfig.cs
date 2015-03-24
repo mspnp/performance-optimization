@@ -3,26 +3,48 @@
 
 using System.Data.SqlClient;
 using Microsoft.Azure;
+using System;
+using WebRole.Controllers;
 
 namespace WebRole
 {
-    public class SqldbLogConfig
+    static public class SqldbLogConfig
     {
-        static private readonly string SqlDbConnectionString = CloudConfigurationManager.GetSetting("SQLDBConnectionString");
 
         public static void CreateSqldbLogTableIfNotExist()
         {
-            using (var connection = new SqlConnection(SqlDbConnectionString))
-            {
-                const string queryString = "IF OBJECT_ID('dbo.SqldbLog', 'U') IS NULL CREATE TABLE SqldbLog (ID int IDENTITY(1,1) PRIMARY KEY, LogId NCHAR(32), Message TEXT, LogTime DATETIME)";
+            string ProductionDb = CloudConfigurationManager.GetSetting("ProductionSqlDbCnStr");
 
-                using (var command = new SqlCommand(queryString, connection))
+            string LogDb = CloudConfigurationManager.GetSetting("LogSqlDbCnStr");
+
+            CreateSqldbLogTableIfNotExist(ProductionDb, MonolithicController.LogTableName);
+
+            CreateSqldbLogTableIfNotExist(LogDb, PolyglotController.LogTableName);
+
+            CreateSqldbLogTableIfNotExist(LogDb, OneLogController.LogTableName);
+
+            CreateSqldbLogTableIfNotExist(LogDb, FiveLogController.LogTableName);
+        }
+        public static void CreateSqldbLogTableIfNotExist(string connectionStr, string LogTableName)
+        {
+            try
+            {
+                using (var connection = new SqlConnection(connectionStr))
                 {
-                    // These calls are not async because this is a one-time startup function.
-                    connection.Open();
-                    command.ExecuteNonQuery();
+                    string queryString = "IF OBJECT_ID('dbo." + LogTableName + "', 'U') IS NULL CREATE TABLE " + LogTableName + "(ID int IDENTITY(1,1) PRIMARY KEY, LogId UNIQUEIDENTIFIER, Message TEXT, LogTime DATETIME)";
+                    using (var command = new SqlCommand(queryString, connection))
+                    {
+                        // These calls are not async because this is a one-time startup function.
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                // no need to do anything here. May need to manually create the table later.
+            }
         }
+
     }
 }

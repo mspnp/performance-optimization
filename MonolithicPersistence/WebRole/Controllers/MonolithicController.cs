@@ -11,18 +11,28 @@ namespace WebRole.Controllers
 
     public class MonolithicController : ApiController
     {
-        private static readonly string ProductionDb;
-
-        static MonolithicController()
-        {
-            ProductionDb = CloudConfigurationManager.GetSetting("ProductionSqlDbCnStr");
-        }
+        private static readonly string ProductionDb = CloudConfigurationManager.GetSetting("ProductionSqlDbCnStr");
+        public const string LogTableName = "MonolithicLog";
 
         public async Task<IHttpActionResult> PostAsync([FromBody]string value)
         {
-            await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
+            string categoryName;
+            string productDescription;
 
-            await DataAccess.LogAsync(ProductionDb);
+            categoryName = await DataAccess.SelectProductCategoryAsync(ProductionDb);
+            await DataAccess.LogAsync(ProductionDb, LogTableName);
+
+            productDescription = await DataAccess.SelectProductDescriptionAsync(ProductionDb);
+            await DataAccess.LogAsync(ProductionDb, LogTableName);
+
+            await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
+            await DataAccess.LogAsync(ProductionDb, LogTableName);
+
+            await DataAccess.InsertPurchaseOrderDetailAsync(ProductionDb);
+            await DataAccess.LogAsync(ProductionDb, LogTableName);
+
+            await DataAccess.InsertPurchaseOrderDetailAsync(ProductionDb);
+            await DataAccess.LogAsync(ProductionDb, LogTableName);
 
             return Ok();
         }

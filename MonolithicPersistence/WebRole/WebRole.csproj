@@ -116,6 +116,9 @@
   <ItemGroup>
     <Compile Include="App_Start\SqldbLogConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\FiveLogController.cs" />
+    <Compile Include="Controllers\OneLogController.cs" />
+    <Compile Include="Controllers\NoLogController.cs" />
     <Compile Include="Controllers\PolyglotController.cs" />
     <Compile Include="Controllers\MonolithicController.cs" />
     <Compile Include="DataAccess.cs" />
