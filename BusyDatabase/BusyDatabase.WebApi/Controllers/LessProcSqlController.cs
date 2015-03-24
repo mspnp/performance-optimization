@@ -12,7 +12,7 @@ namespace BusyDatabase.WebApi.Controllers
     public class LessProcSqlController : ApiController
     {
         private static readonly string SqlConnectionString = CloudConfigurationManager.GetSetting("connectionString");
-        private static readonly string Query = BusyDatabaseUtil.GetQuery("LessSql");
+        private static readonly string Query = Queries.Get("LessSql");
 
         public async Task<IHttpActionResult> GetNameConcat()
         {

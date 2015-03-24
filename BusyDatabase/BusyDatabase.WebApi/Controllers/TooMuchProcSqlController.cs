@@ -12,7 +12,7 @@ namespace BusyDatabase.WebApi.Controllers
     public class TooMuchProcSqlController : ApiController
     {
         private static readonly string SqlConnectionString = CloudConfigurationManager.GetSetting("connectionString");
-        private static readonly string Query = BusyDatabaseUtil.GetQuery("TooMuchSql");
+        private static readonly string Query = Queries.Get("TooMuchSql");
 
         public async Task<IHttpActionResult> GetNameConcat()
         {
