@@ -12,8 +12,8 @@ namespace BusyDatabase.WebApi
         {
             GlobalConfiguration.Configure(WebApiConfig.Register);
 
-            BusyDatabaseUtil.PutQuery("TooMuchSql", "TooMuchProcSql3.txt");
-            BusyDatabaseUtil.PutQuery("LessSql", "LessProcSql3.txt");
+            Queries.LoadFromResources("TooMuchSql", "TooMuchProcSql3.sql");
+            Queries.LoadFromResources("LessSql", "LessProcSql3.sql");
         }
     }
 }

@@ -8,37 +8,29 @@ using System.Reflection;
 
 namespace BusyDatabase.Support
 {
-    public class BusyDatabaseUtil
+    public class Queries
     {
         private static readonly Dictionary<string, string> Query = new Dictionary<string, string>();
 
         private const string ResourceFileBase = "BusyDatabase.Support.";
 
-        public static string GetQuery(string word)
+        public static string Get(string key)
         {
-            // Try to get the result in the static Dictionary
-            string result;
-            if (Query.TryGetValue(word, out result))
-            {
-                return result;
-            }
-            else
-            {
-                return null;
-            }
+            return Query[key];
         }
 
-        public static void PutQuery(string key, string file )
-        {                    
-            Query.Add(key, GetSqlQuery(file));
+        public static void LoadFromResources(string key, string fileName)
+        {
+            var query = LoadEmbeddedResource(fileName);
+            Query.Add(key, query);
         }
 
-        private static string GetSqlQuery(string file)
+        private static string LoadEmbeddedResource(string file)
         {
             var resFile = ResourceFileBase + file;
 
             // Get the assembly that this class is in
-            var assembly = Assembly.GetAssembly(typeof(BusyDatabaseUtil));
+            var assembly = Assembly.GetAssembly(typeof(Queries));
 
             var stream = assembly.GetManifestResourceStream(resFile);
 
