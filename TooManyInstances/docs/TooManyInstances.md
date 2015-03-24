@@ -15,7 +15,7 @@ public class NewHttpClientInstancePerRequestController : ApiController
         using (var httpClient = new HttpClient())
         {
             var hostName = HttpContext.Current.Request.Url.Host;
-            var result = await httpClient.GetStringAsync(string.Format("http://{0}:8080/api/userprofile", hostName));
+            var result = await httpClient.GetStringAsync(string.Format("http://{0}:8080/api/...", hostName));
 
             return new Product { Name = result };
         }
@@ -80,17 +80,17 @@ The following sections apply these steps to the sample application described ear
 
 Instrumenting each operation in the production system to track the duration of each request and then monitoring the live system can help to provide an overall view of how the requests perform. You should monitor the the system and track which operations are long-running or cause exceptions.
 
-The following image shows the Overview pane of New Relic, highlighting operations that have a poor response time and the increased error rate while these operations are running. In this case, it is operations that invoke the `GetProductAsync` method in the `NewHttpClientInstancePerRequest` controller that are causing problems:
+The following image shows the Overview pane of the New Relic monitor dashboard, highlighting operations that have a poor response time and the increased error rate while these operations are running. In this case, it is operations that invoke the `GetProductAsync` method in the `NewHttpClientInstancePerRequest` controller that are worth investigating further:
 
-**SNAPSHOT FROM NEW RELIC (SIMILAR TO THAT PROVIDED BY TRENT) BUT WITH UPDATED METHOD NAMES TO REFLECT THE AMENDED CODE**
+![The New Relic monitor dashboard showing the sample application creating a new instance of an HttpClient object for each request][dashboard-new-HTTPClient-instance]
+
+You should also look for operations that trigger increased memory use and garbage collection, as well as raised levels of network, disk, or database activity as connections are made, files are opened, or database connections established.
 
 ### Examining telemetry data and finding correlations
 
-You should examine stack trace information for operations that are slow-running or that generate exceptions. This information can help to identify whether they are creating and destroying instances of the same type, and exception information can be used to determine whether errors are caused by the system exhausting shared resources.
+You should examine stack trace information for operations that are slow-running or that generate exceptions. This information can help to identify whether they are obtaining and releasing resources of the same type, and exception information can be used to determine whether errors are caused by the system exhausting shared resources. The image below shows information captured by thread profiling for the period corresponding to that shown in the previous image. Note that the system spends a significant time opening socket connections and even more time closing them and handling socket exceptions:
 
-**SHOW TELEMETRY (STACK INFORMATION AND TRANSACTION TRACE) FOR GetProductAsync CAUSING AN EXCEPTION FROM NEW RELIC**
-
-Additionally, these operations might cause increased activity in memory use and garbage collection, as well as raised levels of increased network, disk, or database connectivity as connections are made, files are opened, or database connections established.
+![The New Relic thread profiler showing the sample application creating a new instance of an HttpClient object for each request][thread-profiler-new-HTTPClient-instance]
 
 ### Performing load-testing
 
@@ -129,7 +129,7 @@ public class SingleHttpClientInstanceController : ApiController
     public async Task<Product> GetProductAsync(string id)
     {
         var hostName = HttpContext.Current.Request.Url.Host;
-        var result = await HttpClient.GetStringAsync(string.Format("http://{0}:8080/api/userprofile", hostName));
+        var result = await HttpClient.GetStringAsync(string.Format("http://{0}:8080/api/...", hostName));
 
         return new Product { Name = result };
     }
@@ -209,6 +209,8 @@ The volume of requests handled increases in line with the user-load while the av
 [NewRelic]: http://newrelic.com/azure
 [AppDynamics]: http://www.appdynamics.co.uk/cloud/windows-azure
 [throughput-new-HTTPClient-instance]: Figures/HttpClientInstancePerRequest.jpg
+[dashboard-new-HTTPClient-instance]: Figures/HttpClientInstancePerRequestWebTransactions.jpg
+[thread-profiler-new-HTTPClient-instance]: Figures/HttpClientInstancePerRequestThreadProfile.jpg
 [throughput-new-ExpensiveToCreateService-instance]: Figures/ServiceInstancePerRequest.jpg
 [throughput-single-HTTPClient-instance]: Figures/SingleHttpClientInstance.jpg
 [throughput-single-ExpensiveToCreateService-instance]: Figures/SingleServiceInstance.jpg
