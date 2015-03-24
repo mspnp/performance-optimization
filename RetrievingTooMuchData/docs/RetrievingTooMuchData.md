@@ -21,15 +21,15 @@ This anti-pattern typically occurs because:
 ```C#
 [HttpGet]
 [Route("api/allfields")]
-public async Task<IEnumerable<ProductInfo>> GetAllFieldsAsync()
+public async Task<IHttpActionResult> GetAllFieldsAsync()
 {
     using (var context = GetContext())
     {
-        var products = await context.Products
-                                    .ToListAsync() // Execute query.
-                                    .ConfigureAwait(false);
+        var products = await context.Products.ToListAsync(); // Execute query.
 
-        return products.Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name }); // Project fields.
+        var result = products.Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name }); // Project fields.
+
+        return Ok(result);
     }
 }
 ...
@@ -49,26 +49,23 @@ private AdventureWorksContext GetContext()
 ```C#
 [HttpGet]
 [Route("api/aggregateonclient")]
-public async Task<decimal> AggregateOnClientAsync()
+public async Task<IHttpActionResult> AggregateOnClientAsync()
 {
-    decimal total = 0;
-
     using (var context = GetEagerLoadingContext())
     {
         var salesPersons = await context.SalesPersons
-                                        .Include(sp => sp.SalesOrderHeaders) // This include forces eager loading.
-                                        .ToListAsync()
-                                        .ConfigureAwait(false);
+            .Include(sp => sp.SalesOrderHeaders) // This include forces eager loading.
+            .ToListAsync();
 
+        decimal total = 0;
         foreach (var salesPerson in salesPersons)
         {
             var orderHeaders = salesPerson.SalesOrderHeaders;
-
             total += orderHeaders.Sum(x => x.TotalDue);
         }
-    }
 
-    return total;
+        return Ok(total);
+    }
 }
 ...
 private AdventureWorksContext GetEagerLoadingContext()
@@ -358,14 +355,15 @@ Only fetch the data that is required; avoid transmitting large volumes of data t
 ```C#
 [HttpGet]
 [Route("api/requiredfields")]
-public async Task<IEnumerable<ProductInfo>> GetRequiredFieldsAsync()
+public async Task<IHttpActionResult> GetRequiredFieldsAsync()
 {
     using (var context = GetContext())
     {
-        return await context.Products
-                            .Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name }) // Project fields.
-                            .ToListAsync() // Execute query.
-                            .ConfigureAwait(false);
+        var result = await context.Products
+            .Select(p => new ProductInfo {Id = p.ProductId, Name = p.Name}) // Project fields.
+            .ToListAsync(); // Execute query.
+
+        return Ok(result);
     }
 }
 ```
@@ -383,7 +381,7 @@ public async Task<IEnumerable<ProductInfo>> GetRequiredFieldsAsync()
 ```C#
 [HttpGet]
 [Route("api/aggregateondatabase")]
-public async Task<decimal> AggregateOnDatabaseAsync()
+public async Task<IHttpActionResult> AggregateOnDatabaseAsync()
 {
     using (var context = GetContext())
     {
@@ -391,9 +389,9 @@ public async Task<decimal> AggregateOnDatabaseAsync()
                     from soh in sp.SalesOrderHeaders
                     select soh.TotalDue;
 
-        return await query.DefaultIfEmpty(0)
-                          .SumAsync()
-                          .ConfigureAwait(false);
+        var total = await query.DefaultIfEmpty(0).SumAsync();
+
+        return Ok(total);
     }
 }
 ```
