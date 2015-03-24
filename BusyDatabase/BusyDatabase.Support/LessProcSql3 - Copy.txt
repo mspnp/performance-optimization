@@ -1,23 +1,3 @@
-﻿declare @Items TABLE (Item VARCHAR(8000));
-declare @Items2 varchar(8000);
-declare @ItemList varchar(100);
-DECLARE @DelimIndex INT;
-DECLARE @Item   VARCHAR(8000);
+﻿declare @ItemList varchar(8000);
 set @ItemList = 'ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca,ca';
-declare @Delimiter varchar(1);              
-SET @Delimiter = ',';
-SET @DelimIndex = CHARINDEX(@Delimiter, @ItemList, 0);
-SET @Item = LTRIM(SUBSTRING(@ItemList, 0, @DelimIndex));
-SET @Items2 = @Item;
-WHILE (@DelimIndex != 0)
-BEGIN
-    SET @ItemList = SUBSTRING(@ItemList, @DelimIndex+1, LEN(@ItemList)-@DelimIndex)
-	SET @DelimIndex = CHARINDEX(@Delimiter, @ItemList, 0)
-	SET @Item = LTRIM(SUBSTRING(@ItemList, 0, @DelimIndex))
-	Set @Item =Replace('ca','ca','cat')
-	SET @Items2=CONCAT(@Items2,' ',@Item)	
-END; -- End WHILE
-SET @Item = LTRIM(SUBSTRING(@ItemList, 0, @DelimIndex))
-SET @Items2=CONCAT(@Items2,' ',@Item);
-INSERT INTO @Items VALUES (@Items2)
-select * from @Items;
+select @ItemList;
