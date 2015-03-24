@@ -111,9 +111,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\RetrievingTooMuchData.DataAccess\RetrievingTooMuchData.DataAccess.csproj">
       <Project>{35aa1c25-e5ce-456b-a88c-6e8a69becb2e}</Project>
       <Name>RetrievingTooMuchData.DataAccess</Name>

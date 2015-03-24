@@ -5,8 +5,6 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrievingTooMuchData.DataAccess", "RetrievingTooMuchData.DataAccess\RetrievingTooMuchData.DataAccess.csproj", "{35AA1C25-E5CE-456B-A88C-6E8A69BECB2E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{BF516024-F6D4-4AFD-957A-FAB05D02EC4A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrievingTooMuchData.WebApi", "RetrievingTooMuchData.WebApi\RetrievingTooMuchData.WebApi.csproj", "{6EF1565F-1384-4C18-8556-8913388D9281}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PublishScripts", "PublishScripts", "{2BADC12D-79BC-4340-AD68-B786A3BA981C}"
