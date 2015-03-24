@@ -3,7 +3,6 @@
 
 using System.Web.Http;
 using System.Data.SqlClient;
-using System.Data;
 using System.Threading.Tasks;
 using BusyDatabase.Support;
 using Microsoft.Azure;
@@ -12,33 +11,20 @@ namespace BusyDatabase.WebApi.Controllers
 {
     public class LessProcSqlController : ApiController
     {
-        private readonly string _sqlConnectionString;
-
-        public LessProcSqlController()
-        {
-            _sqlConnectionString = CloudConfigurationManager.GetSetting("connectionString");
-        }
+        private static readonly string SqlConnectionString = CloudConfigurationManager.GetSetting("connectionString");
+        private static readonly string Query = BusyDatabaseUtil.GetQuery("LessSql");
 
         public async Task<IHttpActionResult> GetNameConcat()
         {
-            using (var connection = new SqlConnection(_sqlConnectionString))
+            using (var connection = new SqlConnection(SqlConnectionString))
             {
                 await connection.OpenAsync();
-                string commandString = BusyDatabaseUtil.GetQuery("LessSql");
-
-                using (SqlCommand command = new SqlCommand(commandString, connection))
+                using (var command = new SqlCommand(Query, connection))
                 {
-                    command.CommandType = CommandType.Text;
-                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
-                    {
-                        while (await reader.ReadAsync())
-                        {
-                            var field = await reader.GetFieldValueAsync<string>(0);
-                            field = field.Replace("ca", "cat").Replace(',', ' ');
-                        }
-                    }
+                    var result = await command.ExecuteScalarAsync();
+                    var modified = result.ToString().Replace("ca", "cat").Replace(',', ' ');
 
-                    return Ok();
+                    return Ok(modified);
                 }
             }
         }

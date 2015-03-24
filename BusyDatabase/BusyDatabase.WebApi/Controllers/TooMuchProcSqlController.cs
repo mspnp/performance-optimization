@@ -4,7 +4,6 @@
 using System.Web.Http;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
-using System.Data;
 using BusyDatabase.Support;
 using Microsoft.Azure;
 
@@ -12,34 +11,20 @@ namespace BusyDatabase.WebApi.Controllers
 {
     public class TooMuchProcSqlController : ApiController
     {
-        private readonly string _sqlConnectionString;
-
-        public TooMuchProcSqlController()
-        {
-            _sqlConnectionString = CloudConfigurationManager.GetSetting("connectionString");
-        }     
+        private static readonly string SqlConnectionString = CloudConfigurationManager.GetSetting("connectionString");
+        private static readonly string Query = BusyDatabaseUtil.GetQuery("TooMuchSql");
 
         public async Task<IHttpActionResult> GetNameConcat()
         {
-            using (var connection = new SqlConnection(_sqlConnectionString))
+            using (var connection = new SqlConnection(SqlConnectionString))
             {
-                await connection.OpenAsync();               
-                // get query from memory
-                string commandString = BusyDatabaseUtil.GetQuery("TooMuchSql");               
-                using (SqlCommand command = new SqlCommand(commandString, connection))
-                {
-                    command.CommandType = CommandType.Text;
-                    await command.ExecuteNonQueryAsync();
-                
-                    using (SqlDataReader reader = await command.ExecuteReaderAsync())
-                    {
-                        while (await reader.ReadAsync())
-                        { 
-                            var value = await reader.GetFieldValueAsync<string>(0);
-                        }                     
-                    }
+                await connection.OpenAsync();
 
-                    return Ok();
+                using (var command = new SqlCommand(Query, connection))
+                {
+                    var result = await command.ExecuteScalarAsync();
+
+                    return Ok(result);
                 }
             }
         }
