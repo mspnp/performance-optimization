@@ -51,6 +51,7 @@
     <Compile Include="AdventureWorksContext.cs" />
     <Compile Include="Mapping\ProductionMapping.cs" />
     <Compile Include="Mapping\SalesMapping.cs" />
+    <Compile Include="MonitoringInterceptor.cs" />
     <Compile Include="Product.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SalesOrderHeader.cs" />
