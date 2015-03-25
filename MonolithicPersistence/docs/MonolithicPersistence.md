@@ -26,30 +26,34 @@ The temptation might be to try and record all of this information in the same re
 
 ----------
 
-The following code snippets show a pair of web API controllers that part of a web application. The `Monolithic` controller provides an HTTP POST operation that performs the following tasks:
-
-- Retrieves the description of a product held in the [AdventureWorks2012][AdventureWorks2012] sample Azure SQL database,
-
-- Creates a new `PurchaseOrderHeader` record in the same database, and
-
-- Writes log records to the same database.
-
-The details of the database operations are implemented by a set of static methods the `DataAccess` class. These methods use the ADO.NET API to interact with the database.
+The following code snippet shows a web API controller that simulates the actions performed as part of a web application. The `Monolithic` controller provides an HTTP POST operation that performs a series of business SQL tasks against a database, and logs the results of each task. The log is held in the same database as the data retrieved and manipulated by the business tasks. The details of the database operations are implemented by a set of static methods the `DataAccess` class. These methods use the ADO.NET API to interact with the database:
 
 **C# web API**
 ```C#
 public class MonolithicController : ApiController
 {
-    public async Task<IHttpActionResult> PostAsync([FromBody]int logCount)
-    {
-        for (int i = 0; i < logCount; i++)
-        {
-            var logMessage = new LogMessage();
-            await DataAccess.LogToSqldbAsync(logMessage);
-        }
+    private static readonly string ProductionDb = ...;
+    public const string LogTableName = "MonolithicLog";
 
-        await DataAccess.SelectProductDescriptionAsync(321);
-        await DataAccess.InsertToPurchaseOrderHeaderTableAsync();
+    public async Task<IHttpActionResult> PostAsync([FromBody]string value)
+    {
+        string categoryName;
+        string productDescription;
+
+        categoryName = await DataAccess.SelectProductCategoryAsync(ProductionDb);
+        await DataAccess.LogAsync(ProductionDb, LogTableName);
+
+        productDescription = await DataAccess.SelectProductDescriptionAsync(ProductionDb);
+        await DataAccess.LogAsync(ProductionDb, LogTableName);
+
+        await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
+        await DataAccess.LogAsync(ProductionDb, LogTableName);
+
+        await DataAccess.InsertPurchaseOrderDetailAsync(ProductionDb);
+        await DataAccess.LogAsync(ProductionDb, LogTableName);
+
+        await DataAccess.InsertPurchaseOrderDetailAsync(ProductionDb);
+        await DataAccess.LogAsync(ProductionDb, LogTableName);
 
         return Ok();
     }
@@ -140,28 +144,39 @@ At this point you can conduct a review of the source code focussing on the point
 
 - Data which has significantly different usage patterns that share the same store, such as data that is written frequently but read relatively infrequently and vice versa.
 
-- OTHERS?
-
 ## How to correct the problem
 
 Data which has different usage patterns or that is logically distinct can be partitioned into separate data stores. The data storage mechanism selected should be appropriate to the pattern of use for each data set. Additionally, you may be able to partition a single data store and structure the data to avoid hot-spots that are subject to high-levels of contention, or replicate data that is read often but written infrequently to spread the load across data stores.
 
-In the sample application, changing the logging mechanism to use an [Azure Event Hub][EventHub] helps to reduce pressure on the Azure SQL database. The code below uses the static `LogToEventHubAsync` method of the `DataAccess` class to write data to an event hub rather than the SQL database:
+As an example, the code below is very similar to the `Monolithic` controller except that the log records are written to a different database running on a separate server. This approach helps to reduce pressure on the database holding the business information:
 
 **C# web API**
 ```C#
 public class PolyglotController : ApiController
 {
-    public async Task<IHttpActionResult> PostAsync([FromBody]int logCount)
-    {
-        for (int i = 0; i < logCount; i++)
-        {
-            var logMessage = new LogMessage();
-            await DataAccess.LogToEventhubAsync(logMessage);
-        }
+    private static readonly string ProductionDb = ...;
+    private static readonly string LogDb = ...;
+    public const string LogTableName = "PolyglotLog";
 
-        await DataAccess.SelectProductDescriptionAsync(321);
-        await DataAccess.InsertToPurchaseOrderHeaderTableAsync();
+    public async Task<IHttpActionResult> PostAsync([FromBody]string value)
+    {
+        string categoryName;
+        string productDescription;
+
+        categoryName = await DataAccess.SelectProductCategoryAsync(ProductionDb);
+        await DataAccess.LogAsync(LogDb, LogTableName);
+
+        productDescription = await DataAccess.SelectProductDescriptionAsync(ProductionDb);
+        await DataAccess.LogAsync(LogDb, LogTableName);
+
+        await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
+        await DataAccess.LogAsync(LogDb, LogTableName);
+
+        await DataAccess.InsertPurchaseOrderDetailAsync(ProductionDb);
+        await DataAccess.LogAsync(LogDb, LogTableName);
+
+        await DataAccess.InsertPurchaseOrderDetailAsync(ProductionDb);
+        await DataAccess.LogAsync(LogDb, LogTableName);
 
         return Ok();
     }
@@ -176,19 +191,17 @@ public class PolyglotController : ApiController
 
 You should consider the following points when determining the most appropriate scheme for storing business and operational data:
 
-- **MORE POINTS GO HERE?**
-
 - Partition data by the way in which it is used and where it is accessed. For example, don't store log information and audit records in the same data store. Although both types of data are written sequentially, they have significantly different requirements (log records are dispensable and should not contain confidential information whereas audit records must be permanent and may contain sensitive data).
 
-- Use a storage technology that is most appropriate to the data access pattern. For example, store formatted reports and documents in a document database such as [DocumentDB][DocumentDB], use a specialized solution such as [Azure Redis Cache][Azure-cache] for caching temporary data, or use [Azure Table Storage][Azure-Table-Storage] for holding information written and accessed sequentially such as log files.
+- Use a storage technology that is most appropriate to the data access pattern for each type of data item. For example, store formatted reports and documents in a document database such as [DocumentDB][DocumentDB], use a specialized solution such as [Azure Redis Cache][Azure-cache] for caching temporary data, or use [Azure Table Storage][Azure-Table-Storage] for holding information written and accessed sequentially such as log files.
 
 ## Consequences of the solution
 
 Spreading the load across data stores reduces contention and helps to improve overall the performance of the system under load. You could also take the opportunity to assess the data storage technologies used and rework selected parts of the system to use a more appropriate storage mechanism, although making changes such as this may involve thorough retesting of the system functionality.
 
-For comparison purposes, the following graph shows the results of performing the same load-tests as before but logging records to the event hub.
+For comparison purposes, the following graph shows the results of performing the same load-tests as before but logging records to the separate database.
 
-![Load-test performance results using the EventhubLog controller][LoadTestWithEventHubLogging]
+![Load-test performance results using the Polyglot controller][LoadTestWithPolyglotLogging]
 
 **NEED TO WRITE ABOUT WHAT THESE RESULTS SHOW!**
 
@@ -200,8 +213,6 @@ For comparison purposes, the following graph shows the results of performing the
 
 - [Azure Cache documentation][Azure-cache]
 
-- [Azure Event Hub documentation][EventHub]
-
 
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
@@ -212,7 +223,6 @@ For comparison purposes, the following graph shows the results of performing the
 [Data-Access-Guide]: https://msdn.microsoft.com/library/dn271399.aspx
 [Azure-Table-Storage]: http://azure.microsoft.com/documentation/articles/storage-dotnet-how-to-use-tables/
 [TableStorageVersusDatabase]: https://msdn.microsoft.com/library/azure/jj553018.aspx
-[EventHub]: http://azure.microsoft.com/services/event-hubs/
 [LoadTestWithSQLLogging]: Figures/LoadTestWithSQLLogging.jpg
-[LoadTestWithEventHubLogging]: Figures/LoadTestWithEventHubLogging.jpg
+[LoadTestWithPolyglotLogging]: Figures/LoadTestWithPolyglotLogging.jpg
 
