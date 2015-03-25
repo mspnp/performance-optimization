@@ -88,7 +88,7 @@ You should also look for operations that trigger increased memory use and garbag
 
 ### Examining telemetry data and finding correlations
 
-You should examine stack trace information for operations that are slow-running or that generate exceptions. This information can help to identify whether they are obtaining and releasing resources of the same type, and exception information can be used to determine whether errors are caused by the system exhausting shared resources. The image below shows information captured by thread profiling for the period corresponding to that shown in the previous image. Note that the system spends a significant time opening socket connections and even more time closing them and handling socket exceptions:
+You should examine stack trace information for operations that are slow-running or that generate exceptions. This information can help to identify how they are utilizing resources, and exception information can be used to determine whether errors are caused by the system exhausting shared resources. The image below shows information captured by thread profiling for the period corresponding to that shown in the previous image. Note that the system spends a significant time opening socket connections and even more time closing them and handling socket exceptions:
 
 ![The New Relic thread profiler showing the sample application creating a new instance of an HttpClient object for each request][thread-profiler-new-HTTPClient-instance]
 
@@ -104,7 +104,7 @@ The second graph below shows the results of a similar test performed by using th
 
 ![Throughput of the sample application creating a new instance of the ExpensiveToCreateService for each request][throughput-new-ExpensiveToCreateService-instance]
 
-This time, although the controller does not generate any exceptions, throughput still reaches a plateau while the average response time increases with user-load. *Note that the scale for the response time and throughput are logarithmic, so the rate at which the response time grows is actually more dramatic than might appear at first glance.* Examining the telemetry for this code should reveal that the main causes of this limitation are the time and resources spent creating new instances of the `ExpensiveToCreateService` for each request.
+This time, although the controller does not generate any exceptions, throughput still reaches a plateau while the average response time increases by a factor of 20 with user-load. *Note that the scale for the response time and throughput are logarithmic, so the rate at which the response time grows is actually more dramatic than might appear at first glance.* Examining the telemetry for this code should reveal that the main causes of this limitation are the time and resources spent creating new instances of the `ExpensiveToCreateService` for each request.
 
 ### Reviewing the code
 
@@ -187,11 +187,16 @@ The system should should be more scalable, offer a higher throughput (the system
 
 No errors were reported, and the system was amply able to handle an increasing load  of up to over 500 requests per second; the volume of requests capable of being handled closely mirroring the user-load. The average response time was close to half that of the previous test. The result is a system that is much more scalable than before.
 
-Finally, the graph below shows the results of the equivalent load-test for the `SingleServiceInstance` controller. *Note that as before, the scale for the response time and throughput for this graph are logarithmic.*:
+The next graph shows the results of the equivalent load-test for the `SingleServiceInstance` controller. *Note that as before, the scale for the response time and throughput for this graph are logarithmic.*:
 
 ![Throughput of the sample application reusing the same instance of an HttpClient object for each request][throughput-single-ExpensiveToCreateService-instance]
 
 The volume of requests handled increases in line with the user-load while the average response time remains low. This is similar to the profile of the code that creates a single `HttpClient` instance.
+
+For comparison purposes with the earlier test, the following image shows the stack trace telemetry for the `SingleHttpClientInstance` controller. This time the system spends most of its time performing real work rather than opening and closing sockets:
+
+![The New Relic thread profiler showing the sample application creating single instance of an HttpClient object for all requests][thread-profiler-single-HTTPClient-instance]
+
 
 ## Related resources
 
@@ -214,3 +219,4 @@ The volume of requests handled increases in line with the user-load while the av
 [throughput-new-ExpensiveToCreateService-instance]: Figures/ServiceInstancePerRequest.jpg
 [throughput-single-HTTPClient-instance]: Figures/SingleHttpClientInstance.jpg
 [throughput-single-ExpensiveToCreateService-instance]: Figures/SingleServiceInstance.jpg
+[thread-profiler-single-HTTPClient-instance]: Figures/SingleHttpClientInstanceThreadProfile.jpg
