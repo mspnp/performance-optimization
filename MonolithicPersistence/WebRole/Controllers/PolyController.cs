@@ -12,7 +12,7 @@ namespace WebRole.Controllers
     {
         private static readonly string ProductionDb = CloudConfigurationManager.GetSetting("ProductionSqlDbCnStr");
         private static readonly string LogDb = CloudConfigurationManager.GetSetting("LogSqlDbCnStr");
-        public const string LogTableName = "PolyglotLog";
+        public const string LogTableName = "PolyLog";
 
         public async Task<IHttpActionResult> PostAsync([FromBody]string value)
         {

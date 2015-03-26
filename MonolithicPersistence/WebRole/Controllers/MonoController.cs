@@ -12,7 +12,7 @@ namespace WebRole.Controllers
     public class MonoController : ApiController
     {
         private static readonly string ProductionDb = CloudConfigurationManager.GetSetting("ProductionSqlDbCnStr");
-        public const string LogTableName = "MonolithicLog";
+        public const string LogTableName = "MonoLog";
 
         public async Task<IHttpActionResult> PostAsync([FromBody]string value)
         {
