@@ -21,9 +21,6 @@ namespace WebRole
 
             CreateSqldbLogTableIfNotExist(LogDb, PolyglotController.LogTableName);
 
-            CreateSqldbLogTableIfNotExist(LogDb, OneLogController.LogTableName);
-
-            CreateSqldbLogTableIfNotExist(LogDb, FiveLogController.LogTableName);
         }
         public static void CreateSqldbLogTableIfNotExist(string connectionStr, string LogTableName)
         {
