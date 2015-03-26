@@ -26,33 +26,19 @@ The temptation might be to try and record all of this information in the same re
 
 ----------
 
-The following code snippet shows a web API controller that simulates the actions performed as part of a web application. The `Monolithic` controller provides an HTTP POST operation that performs a series of business SQL tasks against a database, and logs the results of each task. The log is held in the same database as the data retrieved and manipulated by the business tasks. The details of the database operations are implemented by a set of static methods the `DataAccess` class. These methods use the ADO.NET API to interact with the database:
+The following code snippet shows a web API controller that simulates the actions performed as part of a web application. The `Monolithic` controller provides an HTTP POST operation that adds a new record to a database and also records the result to a log. The log is held in the same database as the business data. The details of the database operations are implemented by a set of static methods the `DataAccess` class:
 
 **C# web API**
 ```C#
-public class MonolithicController : ApiController
+public class MonoController : ApiController
 {
     private static readonly string ProductionDb = ...;
-    public const string LogTableName = "MonolithicLog";
+    public const string LogTableName = "MonoLog";
 
     public async Task<IHttpActionResult> PostAsync([FromBody]string value)
     {
-        string categoryName;
-        string productDescription;
-
-        categoryName = await DataAccess.SelectProductCategoryAsync(ProductionDb);
-        await DataAccess.LogAsync(ProductionDb, LogTableName);
-
-        productDescription = await DataAccess.SelectProductDescriptionAsync(ProductionDb);
-        await DataAccess.LogAsync(ProductionDb, LogTableName);
-
         await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
-        await DataAccess.LogAsync(ProductionDb, LogTableName);
 
-        await DataAccess.InsertPurchaseOrderDetailAsync(ProductionDb);
-        await DataAccess.LogAsync(ProductionDb, LogTableName);
-
-        await DataAccess.InsertPurchaseOrderDetailAsync(ProductionDb);
         await DataAccess.LogAsync(ProductionDb, LogTableName);
 
         return Ok();
@@ -66,11 +52,11 @@ public class MonolithicController : ApiController
 
 ----------
 
-The application uses the same database for two distinctly different purposes; to store business data and to log operational data. The rate at which log records are generated is likely to impact the performance of the business operations. Additionally, if a third party utility (such as application process monitor) regularly reads and processes the log data, then the activities of this utility can also affect the performance of business operations.
+The application uses the same database for two distinctly different purposes; to store business data and to record telemetry information. The rate at which log records are generated is likely to impact the performance of the business operations. Additionally, if a third party utility (such as application process monitor) regularly reads and processes the log data, then the activities of this utility can also affect the performance of business operations.
 
 ## How to detect the problem
 
-Using a single data store for all operational and business data can result in the data store becoming a point of contention; a large number of very different requests could be competing for the same data storage resources. If a single business operation performs one business transaction against the database but also records 5 log records (for example, *start operation*, *submit SQL request*, *retrieve response*, *process response*, *return results*) then the additional of a single user to the workload might increase the volume of database traffic by 6. In the sample application, as more and more users access the web application, the system will likely slow down markedly and eventually fail as the system runs out of SQL Server connections and throttles applications attempting to read or write the database.
+Using a single data store for telemetry and business data can result in the data store becoming a point of contention; a large number of very different requests could be competing for the same data storage resources. In the sample application, as more and more users access the web application, the system will likely slow down markedly and eventually fail as the system runs out of SQL Server connections and throttles applications attempting to read or write the database.
 
 You can perform the following steps to help identify the causes of any problems resulting from data store contention:
 
@@ -101,38 +87,41 @@ This step is a matter of configuring the system to record the key statistics req
 
 As an example, the following graph shows the load-test results for a scenario in which a step load of up to 1000 concurrent users issue HTTP POST requests to the `Monolithic` controller. 
 
-**NOTE: WHAT WAS LOG_COUNT SET TO?**
+![Load-test performance results for the SQL-based controller][MonolithicScenarioLoadTest]
 
-![Load-test performance results for the SQL-based controller][LoadTestWithSQLLogging]
-
-**START HERE - NOT SURE HOW EFFECTIVE THE CURRENT GRAPH IS.**
+As the load increases to 700 users so does the throughput. At the 700-user point throughput levels off and the system appears to be running at its maximum capacity. The average response gradually increases with user load as the system is unable to keep up with demand.
 
 ### Identifying periods of poor performance
 
-If you are monitoring the production system, you might notice patterns in the way in which the system performs. For example, response times might drop off significantly at the same time each day, or there could be a critical workload at which throughput suddenly plummets. You should focus on the telemetry data for these events.
+If you are monitoring the production system, you might notice patterns in the way in which the system performs. For example, response times might drop off significantly at the same time each day. This could be caused by a regular workload or background job that is scheduled to run at this time, or it could be due to the behavioral factors of the users (are users more likely to access the system at specific times?) You should focus on the telemetry data for these events.
 
 You should look for matches in increased response times and throughput against any likely causes, such as increased database activity or I/O to shared resources. If any such correlations exist, then the database or shared resource could be acting as a bottleneck.
 
-![Monitoring charts from APM tool showing events described in previous paragraph][]
-
 ----------
 
- **Note:** The cause of performance deterioration could be an external event. In the example application, an operator purging the SQL log could generate a significant load on the database server and cause a slow-down in business operations even if the user-load was relatively low at the time.
+**Note:** The cause of performance deterioration could be an external event. In the example application, an operator purging the SQL log could generate a significant load on the database server and cause a slow-down in business operations even if the user-load is relatively low at the time.
 
 ----------
 
 ### Identifying data stores accessed during periods of poor performance
 
-The instrumentation added to the system should provide an indication of which data stores are being accessed during the periods of poor performance. In the case of the sample application, the data indicated that poor performance coincided with a significant volume of users accessing the system simultaneously. In this time, the telemetry data indicated that the SQL database was the only data store being utilized.
+Monitoring the the data stores used by system should provide an indication of how they are being accessed during the periods of poor performance. In the case of the sample application, the data indicated that poor performance coincided with a significant volume of requests to the SQL database holding the business and log data. As an example, the Monitor pane in the Azure Management Portal for the database used by the sample application showed that during load-testing the Database Throughput Unit (DTU) utilization reached 100% shortly after 5 minutes. This roughly equates with the point at which the throughput shown in the previous graph plateaued:
 
-![Chart from APM tool showing the low-level telemetry of the database][]
+![The database monitor in the Azure Management Portal showing resource utilization of the database][MonolithicDatabaseUtilization]
+
+A DTU is a measure of the available capacity of the system and is a combination of the CPU utilization, memory allocation, and the rate of read and write operations being performed. Each SQL database server allocates a quota of resources to applications measured in DTUs. The volume of DTUs available to an application depend on the service tier and performance level of the database server; creating an Azure SQL database using the Basic service tier provides 5 DTUs, while a database using the Premium Service Tier and P3 Performance Level has 800 DTUs available. When an application reaches the limit defined by the available DTUs database performance is throttled. At this point, throughput levels off but response time is likely to increase as database requests are queued. This is what happened during the load-test.
 
 ### Capturing low-level telemetry for data stores
 
-The data stores themselves should also be instrumented to capture the low-level details of the activity that occurs. In the sample application, under normal operations the data access statistics showed a mixture of read operations performed against the `ProductDescription` table in the AdventureWorks2012 database, a similar number of write operations performed against the `PurchaseOrderHeader` table, but a much large volume (approximately 5 times the number) of write requests sent to the `Traces` table. **
+The data stores themselves should also be instrumented to capture the low-level details of the activity that occurs. In the sample application, during the load-test the data access statistics showed a high volume of insert operations performed against the `PurchaseOrderHeader` table and the `MonoLog` table in the AdventureWorks2012 database:
 
-![Chart showing the data access stats from Azure SQL database][]
+![The data access statistics for the sample application][MonolithicDataAccessStats]
 
+----------
+
+**Note:** There are several entries for statements that insert data into the `MonoLog` table because the database server has generated different query plans at different times during the load-test based on the size of the table and other environmental factors.
+
+----------
 
 ### Examining contended resources
 
@@ -152,35 +141,22 @@ As an example, the code below is very similar to the `Monolithic` controller exc
 
 **C# web API**
 ```C#
-public class PolyglotController : ApiController
+public class PolyController : ApiController
 {
     private static readonly string ProductionDb = ...;
     private static readonly string LogDb = ...;
-    public const string LogTableName = "PolyglotLog";
+    public const string LogTableName = "PolyLog";
 
     public async Task<IHttpActionResult> PostAsync([FromBody]string value)
     {
-        string categoryName;
-        string productDescription;
-
-        categoryName = await DataAccess.SelectProductCategoryAsync(ProductionDb);
-        await DataAccess.LogAsync(LogDb, LogTableName);
-
-        productDescription = await DataAccess.SelectProductDescriptionAsync(ProductionDb);
-        await DataAccess.LogAsync(LogDb, LogTableName);
-
         await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
-        await DataAccess.LogAsync(LogDb, LogTableName);
 
-        await DataAccess.InsertPurchaseOrderDetailAsync(ProductionDb);
-        await DataAccess.LogAsync(LogDb, LogTableName);
-
-        await DataAccess.InsertPurchaseOrderDetailAsync(ProductionDb);
         await DataAccess.LogAsync(LogDb, LogTableName);
 
         return Ok();
     }
 }
+
 ```
 
 ----------
@@ -201,9 +177,23 @@ Spreading the load across data stores reduces contention and helps to improve ov
 
 For comparison purposes, the following graph shows the results of performing the same load-tests as before but logging records to the separate database.
 
-![Load-test performance results using the Polyglot controller][LoadTestWithPolyglotLogging]
+![Load-test performance results using the Polyglot controller][PolyglotScenarioLoadTest]
 
-**NEED TO WRITE ABOUT WHAT THESE RESULTS SHOW!**
+The pattern of the throughput is similar to that of the earlier graph, but the volume of requests supported when the performance levels out is approximately 500 requests per second higher. The response time is also marginally lower. However, these statistics do not tell the full story. Examining the utilization of the business database by using the Azure Management Portal reveals that DTU utilization now peaks at 67.85%:
+
+![The database monitor in the Azure Management Portal showing resource utilization of the database in the polyglot scenarion][PolyglotDatabaseUtilization]
+
+Similarly, the DTU utilization of the log database only reaches 66.7%:
+
+![The database monitor in the Azure Management Portal showing resource utilization of the log database in the polyglot scenarion][LogDatabaseUtilization]
+
+The databases are now no longer the limiting factor in the performance of the system, and the throughput might now be restricted by other factors such as web server capacity.
+
+----------
+
+**Note:** If you are still hitting the DTU limits for an Azure SQL database server then you may need to scale up to a higher Service Tier or Performance Level. Currently the Premium/P3 level is the highest level available, supporting up to 800 DTUs. If you anticipate exceeding this throughput, then you should consider scaling horizontally and partitioning the load across database servers.
+
+----------
 
 ## Related resources
 
@@ -213,16 +203,22 @@ For comparison purposes, the following graph shows the results of performing the
 
 - [Azure Cache documentation][Azure-cache]
 
+- [Data Partitioning Guidance][DataPartitioningGuidance]
+
 
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
 [AdventureWorks2012]: http://msftdbprodsamples.codeplex.com/releases/view/37304
-
 [DocumentDB]: http://azure.microsoft.com/services/documentdb/
 [Azure-cache]: http://azure.microsoft.com/documentation/services/cache/
 [Data-Access-Guide]: https://msdn.microsoft.com/library/dn271399.aspx
 [Azure-Table-Storage]: http://azure.microsoft.com/documentation/articles/storage-dotnet-how-to-use-tables/
+[DataPartitioningGuidance]: https://msdn.microsoft.com/library/dn589795.aspx
 [TableStorageVersusDatabase]: https://msdn.microsoft.com/library/azure/jj553018.aspx
-[LoadTestWithSQLLogging]: Figures/LoadTestWithSQLLogging.jpg
-[LoadTestWithPolyglotLogging]: Figures/LoadTestWithPolyglotLogging.jpg
+[MonolithicScenarioLoadTest]: Figures/MonolithicScenarioLoadTest.jpg
+[MonolithicDatabaseUtilization]: Figures/MonolithicDatabaseUtilization.jpg
+[MonolithicDataAccessStats]: Figures/MonolithicDataAccessStats.jpg
+[PolyglotScenarioLoadTest]: Figures/PolyglotScenarioLoadTest.jpg
+[PolyglotDatabaseUtilization]: Figures/PolyglotDatabaseUtilization.jpg
+[LogDatabaseUtilization]: Figures/LogDatabaseUtilization.jpg
 
