@@ -8,11 +8,11 @@ using WebRole.Models;
 
 namespace WebRole.Controllers
 {
-
-    public class MonolithicController : ApiController
+    public class PolyController : ApiController
     {
         private static readonly string ProductionDb = CloudConfigurationManager.GetSetting("ProductionSqlDbCnStr");
-        public const string LogTableName = "MonolithicLog";
+        private static readonly string LogDb = CloudConfigurationManager.GetSetting("LogSqlDbCnStr");
+        public const string LogTableName = "PolyglotLog";
 
         public async Task<IHttpActionResult> PostAsync([FromBody]string value)
         {
@@ -20,21 +20,22 @@ namespace WebRole.Controllers
             string productDescription;
 
             categoryName = await DataAccess.SelectProductCategoryAsync(ProductionDb);
-            await DataAccess.LogAsync(ProductionDb, LogTableName);
+            await DataAccess.LogAsync(LogDb, LogTableName);
 
             productDescription = await DataAccess.SelectProductDescriptionAsync(ProductionDb);
-            await DataAccess.LogAsync(ProductionDb, LogTableName);
+            await DataAccess.LogAsync(LogDb, LogTableName);
 
             await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
-            await DataAccess.LogAsync(ProductionDb, LogTableName);
+            await DataAccess.LogAsync(LogDb, LogTableName);
 
             await DataAccess.InsertPurchaseOrderDetailAsync(ProductionDb);
-            await DataAccess.LogAsync(ProductionDb, LogTableName);
+            await DataAccess.LogAsync(LogDb, LogTableName);
 
             await DataAccess.InsertPurchaseOrderDetailAsync(ProductionDb);
-            await DataAccess.LogAsync(ProductionDb, LogTableName);
+            await DataAccess.LogAsync(LogDb, LogTableName);
 
             return Ok();
         }
+
     }
 }

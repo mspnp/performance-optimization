@@ -17,9 +17,9 @@ namespace WebRole
 
             string LogDb = CloudConfigurationManager.GetSetting("LogSqlDbCnStr");
 
-            CreateSqldbLogTableIfNotExist(ProductionDb, MonolithicController.LogTableName);
+            CreateSqldbLogTableIfNotExist(ProductionDb, MonoController.LogTableName);
 
-            CreateSqldbLogTableIfNotExist(LogDb, PolyglotController.LogTableName);
+            CreateSqldbLogTableIfNotExist(LogDb, PolyController.LogTableName);
 
         }
         public static void CreateSqldbLogTableIfNotExist(string connectionStr, string LogTableName)
