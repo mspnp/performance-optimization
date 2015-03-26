@@ -35,19 +35,13 @@ namespace BusyDatabase.WebApi.Controllers
                         xml.Append(reader.GetString(0));
                     }
 
-                    return BuildResponseForRawXml(xml.ToString());
+                    return ResponseMessage(CreateMessageFrom(xml.ToString()));
                 }
             }
         }
 
-        private IHttpActionResult BuildResponseForRawXml(string result)
-        {
-            var response = HttpResponseMessage(result);
-
-            return ResponseMessage(response);
-        }
-
-        private static HttpResponseMessage HttpResponseMessage(string result)
+        //TODO: move this to a better location
+        public static HttpResponseMessage CreateMessageFrom(string result)
         {
             var response = new HttpResponseMessage(HttpStatusCode.OK);
             var mediaType = new MediaTypeHeaderValue("application/xml");

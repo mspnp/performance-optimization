@@ -4,11 +4,8 @@
 using System;
 using System.Web.Http;
 using System.Data.SqlClient;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Threading.Tasks;
-using System.Xml;
+using System.Xml.Linq;
 using BusyDatabase.Support;
 using Microsoft.Azure;
 
@@ -30,46 +27,77 @@ namespace BusyDatabase.WebApi.Controllers
 
                     var reader = await command.ExecuteReaderAsync();
 
-                    var doc = new XmlDocument();
-                    var order = (XmlElement)doc.AppendChild(doc.CreateElement("Order"));
+                    var firstRow = true;
+
+                    var doc = new XDocument();
+                    var order = new XElement("Order");
+                    var customer = new XElement("Customer");
+                    var lineItems = new XElement("OrderLineItems");
+
+                    doc.Add(order);
+                    order.Add(customer, lineItems);
 
                     while (await reader.ReadAsync())
                     {
-                        var shipDate = (DateTime)reader["ShipDate"];
-                        // we only expected a single row in the first result set
-                        order.SetAttribute("OrderNumber", reader["OrderNumber"].ToString());
-                        order.SetAttribute("Status", reader["Status"].ToString());
-                        order.SetAttribute("ShipDate", shipDate.ToString("s"));
-                        order.SetAttribute("SubTotal", reader["SubTotal"].ToString());
-                        order.SetAttribute("TaxAmt", reader["TaxAmt"].ToString());
-                        order.SetAttribute("TotalDue", reader["TotalDue"].ToString());
-                        order.SetAttribute("AccountNumber", reader["AccountNumber"].ToString());
+                        if (firstRow)
+                        {
+                            firstRow = false;
+
+                            var orderDate = (DateTime)reader["OrderDate"];
+
+                            var totalDue = (Decimal)reader["TotalDue"];
+                            var reviewRequired = totalDue > 5000
+                                ? 'Y'
+                                : 'N';
+
+                            order.Add(
+                                new XAttribute("OrderNumber", reader["OrderNumber"]),
+                                new XAttribute("Status", reader["Status"]),
+                                new XAttribute("ShipDate", reader["ShipDate"]),
+                                new XAttribute("OrderDateYear", orderDate.Year),
+                                new XAttribute("OrderDateMonth", orderDate.Month),
+                                new XAttribute("DueDate", reader["DueDate"]),
+                                new XAttribute("SubTotal", reader["SubTotal"]),
+                                new XAttribute("TaxAmt", reader["TaxAmt"]),
+                                new XAttribute("TotalDue", totalDue),
+                                new XAttribute("ReviewRequired", reviewRequired));
+
+                            var fullName = string.Join(" ",
+                                reader["CustomerTitle"],
+                                reader["CustomerFirstName"],
+                                reader["CustomerMiddleName"],
+                                reader["CustomerLastName"],
+                                reader["CustomerSuffix"]
+                                )
+                                .Replace("  "," ") //remove double spaces
+                                .Trim()
+                                .ToUpper();
+
+                            customer.Add(
+                                new XAttribute("AccountNumber", reader["AccountNumber"]),
+                                new XAttribute("FullName", fullName));
+                        }
+
+                        var productId = (int)reader["ProductID"];
+                        var quantity = (short) reader["Quantity"];
+                  
+                        var inventoryCheckRequired = (productId > 710 && productId < 720 && quantity > 5)
+                            ? 'Y'
+                            : 'N';
+
+                        lineItems.Add(
+                            new XElement("LineItem",
+                                new XAttribute("Quantity", quantity),
+                                new XAttribute("UnitPrice", reader["UnitPrice"]),
+                                new XAttribute("LineTotal", reader["LineTotal"]),
+                                new XAttribute("ProductID", productId),
+                                new XAttribute("InventoryCheckRequired", inventoryCheckRequired)
+                                ));
                     }
 
-                    await reader.NextResultAsync();
-
-                    while (reader.Read())
-                    {
-                        var lineItem = (XmlElement) order.AppendChild(doc.CreateElement("LineItem"));
-                        lineItem.SetAttribute("Quantity", reader["Quantity"].ToString());
-                        lineItem.SetAttribute("UnitPrice", reader["UnitPrice"].ToString());
-                        lineItem.SetAttribute("LineTotal", reader["LineTotal"].ToString());
-                        lineItem.SetAttribute("ProductID", reader["ProductID"].ToString());
-                    }
-
-                    return BuildResponseForRawXml(doc.OuterXml);
+                    return ResponseMessage(TooMuchProcSqlController.CreateMessageFrom(doc.ToString()));
                 }
             }
-        }
-
-        private IHttpActionResult BuildResponseForRawXml(string result)
-        {
-            var response = new HttpResponseMessage(HttpStatusCode.OK);
-            var mediaType = new MediaTypeHeaderValue("application/xml") { CharSet = "utf-8" };
-            response.Content = new StringContent(result);
-            response.Content.Headers.ContentType = mediaType;
-
-            return ResponseMessage(response);
         }
     }
 }
