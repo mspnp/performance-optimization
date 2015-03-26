@@ -16,22 +16,8 @@ namespace WebRole.Controllers
 
         public async Task<IHttpActionResult> PostAsync([FromBody]string value)
         {
-            string categoryName;
-            string productDescription;
-
-            categoryName = await DataAccess.SelectProductCategoryAsync(ProductionDb);
-            await DataAccess.LogAsync(LogDb, LogTableName);
-
-            productDescription = await DataAccess.SelectProductDescriptionAsync(ProductionDb);
-            await DataAccess.LogAsync(LogDb, LogTableName);
-
             await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
-            await DataAccess.LogAsync(LogDb, LogTableName);
 
-            await DataAccess.InsertPurchaseOrderDetailAsync(ProductionDb);
-            await DataAccess.LogAsync(LogDb, LogTableName);
-
-            await DataAccess.InsertPurchaseOrderDetailAsync(ProductionDb);
             await DataAccess.LogAsync(LogDb, LogTableName);
 
             return Ok();
