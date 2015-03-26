@@ -66,11 +66,9 @@ You can perform the following steps to help identify the causes of any problems 
 
 3. Identify the use of the data stores that are accessed during periods of poor performance.
 
-4. Capture the low-level telemetry data for these stores at these times.
+4. Examine the telemetry data for these stores at these times.
 
-5. Identify contended data storage resources.
-
-6. For each contended resource, examine how it is used.
+5. Identify contended data storage resources and review the source code to examine how they are used.
 
 
 The following sections apply these steps to the sample application described earlier.
@@ -111,7 +109,7 @@ Monitoring the the data stores used by system should provide an indication of ho
 
 A DTU is a measure of the available capacity of the system and is a combination of the CPU utilization, memory allocation, and the rate of read and write operations being performed. Each SQL database server allocates a quota of resources to applications measured in DTUs. The volume of DTUs available to an application depend on the service tier and performance level of the database server; creating an Azure SQL database using the Basic service tier provides 5 DTUs, while a database using the Premium Service Tier and P3 Performance Level has 800 DTUs available. When an application reaches the limit defined by the available DTUs database performance is throttled. At this point, throughput levels off but response time is likely to increase as database requests are queued. This is what happened during the load-test.
 
-### Capturing low-level telemetry for data stores
+### Examining the telemetry for data stores
 
 The data stores themselves should also be instrumented to capture the low-level details of the activity that occurs. In the sample application, during the load-test the data access statistics showed a high volume of insert operations performed against the `PurchaseOrderHeader` table and the `MonoLog` table in the AdventureWorks2012 database:
 
@@ -123,7 +121,7 @@ The data stores themselves should also be instrumented to capture the low-level 
 
 ----------
 
-### Examining contended resources
+### Identifying contended resources and understanding how they are used
 
 At this point you can conduct a review of the source code focussing on the points at which the contended resources are accessed by the application. While reviewing the code, look for situations such as:
 
