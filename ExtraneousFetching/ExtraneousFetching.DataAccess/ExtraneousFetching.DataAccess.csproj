@@ -7,8 +7,8 @@
     <ProjectGuid>{35AA1C25-E5CE-456B-A88C-6E8A69BECB2E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RetrievingTooMuchData.DataAccess</RootNamespace>
-    <AssemblyName>RetrievingTooMuchData.DataAccess</AssemblyName>
+    <RootNamespace>ExtraneousFetching.DataAccess</RootNamespace>
+    <AssemblyName>ExtraneousFetching.DataAccess</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

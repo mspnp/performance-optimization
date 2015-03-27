@@ -6,7 +6,7 @@ using System.Data.Common;
 using System.Data.Entity.Infrastructure.Interception;
 using System.Data.SqlClient;
 
-namespace RetrievingTooMuchData.DataAccess
+namespace ExtraneousFetching.DataAccess
 {
     public class ConnectionInterceptor : IDbConnectionInterceptor
     {

@@ -3,7 +3,7 @@
 
 using System.Web.Http;
 
-namespace RetrievingTooMuchData.WebApi
+namespace ExtraneousFetching.WebApi
 {
     public static class WebApiConfig
     {

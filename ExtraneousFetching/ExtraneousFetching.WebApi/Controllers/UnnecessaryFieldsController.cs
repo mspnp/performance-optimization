@@ -6,10 +6,10 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
-using RetrievingTooMuchData.DataAccess;
-using RetrievingTooMuchData.WebApi.Models;
+using ExtraneousFetching.DataAccess;
+using ExtraneousFetching.WebApi.Models;
 
-namespace RetrievingTooMuchData.WebApi.Controllers
+namespace ExtraneousFetching.WebApi.Controllers
 {
     public class UnnecessaryFieldsController : ApiController
     {

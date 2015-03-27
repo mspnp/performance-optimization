@@ -6,9 +6,9 @@ using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
-using RetrievingTooMuchData.DataAccess;
+using ExtraneousFetching.DataAccess;
 
-namespace RetrievingTooMuchData.WebApi.Controllers
+namespace ExtraneousFetching.WebApi.Controllers
 {
     public class UnnecessaryRowsController : ApiController
     {

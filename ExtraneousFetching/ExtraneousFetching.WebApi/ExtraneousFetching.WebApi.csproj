@@ -11,8 +11,8 @@
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RetrievingTooMuchData.WebApi</RootNamespace>
-    <AssemblyName>RetrievingTooMuchData.WebApi</AssemblyName>
+    <RootNamespace>ExtraneousFetching.WebApi</RootNamespace>
+    <AssemblyName>ExtraneousFetching.WebApi</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
@@ -20,7 +20,7 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <NuGetPackageImportStamp>dc39d717</NuGetPackageImportStamp>
-    <ApplicationInsightsResourceId>/subscriptions/a3e494d0-a5b0-4b41-b7a6-7f0952471687/resourcegroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/RetrievingTooMuchData.WebApi</ApplicationInsightsResourceId>
+    <ApplicationInsightsResourceId>/subscriptions/a3e494d0-a5b0-4b41-b7a6-7f0952471687/resourcegroups/Default-ApplicationInsights-CentralUS/providers/microsoft.insights/components/ExtraneousFetching.WebApi</ApplicationInsightsResourceId>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -112,9 +112,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\RetrievingTooMuchData.DataAccess\RetrievingTooMuchData.DataAccess.csproj">
+    <ProjectReference Include="..\ExtraneousFetching.DataAccess\ExtraneousFetching.DataAccess.csproj">
       <Project>{35aa1c25-e5ce-456b-a88c-6e8a69becb2e}</Project>
-      <Name>RetrievingTooMuchData.DataAccess</Name>
+      <Name>ExtraneousFetching.DataAccess</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

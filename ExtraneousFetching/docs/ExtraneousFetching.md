@@ -1,4 +1,4 @@
-# Retrieving Too Much Data
+# Extraneous Fetching
 
 Applications fetch data for query purposes, or to perform some application-specific processing. Retrieving data, whether from a remote web service, a database, or a file, incurs I/O. Retrieving more data than is necessary to satisfy a business operation can result in unnecessary I/O overhead and can reduce responsiveness. In a cloud environment supporting multiple concurrent instances of an application, this overhead can accumulate to have a significant impact on the performance and scalability of the system.
 
@@ -95,7 +95,7 @@ List<Product> products = query.ToList();
 
 ## How to detect the problem
 
-Symptoms of retrieving too much data in an application include high latency and low throughput. If the data is retrieved from a data store, then increased contention is also probable. End-users are likely to report extended response times and possible failures caused by services timing out due to increased network traffic and resource conflicts in the data store. These failures could manifest themselves as HTTP 500 (Internal Server) errors or HTTP 503 (Service Unavailable) errors. In these cases, you should examine the event logs for the web server which are likely to contain more detailed information about the causes and circumstances of the errors.
+Symptoms of extraneous fetching in an application include high latency and low throughput. If the data is retrieved from a data store, then increased contention is also probable. End-users are likely to report extended response times and possible failures caused by services timing out due to increased network traffic and resource conflicts in the data store. These failures could manifest themselves as HTTP 500 (Internal Server) errors or HTTP 503 (Service Unavailable) errors. In these cases, you should examine the event logs for the web server which are likely to contain more detailed information about the causes and circumstances of the errors.
 
 ----------
 
@@ -169,7 +169,7 @@ In the case of the sample application, all the information is held in a single i
 
 In a typical Azure cloud scenario, a client (a browser, desktop application, or mobile device) sends a request to a web application or cloud service. The web application or cloud service in turn submits a request to a data store. The data is then returned, possibly after performing some processing, to the client for processing.
 
-For each data source, you should instrument the system to capture the frequency with which each data store is accessed, the volume of data entering and exiting the data store, the timings of these operations (in particular, the latency of requests), and the nature and rate of any errors observed while accessing each data store under loads that are typical of the system. You can compare this information against the volumes of data being returned by the web application or cloud service to the client. The following diagram shows a typical end-to-end scenario. In this scenario, you should track the ratio of the volume of data returned by the data store (*x* bytes) against the size of the data returned to the client (*y* bytes). Any large disparity between the values of *x* and *y* should be investigated to determine whether the web application or cloud service is retrieving too much data and performing processing that might be better handled by the data store.
+For each data source, you should instrument the system to capture the frequency with which each data store is accessed, the volume of data entering and exiting the data store, the timings of these operations (in particular, the latency of requests), and the nature and rate of any errors observed while accessing each data store under loads that are typical of the system. You can compare this information against the volumes of data being returned by the web application or cloud service to the client. The following diagram shows a typical end-to-end scenario. In this scenario, you should track the ratio of the volume of data returned by the data store (*x* bytes) against the size of the data returned to the client (*y* bytes). Any large disparity between the values of *x* and *y* should be investigated to determine whether the web application or cloud service is fetching extraneous data and performing processing that might be better handled by the data store.
 
 ![Observing end-to-end behavior of operations][End-to-End]
 
@@ -215,7 +215,7 @@ If you observe requests that retrieve a large number of fields, examine the unde
 
 ----------
 
-**Note:** If analysis shows that none of these situations apply, then retrieving too much data is unlikely to be the cause of poor performance and you should look elsewhere.
+**Note:** If analysis shows that none of these situations apply, then extraneous fetching is unlikely to be the cause of poor performance and you should look elsewhere.
 
 ----------
 

@@ -3,7 +3,7 @@
 
 using System;
 
-namespace RetrievingTooMuchData.DataAccess
+namespace ExtraneousFetching.DataAccess
 {
     public class Product
     {

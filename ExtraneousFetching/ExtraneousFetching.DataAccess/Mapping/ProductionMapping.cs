@@ -4,7 +4,7 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.ModelConfiguration;
 
-namespace RetrievingTooMuchData.DataAccess.Mapping
+namespace ExtraneousFetching.DataAccess.Mapping
 {
     //Product
     internal class ProductConfiguration : EntityTypeConfiguration<Product>

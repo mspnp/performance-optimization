@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace RetrievingTooMuchData.DataAccess
+namespace ExtraneousFetching.DataAccess
 {
     public class SalesPerson
     {
