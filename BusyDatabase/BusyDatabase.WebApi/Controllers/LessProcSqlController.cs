@@ -95,7 +95,7 @@ namespace BusyDatabase.WebApi.Controllers
                             var productId = (int)reader["ProductID"];
                             var quantity = (short)reader["Quantity"];
 
-                            var inventoryCheckRequired = (productId > 710 && productId < 720 && quantity > 5)
+                            var inventoryCheckRequired = (productId >= 710 && productId <= 720 && quantity >= 5)
                                 ? 'Y'
                                 : 'N';
 
@@ -104,12 +104,17 @@ namespace BusyDatabase.WebApi.Controllers
                                     new XAttribute("Quantity", quantity),
                                     new XAttribute("UnitPrice", ((Decimal)reader["UnitPrice"]).ToString("C")),
                                     new XAttribute("LineTotal", RoundAndFormat(reader["LineTotal"])),
-                                    new XAttribute("ProductID", productId),
+                                    new XAttribute("ProductId", productId),
                                     new XAttribute("InventoryCheckRequired", inventoryCheckRequired)
                                     ));
                         }
 
-                        return ResponseMessage(HttpResponseHelper.CreateMessageFrom(doc.ToString()));
+                        // match the exact formatting of the XML returned from SQL
+                        var xml = doc
+                            .ToString(SaveOptions.DisableFormatting)
+                            .Replace(" />", "/>");
+
+                        return ResponseMessage(HttpResponseHelper.CreateMessageFrom(xml));
                     }
                 }
             }

@@ -4,7 +4,7 @@
 --DECLARE @TerritoryId INT
 --SET @TerritoryId = 1
 
-SELECT TOP 100
+SELECT TOP 20
   soh.[SalesOrderNumber]  AS '@OrderNumber',
   soh.[Status]            AS '@Status',
   soh.[ShipDate]          AS '@ShipDate',
@@ -52,5 +52,5 @@ SELECT TOP 100
 
 FROM [Sales].[SalesOrderHeader] soh
 WHERE soh.[TerritoryId] = @TerritoryId
-ORDER BY soh.[SalesOrderNumber]
+ORDER BY soh.[TotalDue] DESC
 FOR XML PATH ('Order'), ROOT('Orders')
