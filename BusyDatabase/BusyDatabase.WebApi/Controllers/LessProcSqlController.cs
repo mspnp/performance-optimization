@@ -16,6 +16,14 @@ namespace BusyDatabase.WebApi.Controllers
         private static readonly string SqlConnectionString = CloudConfigurationManager.GetSetting("connectionString");
         private static readonly string Query = Queries.Get("LessSql");
 
+        private static string RoundAndFormat(object value)
+        {
+            // the rounding is redundant, but this experiment is about
+            // relocating the work not making the work meaningful :-)
+            var currency = Math.Round((Decimal) value,2);
+            return currency.ToString("C");
+        }
+
         public async Task<IHttpActionResult> Get(int id)
         {
             using (var connection = new SqlConnection(SqlConnectionString))
@@ -63,9 +71,9 @@ namespace BusyDatabase.WebApi.Controllers
                                 new XAttribute("OrderDateYear", orderDate.Year),
                                 new XAttribute("OrderDateMonth", orderDate.Month),
                                 new XAttribute("DueDate", reader["DueDate"]),
-                                new XAttribute("SubTotal", reader["SubTotal"]),
-                                new XAttribute("TaxAmt", reader["TaxAmt"]),
-                                new XAttribute("TotalDue", totalDue),
+                                new XAttribute("SubTotal", RoundAndFormat(reader["SubTotal"])),
+                                new XAttribute("TaxAmt", RoundAndFormat(reader["TaxAmt"])),
+                                new XAttribute("TotalDue", RoundAndFormat(totalDue)),
                                 new XAttribute("ReviewRequired", reviewRequired));
 
                             var fullName = string.Join(" ",
@@ -94,8 +102,8 @@ namespace BusyDatabase.WebApi.Controllers
                         lineItems.Add(
                             new XElement("LineItem",
                                 new XAttribute("Quantity", quantity),
-                                new XAttribute("UnitPrice", reader["UnitPrice"]),
-                                new XAttribute("LineTotal", reader["LineTotal"]),
+                                new XAttribute("UnitPrice", ((Decimal)reader["UnitPrice"]).ToString("C")),
+                                new XAttribute("LineTotal", RoundAndFormat(reader["LineTotal"])),
                                 new XAttribute("ProductID", productId),
                                 new XAttribute("InventoryCheckRequired", inventoryCheckRequired)
                                 ));
