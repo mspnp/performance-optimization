@@ -4,7 +4,7 @@
 --DECLARE @TerritoryId INT
 --SET @TerritoryId = 1
 
-SELECT
+SELECT TOP 100
 soh.[SalesOrderNumber]  AS [OrderNumber],
 soh.[Status]            AS [Status],
 soh.[OrderDate]         AS [OrderDate],
