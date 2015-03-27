@@ -97,23 +97,27 @@ List<Product> products = query.ToList();
 
 Symptoms of retrieving too much data in an application include high latency and low throughput. If the data is retrieved from a data store, then increased contention is also probable. End-users are likely to report extended response times and possible failures caused by services timing out due to increased network traffic and resource conflicts in the data store. These failures could manifest themselves as HTTP 500 (Internal Server) errors or HTTP 503 (Service Unavailable) errors. In these cases, you should examine the event logs for the web server which are likely to contain more detailed information about the causes and circumstances of the errors.
 
+----------
+
+**Note:** The symptoms of this anti-pattern and some of the telemetry obtained might be very similar to those of the [Monolithic Persistence anti-pattern][MonolithicPersistence]. The causes however are somewhat different, as are the possible solutions.
+
+----------
+
 You can perform the following steps to help identify the causes of any problems:
 
 1. Identify slow workloads or transactions by performing load-testing, process monitoring, or other methods of capturing instrumentation data.
 
 2. Observe any behavioral patterns exhibited by the system. For example, does the performance get worse at 5pm each day, and what happens when the workload exceeds a specific limit in terms of transactions per second or volume of users?
 
-3. Identify the source of the data and the data stores being used.
+3. Correlate the instances of slow workloads with behavioral patterns.
 
-4. For each data source, run lower level telemetry to observe the behavior of operations end-to-end by using process monitoring, instrumentation, or application profiling.
+4. Identify the source of the data and the data stores being used.
 
-5. Correlate the telemetry with any behavioral patterns.
+5. For each data source, run lower level telemetry to observe the behavior of operations end-to-end by using process monitoring, instrumentation, or application profiling.
 
-6. Determine which data sources or other resources are subject to contention.
+6. Identify any slow-running queries that reference these data sources.
 
-7. Identify any slow-running queries that reference these data sources.
-
-8. Perform a resource-specific analysis of the slow-running queries and ascertain how the data is used and consumed.
+7. Perform a resource-specific analysis of the slow-running queries and ascertain how the data is used and consumed.
 
 The following sections apply these steps to the sample application described earlier.
 
@@ -125,17 +129,15 @@ The following sections apply these steps to the sample application described ear
 
 ### Identifying slow workloads
 
-An initial analysis will likely be based on user reports concerning functionality that is running slowly or raising exceptions. Load testing this functionality in a controlled test environment could indicate high latency and low throughput. As an example, the following performance results were obtained by using a load test that simulated up to 1000 concurrent users running the `GetAllFieldsAsync` operation in the [sample code][fullDemonstrationOfProblem].
+An initial analysis will likely be based on user reports concerning functionality that is running slowly or raising exceptions. Load testing this functionality in a controlled test environment could indicate high latency and low throughput. As an example, the following performance results were obtained by using a load test that simulated up to 400 concurrent users running the `GetAllFieldsAsync` operation in the [sample code][fullDemonstrationOfProblem].
 
 ![Load-test results for the GetAllFieldsAsync method][Load-Test-Results-Client-Side1]
 
-As the workload increased throughput hit a peak and then started to diminish slowly. With 1000 users, the load-test levelled out and the system was capable of supporting approximately 200 tests per second. The average response time grew with user load, and at 1000 users the average response time for each test was approximately 5 seconds.
+Throughput diminished slowly as the load increased, but the average response time mirrored the work-load (in the graph, the average response time has been magnified by 100 to make the correlation clear).
 
-Performing a similar load-test for the `AggregateOnClientAsync` operation has the following results:
+Performing a load-test for the `AggregateOnClientAsync` operation shows a similar pattern. The volume of requests per seconds is reasonably stable, but the average response time increases in-line with the work-load. However, as the load passes 300 users the system starts to report errors, possibly due to the pressure on the database. Note that the query being performed is more complex than that run by the first test, and the throughput and response times are an order of magnitude lower than those of the first test:
 
 ![Load-test results for the AggregateOnClientAsync method][Load-Test-Results-Client-Side2]
-
-This load test showed much the same pattern albeit the throughput was significantly lower due to the additional work being performed by the database effectively limiting the volume of requests that could be processed.
 
 Profiling an application in a test environment can help to identify the following symptoms that characterize operations that retrieve large amounts of data. The exact symptoms will depend on the nature of the resources being accessed but may include:
 
@@ -153,172 +155,41 @@ Determining whether behavior is influenced by time is a matter of monitoring the
 
 Load-testing to destruction (in a test environment) over the same functionality using step-based user loads can help to highlight the point at which the performance drops significantly or fails completely. If load at which the system fails or performance drops to unacceptable levels is within the bounds of that expected at periods of peak activity, then the way in which the functionality is implemented should be examined further.
 
-### Identifying data sources
+### Correlating instances of slow workloads with behavioral patterns
+
+A slow operation is not necessarily a problem if it is not being performed when the system is under stress, it is not time critical, and it does not unduly impact the performance of other important operations. For example, generating the monthly operational statistics might be a long-running operation, but it can probably be performed as a batch process and run as a low priority job. On the other hand, customers querying the product catalog or placing orders are critical business operations that can have a direct bearing on the profitability of an organization. You should focus on the telemetry generated by these critical operations to see how the performance varies during periods of high usage.
+
+### Identifying data sources in slow workloads
 
 If you suspect that a service is performing poorly because of the way in which data is being retrieved, you should investigate how the application is interacting with the repositories it utilizes. Monitoring the live system, together with a review of the source code (if possible) should help to reveal the data sources being accessed during periods of poor performance.
 
-**MORE INFO ON APPDYNAMICS OR OTHER MONTORING TOOLS TO BE ADDED HERE?**
-
-In the case of the sample application, all the information is held in a single instance of Windows Azure SQL Database.
+In the case of the sample application, all the information is held in a single instance of Azure SQL Database.
 
 ### Observing the end-to-end behavior of operations that access each data source
 
-For each data source, you should instrument the system to capture the frequency with which each data store is accessed, the volume of data entering and exiting the data store, the timings of these operations (in particular, the latency of requests), and the nature and rate of any errors observed while accessing each data store under loads that are typical of the system. This might involve observing the live system and tracing the lifecycle of each user request, or you can model a series of synthetic workloads and run them against a test system if you require a more controlled environment.
+In a typical Azure cloud scenario, a client (a browser, desktop application, or mobile device) sends a request to a web application or cloud service. The web application or cloud service in turn submits a request to a data store. The data is then returned, possibly after performing some processing, to the client for processing.
 
-**MORE INFO ON APPDYNAMICS OR OTHER MONTORING TOOLS TO BE ADDED HERE?**
+For each data source, you should instrument the system to capture the frequency with which each data store is accessed, the volume of data entering and exiting the data store, the timings of these operations (in particular, the latency of requests), and the nature and rate of any errors observed while accessing each data store under loads that are typical of the system. You can compare this information against the volumes of data being returned by the web application or cloud service to the client. The following diagram shows a typical end-to-end scenario. In this scenario, you should track the ratio of the volume of data returned by the data store (*x* bytes) against the size of the data returned to the client (*y* bytes). Any large disparity between the values of *x* and *y* should be investigated to determine whether the web application or cloud service is retrieving too much data and performing processing that might be better handled by the data store.
 
-### Correlating the telemetry with behavioral patterns
+![Observing end-to-end behavior of operations][End-to-End]
 
-A slow operation is not necessarily a problem if it is not being performed when the system is under stress or it is not time critical. For example, generating the monthly operational statistics might be a long-running operation, but it can probably be performed as a batch process and run as a low priority job. On the other hand, customers querying the product catalog or placing orders are critical business operations that can have a direct bearing on the profitability of an organization. Therefore you should focus on the telemetry generated by these critical operations to see how the performance varies during periods of high usage. In the sample application, the critical operations result in calls to the `GetProductsProjectAllFieldsAsync` and `GetTotalSalesAggregateOnClientAsync` methods. Note that this process requires careful analysis of the instrumentation data correlated with the end-to-end operations that users are performing.
+Capturing this data might involve observing the live system and tracing the lifecycle of each user request, or you can model a series of synthetic workloads and run them against a test system if you need to observe behavior in a more controlled environment.
 
-**WHICH ANALYSIS TOOLS TO USE?**
+The following graphs show the results of telemetry captured by using New Relic during the load-test of the `GetAllFieldsAsync` method. It is important to note the differences between the volumes of data received from the database and the corresponding HTTP responses. 
 
-### Identifying contended resources
+![Telemetry for the `GetAllFieldsAsync` method][TelemetryAllFields]
 
-In a system that utilizes a single data source, contention is likely to be caused by the volume of requests being directed towards this data source (partitioning the data source may help to resolve this issue if it is suspected to be a cause of poor performance). If the application references multiple data sources, then you should gather the data access statistics for each one and determine whether any of these data sources are likely to be acting as a bottleneck.
+In the load-tests, the size of the data returned from the database by each request was 80503 bytes. The size data returned to the client can vary depending on the format requested by the client. During the load-tests the data was returned to the clients in JSON format and each response contains 19855 bytes (25% of the size of the database response). Separate testing (results not shown), for clients requesting data in XML format shows that the response size is 35655 bytes (44% of the size of the database response.)
 
-**MORE INFO ON APPDYNAMICS OR OTHER MONTORING TOOLS TO BE ADDED HERE?**
+----------
 
-Examining data access statistics and other information provided by a data store can produce some useful information about the frequency with which the data store is accessed, the data that is requested, and the processing and network resources required to retrieve this data. For example, Windows Azure SQL Database provides access to query statistics using the Query Performance pane in the Azure SQL Database management portal. This pane shows information about all recently executed queries:
+**Note:** It is interesting to observe the correlation between the throughput of the web application (requests per minute) against the number of bytes received from the database. This tailing off was also apparent in the load-test. The actual cause of this diminuendo is not apparent from the graphs; further investigation of the system would be required to determine whether the reduction in the volume of requests sent to the web application has caused a corresponding reduction in the number of requests passed to the database (and hence the volume of data returned) or whether a gentle throttling of the database is causing a reduction in the number of concurrent requests that the web application can support. This investigation would involve capturing the telemetry for the database server and for the web server hosting the web application to determine which one is most likely to be acting as the brake on the system.
 
-![The Query Performance pane in the Windows Azure SQL Database management portal][QueryPerformanceZoomed]
+----------
 
-The `Run Count` column in the results indicates how frequently each query is run. In this case, the following queries have been executed a significant number of times by the load-test:
+Examining the telemetry captured during the load-test for the `AggregateOnClientAsync` method shows more extreme results. In this case, each test performed a query that retrieved over 1MB of data from the database, but the JSON response contained a mere 13 bytes. This wide disparity is due to the nature of the processing being performed by the web application; it is calculating an aggregated result (the total value of all orders) from a large volume of data. The large amount of data retrieved by the web application eventually resulted in the database becoming a bottleneck, causing the errors observed during the test.
 
-**SQL**
-
-```SQL
-
-/* Executed 256 times by the load test */
-SELECT 
-    [Project1].[BusinessEntityID] AS [BusinessEntityID], 
-    [Project1].[TerritoryID] AS [TerritoryID], 
-    [Project1].[SalesQuota] AS [SalesQuota], 
-    [Project1].[Bonus] AS [Bonus], 
-    [Project1].[CommissionPct] AS [CommissionPct], 
-    [Project1].[SalesYTD] AS [SalesYTD], 
-    [Project1].[SalesLastYear] AS [SalesLastYear], 
-    [Project1].[rowguid] AS [rowguid], 
-    [Project1].[ModifiedDate] AS [ModifiedDate], 
-    [Project1].[C1] AS [C1], 
-    [Project1].[SalesOrderID] AS [SalesOrderID], 
-    [Project1].[RevisionNumber] AS [RevisionNumber], 
-    [Project1].[OrderDate] AS [OrderDate], 
-    [Project1].[DueDate] AS [DueDate], 
-    [Project1].[ShipDate] AS [ShipDate], 
-    [Project1].[Status] AS [Status], 
-    [Project1].[OnlineOrderFlag] AS [OnlineOrderFlag], 
-    [Project1].[SalesOrderNumber] AS [SalesOrderNumber], 
-    [Project1].[PurchaseOrderNumber] AS [PurchaseOrderNumber], 
-    [Project1].[AccountNumber] AS [AccountNumber], 
-    [Project1].[CustomerID] AS [CustomerID], 
-    [Project1].[SalesPersonID] AS [SalesPersonID], 
-    [Project1].[TerritoryID1] AS [TerritoryID1], 
-    [Project1].[BillToAddressID] AS [BillToAddressID], 
-    [Project1].[ShipToAddressID] AS [ShipToAddressID], 
-    [Project1].[ShipMethodID] AS [ShipMethodID], 
-    [Project1].[CreditCardID] AS [CreditCardID], 
-    [Project1].[CreditCardApprovalCode] AS [CreditCardApprovalCode], 
-    [Project1].[CurrencyRateID] AS [CurrencyRateID], 
-    [Project1].[SubTotal] AS [SubTotal], 
-    [Project1].[TaxAmt] AS [TaxAmt], 
-    [Project1].[Freight] AS [Freight], 
-    [Project1].[TotalDue] AS [TotalDue], 
-    [Project1].[Comment] AS [Comment], 
-    [Project1].[rowguid1] AS [rowguid1], 
-    [Project1].[ModifiedDate1] AS [ModifiedDate1]
-    FROM ( SELECT 
-        [Extent1].[BusinessEntityID] AS [BusinessEntityID], 
-        [Extent1].[TerritoryID] AS [TerritoryID], 
-        [Extent1].[SalesQuota] AS [SalesQuota], 
-        [Extent1].[Bonus] AS [Bonus], 
-        [Extent1].[CommissionPct] AS [CommissionPct], 
-        [Extent1].[SalesYTD] AS [SalesYTD], 
-        [Extent1].[SalesLastYear] AS [SalesLastYear], 
-        [Extent1].[rowguid] AS [rowguid], 
-        [Extent1].[ModifiedDate] AS [ModifiedDate], 
-        [Extent2].[SalesOrderID] AS [SalesOrderID], 
-        [Extent2].[RevisionNumber] AS [RevisionNumber], 
-        [Extent2].[OrderDate] AS [OrderDate], 
-        [Extent2].[DueDate] AS [DueDate], 
-        [Extent2].[ShipDate] AS [ShipDate], 
-        [Extent2].[Status] AS [Status], 
-        [Extent2].[OnlineOrderFlag] AS [OnlineOrderFlag], 
-        [Extent2].[SalesOrderNumber] AS [SalesOrderNumber], 
-        [Extent2].[PurchaseOrderNumber] AS [PurchaseOrderNumber], 
-        [Extent2].[AccountNumber] AS [AccountNumber], 
-        [Extent2].[CustomerID] AS [CustomerID], 
-        [Extent2].[SalesPersonID] AS [SalesPersonID], 
-        [Extent2].[TerritoryID] AS [TerritoryID1], 
-        [Extent2].[BillToAddressID] AS [BillToAddressID], 
-        [Extent2].[ShipToAddressID] AS [ShipToAddressID], 
-        [Extent2].[ShipMethodID] AS [ShipMethodID], 
-        [Extent2].[CreditCardID] AS [CreditCardID], 
-        [Extent2].[CreditCardApprovalCode] AS [CreditCardApprovalCode], 
-        [Extent2].[CurrencyRateID] AS [CurrencyRateID], 
-        [Extent2].[SubTotal] AS [SubTotal], 
-        [Extent2].[TaxAmt] AS [TaxAmt], 
-        [Extent2].[Freight] AS [Freight], 
-        [Extent2].[TotalDue] AS [TotalDue], 
-        [Extent2].[Comment] AS [Comment], 
-        [Extent2].[rowguid] AS [rowguid1], 
-        [Extent2].[ModifiedDate] AS [ModifiedDate1], 
-        CASE WHEN ([Extent2].[SalesOrderID] IS NULL) THEN CAST(NULL AS int) ELSE 1 END AS [C1]
-        FROM  [Sales].[SalesPerson] AS [Extent1]
-        LEFT OUTER JOIN [Sales].[SalesOrderHeader] AS [Extent2] ON [Extent1].[BusinessEntityID] = [Extent2].[SalesPersonID]
-    )  AS [Project1]
-    ORDER BY [Project1].[BusinessEntityID] ASC, [Project1].[C1] ASC
-
-
-/* Executed 579 times by the load test */
-SELECT 
-    [Extent1].[ProductID] AS [ProductID], 
-    [Extent1].[Name] AS [Name], 
-    [Extent1].[ProductNumber] AS [ProductNumber], 
-    [Extent1].[MakeFlag] AS [MakeFlag], 
-    [Extent1].[FinishedGoodsFlag] AS [FinishedGoodsFlag], 
-    [Extent1].[Color] AS [Color], 
-    [Extent1].[SafetyStockLevel] AS [SafetyStockLevel], 
-    [Extent1].[ReorderPoint] AS [ReorderPoint], 
-    [Extent1].[StandardCost] AS [StandardCost], 
-    [Extent1].[ListPrice] AS [ListPrice], 
-    [Extent1].[Size] AS [Size], 
-    [Extent1].[SizeUnitMeasureCode] AS [SizeUnitMeasureCode], 
-    [Extent1].[WeightUnitMeasureCode] AS [WeightUnitMeasureCode], 
-    [Extent1].[Weight] AS [Weight], 
-    [Extent1].[DaysToManufacture] AS [DaysToManufacture], 
-    [Extent1].[ProductLine] AS [ProductLine], 
-    [Extent1].[Class] AS [Class], 
-    [Extent1].[Style] AS [Style], 
-    [Extent1].[ProductSubcategoryID] AS [ProductSubcategoryID], 
-    [Extent1].[ProductModelID] AS [ProductModelID], 
-    [Extent1].[SellStartDate] AS [SellStartDate], 
-    [Extent1].[SellEndDate] AS [SellEndDate], 
-    [Extent1].[DiscontinuedDate] AS [DiscontinuedDate], 
-    [Extent1].[rowguid] AS [rowguid], 
-    [Extent1].[ModifiedDate] AS [ModifiedDate]
-    FROM [Production].[Product] AS [Extent1]
-```
-
-In the sample application, tracing the `GetTotalSalesAggregateOnClientAsync` method reveals that the first SQL statement is a result of running the following C# code:
-
-**C#**
-
-```C#
-var salesPersons = await context.SalesPersons
-                                .Include( sp => sp.SalesOrderHeaders)
-                                .ToListAsync()
-                                .ConfigureAwait(false);
-```
-
-Similarly, tracing the `GetProductsProjectAllFieldsAsync` method shows that the second SQL statement is run by the following C# code:
-
-**C#**
-```C#
-var products = await context.Products
-                            .ToListAsync()
-                            .ConfigureAwait(false);
-```
+![Telemetry for the `AggregateOnClientAsync` method][TelemetryAggregateOnClient]
 
 ### Identifying slow queries
 
@@ -326,7 +197,13 @@ Tracing execution and analyzing the application source code and data access logi
 
 ![The Query Details pane in the Windows Azure SQL Database management portal][QueryDetails]
 
-The statistics summarize the resources used by this query. 
+The statistics summarize the resources used by this query.
+
+----------
+
+**Note:** The statistics shown in this image were not generated by running the load-tests, but were obtained by monitoring the system in production. However, the statistics are still valid as they give an indication of how the query uses resources and this is not dependent on whether the system is under test at the time.
+
+----------
 
 ### Performing a resource-specific analysis of the slow-running queries
 
@@ -336,13 +213,11 @@ Depending on the nature of the data store, you may be able to exploit the featur
 
 If you observe requests that retrieve a large number of fields, examine the underlying source code to determine whether all of these fields are actually necessary. Sometimes these requests are the results of injudicious *SELECT ** operations, or misplaced `.Include` operations in LINQ queries. Similarly, requests that retrieve a large number of entities (rows in a SQL Server database) may be indicative of an application that is not filtering data correctly. Verify that all of these entities are actually necessary, and implement database-side filtering if possible (for example, using a *WHERE* clause in an SQL statement.) For operations that have to support unbounded queries, the system should implement pagination and only fetch a limited number (a *page*) of entities at a time.
 
-
 ----------
 
 **Note:** If analysis shows that none of these situations apply, then retrieving too much data is unlikely to be the cause of poor performance and you should look elsewhere.
 
 ----------
-
 
 ## How to correct the problem
 
@@ -414,50 +289,42 @@ List<Product> products = query.ToList();
 
 ## <a name="ConsequencesOfTheSolution"></a>Consequences of the solution
 
-The system should spend less time waiting I/O, network traffic should be diminished, and contention for shared data resources should be decreased. This should manifest itself as an improvement in response time and throughput in an application. Performing load-testing against the `GetProductsProjectOnlyRequiredFieldsAsync` and `TotalSalesAsync` methods in the [sample solution][fullDemonstrationOfSolution] shows the following results:
+The system should spend less time waiting for I/O, network traffic should be diminished, and contention for shared data resources should be decreased. This should manifest itself as an improvement in response time and throughput in an application. Performing load-testing against the `GetRequiredFieldsAsync` method in the [sample solution][fullDemonstrationOfSolution] shows the following results:
 
-![Load-test results for the GetProductsProjectAllFieldsAsync and GetTotalSalesAggregateOnClientAsync methods][Load-Test-Results-Database-Side]
+![Load-test results for the GetRequiredFieldsAsync method][Load-Test-Results-Database-Side1]
 
-This load-test was performed on the same deployment and using the same simulated workload of 100 concurrent users as before. The graph shows much lower latency; each request takes takes approximately 0.5 seconds compared to 35.7 seconds in the non-optimized case. The response time and throughput are also much more predictable.
+This load-test was performed on the same deployment and using the same simulated workload of 400 concurrent users as before. The graph shows much lower latency; the response time rises with load to approximately 1.3 seconds compared to 4 seconds in the previous case. The throughput is also higher at 350 requests per second compared to 100 earlier. These changes are apparent from the telemetry gathered while the test was running:
 
-Examining the query access statistics shows that the following queries were performed by the `GetProductsProjectOnlyRequiredFieldsAsync` and `TotalSalesAsync` methods:
+![Telemetry for the `GetRequiredFieldsAsync` method][TelemetryRequiredFields]
 
-**SQL**
+The volume of data retrieved from the database now closely matches the size of the HTTP response messages sent back to the client applications.
 
-```SQL
-/* Executed 17910 times by the load-test */
-SELECT 
-    [GroupBy1].[A1] AS [C1]
-    FROM ( SELECT 
-        SUM([Join1].[A1]) AS [A1]
-        FROM ( SELECT 
-            CASE WHEN ([Project1].[C1] IS NULL) THEN cast(0 as decimal(18)) ELSE [Project1].[TotalDue] END AS [A1]
-            FROM   ( SELECT 1 AS X ) AS [SingleRowTable1]
-            LEFT OUTER JOIN  (SELECT 
-                [Extent1].[TotalDue] AS [TotalDue], 
-                cast(1 as tinyint) AS [C1]
-                FROM [Sales].[SalesOrderHeader] AS [Extent1]
-                WHERE [Extent1].[SalesPersonID] IS NOT NULL ) AS [Project1] ON 1 = 1
-        )  AS [Join1]
-    )  AS [GroupBy1]
+Load-testing using the `AggregateOnDatabaseAsync` method generates the following results:
 
+![Load-test results for the AggregateOnDatabaseAsync method][Load-Test-Results-Database-Side2]
 
-/* Executed 38786 times by the load-test */
-SELECT 
-    [Extent1].[ProductID] AS [ProductID], 
-    [Extent1].[Name] AS [Name]
-    FROM [Production].[Product] AS [Extent1]
-```
+The average response time is now minimal, and the throughput is now close to 500 requests per second compared to 8 earlier. This is an order of magnitude improvement in performance, caused primarily by the vast reduction in I/O from the database. Furthermore, no errors were reported.
 
-The increased throughput and performance is reflected by the increased number of times these queries ran compared to those in the earlier load-test.
+The image below shows the corresponding telemetry for the `AggregateOnDatabaseAsync` method:
+
+![Telemetry for the `AggregateOnDatabaseAsync` method][TelemetryAggregateInDatabaseAsync]
+
+The amount of data retrieved from the database was vastly reduced, from over 1MB per transaction to 56 bytes. Consequently, the maximum sustained number of requests per minute was raised from around 500 to nearly 30,000.
+
+----------
+
+**Note:** The solution to this anti-pattern does not imply that you should always offload processing to the database. You should only perform this strategy where the database is designed or optimized to do so. Databases are intended to manipulate the data that they contain very efficiently, but in many cases they are not designed to act as fully-fledged application engines. Using the processing power of a database server inappropriately can cause contention and slow down database operations. For more information, see the [Busy Database anti-pattern][BusyDatabase]
+
+----------
 
 ## Related resources
 - [The performance implications of IEnumerable vs. IQueryable][IEnumerableVsIQueryable].
 
-
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
 [chatty-io]: http://LINK-TO-CHATTY-IO-ANTI-PATTERN
+[MonolithicPersistence]: http://LINK-TO-MONOLITHIC-PERSISTENCE-ANTI-PATTERN
+[BusyDatabase]: http://LINK-TO-BUSY-DATABASE-ANTI-PATTERN
 [IEnumerableVsIQueryable]: https://www.sellsbrothers.com/posts/Details/12614
 [full-product-table]:Figures/ProductTable.jpg
 [product-sales-tables]:Figures/SalesPersonAndSalesOrderHeaderTables.jpg
@@ -467,3 +334,8 @@ The increased throughput and performance is reflected by the increased number of
 [Load-Test-Results-Database-Side2]:Figures/LoadTestResultsDatabaseSide2.jpg
 [QueryPerformanceZoomed]: Figures/QueryPerformanceZoomed.jpg
 [QueryDetails]: Figures/QueryDetails.jpg
+[End-to-End]: Figures/End-to-End.jpg
+[TelemetryAllFields]: Figures/TelemetryAllFields.jpg
+[TelemetryAggregateOnClient]: Figures/TelemetryAggregateOnClient.jpg
+[TelemetryRequiredFields]: Figures/TelemetryRequiredFields.jpg
+[TelemetryAggregateInDatabaseAsync]: Figures/TelemetryAggregateInDatabase.jpg
