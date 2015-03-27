@@ -1,4 +1,4 @@
-# Too Many Instances
+# Improper Instantiation
 
 Many .NET Framework libraries provide abstractions around external resources. Internally, these classes typically manage their own connections to these external resources, effectively acting as brokers that clients can use to request access to a resource. Examples of such classes frequently used by Azure applications include  `System.Net.Http.HttpClient` to communicate with a web service by using the HTTP protocol, `Microsoft.ServiceBus.Messaging.QueueClient` for posting and receiving messages to a Service Bus queue,  `Microsoft.Azure.Documents.Client.DocumentClient` for connecting to an Azure DocumentDB instance, and `StackExchange.Redis.ConnectionMultiplexer` for accessing Azure Redis Cache.
 
@@ -25,7 +25,7 @@ public class NewHttpClientInstancePerRequestController : ApiController
 
 ----------
 
-**Note:** This code forms part of the [TooManyInstances sample application][fullDemonstrationOfProblem].
+**Note:** This code forms part of the [ImproperInstantiation sample application][fullDemonstrationOfProblem].
 
 ----------
 
@@ -56,7 +56,7 @@ In this code, the `ExpensiveToCreateService` could be any shareable service or b
 
 ## How to detect the problem
 
-Symptoms of the *Too Many Instances* problem include a drop in throughput, possibly with an increase in exceptions indicating exhaustion of related resources (sockets, database connections, file handles, and so on). End-users are likely to report degraded performance and frequent request failures when the system is heavily utilized.
+Symptoms of the *Improper Instantiation* problem include a drop in throughput, possibly with an increase in exceptions indicating exhaustion of related resources (sockets, database connections, file handles, and so on). End-users are likely to report degraded performance and frequent request failures when the system is heavily utilized.
 
 You can perform the following steps to help identify this problem:
 

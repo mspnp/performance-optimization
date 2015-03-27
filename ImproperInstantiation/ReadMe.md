@@ -1,7 +1,7 @@
-# TooManyInstances Sample Code
+# ImproperInstantiation Sample Code
 
-The TooManyInstances sample code is composed of:
-* TooManyInstances solution file
+The ImproperInstantiation sample code is composed of:
+* ImproperInstantiation solution file
 * AzureCloudService
 * UserProfileServiceWebRole
 * WebRole WebAPI project
