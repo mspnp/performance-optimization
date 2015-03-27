@@ -20,97 +20,104 @@ namespace BusyDatabase.WebApi.Controllers
         {
             // the rounding is redundant, but this experiment is about
             // relocating the work not making the work meaningful :-)
-            var currency = Math.Round((Decimal) value,2);
+            var currency = Math.Round((Decimal)value, 2);
             return currency.ToString("C");
         }
 
         public async Task<IHttpActionResult> Get(int id)
         {
-            using (var connection = new SqlConnection(SqlConnectionString))
+            try
             {
-                await connection.OpenAsync();
-                using (var command = new SqlCommand(Query, connection))
+                using (var connection = new SqlConnection(SqlConnectionString))
                 {
-                    command.Parameters.AddWithValue("@TerritoryId", id);
-
-                    var reader = await command.ExecuteReaderAsync();
-
-                    var lastOrderNumber = string.Empty;
-
-                    var doc = new XDocument();
-                    var orders = new XElement("Orders");
-
-                    doc.Add(orders);
-
-                    while (await reader.ReadAsync())
+                    await connection.OpenAsync();
+                    using (var command = new SqlCommand(Query, connection))
                     {
-                        var orderNumber = reader["OrderNumber"].ToString();
+                        command.Parameters.AddWithValue("@TerritoryId", id);
 
+                        var reader = await command.ExecuteReaderAsync();
+
+                        var lastOrderNumber = string.Empty;
+
+                        var doc = new XDocument();
+                        var orders = new XElement("Orders");
+
+                        doc.Add(orders);
                         XElement lineItems = null;
 
-                        if (orderNumber != lastOrderNumber)
+                        while (await reader.ReadAsync())
                         {
-                            lastOrderNumber = orderNumber;
+                            var orderNumber = reader["OrderNumber"].ToString();
 
-                            var order = new XElement("Order");
-                            var customer = new XElement("Customer");
-                            lineItems = new XElement("OrderLineItems");
-                            order.Add(customer, lineItems);
+                            if (orderNumber != lastOrderNumber)
+                            {
+                                lastOrderNumber = orderNumber;
 
-                            var orderDate = (DateTime)reader["OrderDate"];
+                                var order = new XElement("Order");
+                                orders.Add(order);
+                                var customer = new XElement("Customer");
+                                lineItems = new XElement("OrderLineItems");
+                                order.Add(customer, lineItems);
 
-                            var totalDue = (Decimal)reader["TotalDue"];
-                            var reviewRequired = totalDue > 5000
+                                var orderDate = (DateTime)reader["OrderDate"];
+
+                                var totalDue = (Decimal)reader["TotalDue"];
+                                var reviewRequired = totalDue > 5000
+                                    ? 'Y'
+                                    : 'N';
+
+                                order.Add(
+                                    new XAttribute("OrderNumber", orderNumber),
+                                    new XAttribute("Status", reader["Status"]),
+                                    new XAttribute("ShipDate", reader["ShipDate"]),
+                                    new XAttribute("OrderDateYear", orderDate.Year),
+                                    new XAttribute("OrderDateMonth", orderDate.Month),
+                                    new XAttribute("DueDate", reader["DueDate"]),
+                                    new XAttribute("SubTotal", RoundAndFormat(reader["SubTotal"])),
+                                    new XAttribute("TaxAmt", RoundAndFormat(reader["TaxAmt"])),
+                                    new XAttribute("TotalDue", RoundAndFormat(totalDue)),
+                                    new XAttribute("ReviewRequired", reviewRequired));
+
+                                var fullName = string.Join(" ",
+                                    reader["CustomerTitle"],
+                                    reader["CustomerFirstName"],
+                                    reader["CustomerMiddleName"],
+                                    reader["CustomerLastName"],
+                                    reader["CustomerSuffix"]
+                                    )
+                                    .Replace("  ", " ") //remove double spaces
+                                    .Trim()
+                                    .ToUpper();
+
+                                customer.Add(
+                                    new XAttribute("AccountNumber", reader["AccountNumber"]),
+                                    new XAttribute("FullName", fullName));
+                            }
+
+                            var productId = (int)reader["ProductID"];
+                            var quantity = (short)reader["Quantity"];
+
+                            var inventoryCheckRequired = (productId > 710 && productId < 720 && quantity > 5)
                                 ? 'Y'
                                 : 'N';
 
-                            order.Add(
-                                new XAttribute("OrderNumber", orderNumber),
-                                new XAttribute("Status", reader["Status"]),
-                                new XAttribute("ShipDate", reader["ShipDate"]),
-                                new XAttribute("OrderDateYear", orderDate.Year),
-                                new XAttribute("OrderDateMonth", orderDate.Month),
-                                new XAttribute("DueDate", reader["DueDate"]),
-                                new XAttribute("SubTotal", RoundAndFormat(reader["SubTotal"])),
-                                new XAttribute("TaxAmt", RoundAndFormat(reader["TaxAmt"])),
-                                new XAttribute("TotalDue", RoundAndFormat(totalDue)),
-                                new XAttribute("ReviewRequired", reviewRequired));
-
-                            var fullName = string.Join(" ",
-                                reader["CustomerTitle"],
-                                reader["CustomerFirstName"],
-                                reader["CustomerMiddleName"],
-                                reader["CustomerLastName"],
-                                reader["CustomerSuffix"]
-                                )
-                                .Replace("  ", " ") //remove double spaces
-                                .Trim()
-                                .ToUpper();
-
-                            customer.Add(
-                                new XAttribute("AccountNumber", reader["AccountNumber"]),
-                                new XAttribute("FullName", fullName));
+                            lineItems.Add(
+                                new XElement("LineItem",
+                                    new XAttribute("Quantity", quantity),
+                                    new XAttribute("UnitPrice", ((Decimal)reader["UnitPrice"]).ToString("C")),
+                                    new XAttribute("LineTotal", RoundAndFormat(reader["LineTotal"])),
+                                    new XAttribute("ProductID", productId),
+                                    new XAttribute("InventoryCheckRequired", inventoryCheckRequired)
+                                    ));
                         }
 
-                        var productId = (int)reader["ProductID"];
-                        var quantity = (short) reader["Quantity"];
-                  
-                        var inventoryCheckRequired = (productId > 710 && productId < 720 && quantity > 5)
-                            ? 'Y'
-                            : 'N';
-
-                        lineItems.Add(
-                            new XElement("LineItem",
-                                new XAttribute("Quantity", quantity),
-                                new XAttribute("UnitPrice", ((Decimal)reader["UnitPrice"]).ToString("C")),
-                                new XAttribute("LineTotal", RoundAndFormat(reader["LineTotal"])),
-                                new XAttribute("ProductID", productId),
-                                new XAttribute("InventoryCheckRequired", inventoryCheckRequired)
-                                ));
+                        return ResponseMessage(TooMuchProcSqlController.CreateMessageFrom(doc.ToString()));
                     }
-
-                    return ResponseMessage(TooMuchProcSqlController.CreateMessageFrom(doc.ToString()));
                 }
+            }
+            catch (Exception e)
+            {
+                throw e;
             }
         }
     }
