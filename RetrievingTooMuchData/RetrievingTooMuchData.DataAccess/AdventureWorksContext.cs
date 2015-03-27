@@ -3,6 +3,7 @@
 
 using RetrievingTooMuchData.DataAccess.Mapping;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure.Interception;
 
 namespace RetrievingTooMuchData.DataAccess
 {
@@ -11,6 +12,7 @@ namespace RetrievingTooMuchData.DataAccess
         static AdventureWorksContext()
         {
             Database.SetInitializer<AdventureWorksContext>(null);
+            DbInterception.Add(new ConnectionInterceptor());
         }
 
         public AdventureWorksContext()

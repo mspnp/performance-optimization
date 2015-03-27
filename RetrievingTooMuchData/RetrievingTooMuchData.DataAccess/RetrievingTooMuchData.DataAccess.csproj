@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AdventureWorksContext.cs" />
+    <Compile Include="ConnectionInterceptor.cs" />
     <Compile Include="Mapping\ProductionMapping.cs" />
     <Compile Include="Mapping\SalesMapping.cs" />
     <Compile Include="Product.cs" />

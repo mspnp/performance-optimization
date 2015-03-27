@@ -10,6 +10,7 @@ namespace RetrievingTooMuchData.WebApi
         public static void Register(HttpConfiguration config)
         {
             // Web API configuration and services
+            config.MessageHandlers.Add(new ResponseHandler());
 
             // Web API routes
             config.MapHttpAttributeRoutes();
