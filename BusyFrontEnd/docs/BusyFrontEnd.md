@@ -80,13 +80,13 @@ The following sections apply these steps to the sample application described ear
 
 Instrumenting each method to track the duration and resources consumed by each requests and then monitoring the live system can help to provide an overall view of how the requests compete with each other. During periods of stress, slow-running resource hungry requests will likely impact other operations, and this behavior can be observed by monitoring the system and noting the drop-off in performance. 
 
-The following image shows the Business Transactions pane in AppDyanamics monitoring the sample application. Initially the system is lightly loaded but then users start requesting the `UserProfile` GET operation. The performance is reasonably quick until other users start issuing requests to the `WorkInFrontEnd` controller, when the response time suddenly increases dramatically (see the graphic in the Response Time (ms) column in the image). The response time only improves once the volume of requests to the `WorkInFrontEnd` controller diminishes (see the graphic in the Calls/min column.)
+The following image shows the Business Transactions pane in AppDyanamics monitoring the sample application. Initially the system is lightly loaded but then users start requesting the `UserProfile` GET operation. The performance is reasonably quick until other users start issuing requests to the `WorkInFrontEnd` controller, when the response time suddenly increases dramatically (see the graphic in the *Response Time (ms)* column in the image). The response time only improves once the volume of requests to the `WorkInFrontEnd` controller diminishes (see the graphic in the *Calls/min* column.)
 
 ![AppDynamics Business Transactions pane showing the effects of the response times of all requests when the WorkInFrontEnd controller is used][AppDynamics-Transactions-Front-End-Requests]
 
 ### Examining telemetry data and finding correlations
 
-The next image shows some of the metrics gathered by using AppDynamics monitoring the resource utilization of the web role hosting the sample application during the same interval as the previous graph. Initially, few users are accessing the system, but as more connect the CPU utilization becomes very high (100%) for much of the time, so the system is clearly under duress. Additionally, the network I/O rate peaks while the CPU utilization rises, and then retreats when the CPU is running at capacity. This is because the system is unable to handle more than a relatively small number of requests once the CPU is at capacity. As users disconnect, the CPU load tails off:
+The next image shows some of the metrics gathered by using AppDynamics monitoring the resource utilization of the web role hosting the sample application during the same interval as the previous graph. Initially, few users are accessing the system, but as more users connect the CPU utilization becomes very high (100%) for much of the time, so the system is clearly under duress. Additionally, the network I/O rate peaks while the CPU utilization rises, and then retreats when the CPU is running at capacity. This is because the system is unable to handle more than a relatively small number of requests once the CPU is at capacity. As users disconnect, the CPU load tails off:
 
 ![AppDynamics metrics showing the CPU and network utilization][AppDynamics-Metrics-Front-End-Requests]
 
@@ -229,17 +229,11 @@ Relocating resource-hungry processing to a separate set of processes should impr
 
 - [Azure Service Bus Queues][ServiceBusQueues]
 
-- [Queue-Based Load Leveling Pattern][QueueBasedLoadLeveling] 
-
-- [Priority Queue Pattern][PriorityQueue]
-
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
 [WebJobs]: http://www.hanselman.com/blog/IntroducingWindowsAzureWebJobs.aspx
 [ComputePartitioning]: https://msdn.microsoft.com/library/dn589773.aspx
 [ServiceBusQueues]: https://msdn.microsoft.com/library/azure/hh367516.aspx
-[QueueBasedLoadLeveling]: https://msdn.microsoft.com/library/dn589783.aspx
-[PriorityQueue]: https://msdn.microsoft.com/library/dn589794.aspx
 [AppDynamics-Transactions-Front-End-Requests]: Figures/AppDynamicsPerformanceStats.jpg
 [AppDynamics-Metrics-Front-End-Requests]: Figures/AppDynamicsFrontEndMetrics.jpg
 [Initial-Load-Test-Results-Front-End]: Figures/InitialLoadTestResultsFrontEnd.jpg
