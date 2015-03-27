@@ -1,5 +1,5 @@
-﻿--DECLARE @OrderId INT
---SET @OrderId = 47001
+﻿--DECLARE @TerritoryId INT
+--SET @TerritoryId = 1
 
 SELECT 
 soh.[SalesOrderNumber]	AS [OrderNumber],
@@ -24,4 +24,5 @@ FROM [Sales].[SalesOrderHeader] soh
 INNER JOIN [Sales].[Customer] c ON soh.[CustomerID] = c.[CustomerID]
 INNER JOIN [Person].[Person] p ON c.[PersonID] = p.[BusinessEntityID] 
 LEFT OUTER JOIN [Sales].[SalesOrderDetail] sod ON soh.[SalesOrderID] = sod.[SalesOrderID]
-WHERE soh.SalesOrderID = @OrderId
+WHERE soh.[TerritoryId] = @TerritoryId
+ORDER BY soh.[SalesOrderNumber], sod.[LineTotal]
