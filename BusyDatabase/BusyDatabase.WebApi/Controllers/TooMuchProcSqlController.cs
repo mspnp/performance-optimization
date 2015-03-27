@@ -26,7 +26,7 @@ namespace BusyDatabase.WebApi.Controllers
 
                 using (var command = new SqlCommand(Query, connection))
                 {
-                    command.Parameters.AddWithValue("@OrderId", id);
+                    command.Parameters.AddWithValue("@TerritoryId", id);
 
                     var reader = await command.ExecuteReaderAsync();
                     var xml = new StringBuilder();

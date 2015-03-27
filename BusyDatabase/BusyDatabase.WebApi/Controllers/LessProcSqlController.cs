@@ -23,25 +23,31 @@ namespace BusyDatabase.WebApi.Controllers
                 await connection.OpenAsync();
                 using (var command = new SqlCommand(Query, connection))
                 {
-                    command.Parameters.AddWithValue("@OrderId", id);
+                    command.Parameters.AddWithValue("@TerritoryId", id);
 
                     var reader = await command.ExecuteReaderAsync();
 
-                    var firstRow = true;
+                    var lastOrderNumber = string.Empty;
 
                     var doc = new XDocument();
-                    var order = new XElement("Order");
-                    var customer = new XElement("Customer");
-                    var lineItems = new XElement("OrderLineItems");
+                    var orders = new XElement("Orders");
 
-                    doc.Add(order);
-                    order.Add(customer, lineItems);
+                    doc.Add(orders);
 
                     while (await reader.ReadAsync())
                     {
-                        if (firstRow)
+                        var orderNumber = reader["OrderNumber"].ToString();
+
+                        XElement lineItems = null;
+
+                        if (orderNumber != lastOrderNumber)
                         {
-                            firstRow = false;
+                            lastOrderNumber = orderNumber;
+
+                            var order = new XElement("Order");
+                            var customer = new XElement("Customer");
+                            lineItems = new XElement("OrderLineItems");
+                            order.Add(customer, lineItems);
 
                             var orderDate = (DateTime)reader["OrderDate"];
 
@@ -51,7 +57,7 @@ namespace BusyDatabase.WebApi.Controllers
                                 : 'N';
 
                             order.Add(
-                                new XAttribute("OrderNumber", reader["OrderNumber"]),
+                                new XAttribute("OrderNumber", orderNumber),
                                 new XAttribute("Status", reader["Status"]),
                                 new XAttribute("ShipDate", reader["ShipDate"]),
                                 new XAttribute("OrderDateYear", orderDate.Year),
@@ -69,7 +75,7 @@ namespace BusyDatabase.WebApi.Controllers
                                 reader["CustomerLastName"],
                                 reader["CustomerSuffix"]
                                 )
-                                .Replace("  "," ") //remove double spaces
+                                .Replace("  ", " ") //remove double spaces
                                 .Trim()
                                 .ToUpper();
 
