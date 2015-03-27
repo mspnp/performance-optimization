@@ -29,7 +29,7 @@ public class NewHttpClientInstancePerRequestController : ApiController
 
 ----------
 
-This approach might acceptable for client-side applications where the number of HTTP connections being made is likely to be limited, but in a server-side or web application this technique is not scalable. Each user request results in the creation of a new `HttpClient` object. Under a heavy load, the web server can exhaust the number of sockets available, resulting in `SocketException` errors. 
+In a web application this technique is not scalable. Each user request results in the creation of a new `HttpClient` object. Under a heavy load, the web server can exhaust the number of sockets available, resulting in `SocketException` errors. 
 
 This problem is not restricted to the `HttpClient` class. Creating many instances of other classes that wrap resources or are expensice to create might cause similar issues, or at least slow down the performance of the application they are continually created and destroyed. As a second example, consider the following code showing an alternative implementation of the `GetProductAsync` method; this time the data is retrieved from an external service wrapped by using the `ExpensiveToCreateService` class:
 
@@ -78,7 +78,7 @@ The following sections apply these steps to the sample application described ear
 
 ### Identifying points of slow-down
 
-Instrumenting each operation in the production system to track the duration of each request and then monitoring the live system can help to provide an overall view of how the requests perform. You should monitor the the system and track which operations are long-running or cause exceptions.
+Instrumenting each operation in the production system to track the duration of each request and then monitoring the live system can help to provide an overall view of how the requests perform. You should monitor the system and track which operations are long-running or cause exceptions.
 
 The following image shows the Overview pane of the New Relic monitor dashboard, highlighting operations that have a poor response time and the increased error rate while these operations are running. In this case, it is operations that invoke the `GetProductAsync` method in the `NewHttpClientInstancePerRequest` controller that are worth investigating further:
 
@@ -112,7 +112,7 @@ If you have managed to identify which parts of an application are causing except
 
 ## How to correct the problem
 
-If the class wrapping the external resource is shareable and thread-safe, create a *pool* of reusable instances of the class. The following code snippet shows a simple example (in this case, the pool contains a single instance). The `SingleHttpClientInstance` controller performs the same operation as the `NewHttpClientInstancePerRequest` controller shown earlier, except that the `HttpClient` object is created once, in the constructor, rather than each time the `GetProductAsync` operation is invoked. This approach reuses the same `HttpClient` object sharing the connection across all requests.
+If the class wrapping the external resource is shareable and thread-safe, either create a shared singleton instance or a pool of reusable instances of the class. The following code snippet shows a simple example. The `SingleHttpClientInstance` controller performs the same operation as the `NewHttpClientInstancePerRequest` controller shown earlier, except that the `HttpClient` object is created once, in the constructor, rather than each time the `GetProductAsync` operation is invoked. This approach reuses the same `HttpClient` object sharing the connection across all requests.
 
 **C# web API**
 ```C#
@@ -165,7 +165,7 @@ public class SingleServiceInstanceController : ApiController
 
 You should consider the following points:
 
-- In the example shown above, the *pool* consists of a single `ProductRepository` object, and by extension a single `HttpClient` object. If this approach causes contention, consider creating a pool of more than one instance of an object and spreading the workload across these instances.
+- The type of shared resource might dictate whether you should use a singleton or create a pool. The example shown above creates a single `ProductRepository` object, and by extension a single `HttpClient` object. This is because the `HttpClient` class is designed to be shared rather than pooled. Other types of object might support pooling enabling the system to spread the workload across multiple instances.
 
 - Objects that you share across multiple requests **must** be thread-safe. The `HttpClient` class is designed to be used in this manner, but other classes might not be, so check the available documentation.
 
@@ -181,7 +181,7 @@ Service Bus client objects, such as `QueueClient` or `MessageSender`, are create
 
 ## Consequences of the solution
 
-The system should should be more scalable, offer a higher throughput (the system is wasting less time acquiring and releasing resources and is therefore able to spend more time doing useful work), and report fewer errors as the workload increases. The following graph shows the load-test results for the sample application, using the same workload as before, but invoking the `GetProductAsync` method in the `SingleHttpClientInstance` controller:
+The system should be more scalable, offer a higher throughput (the system is wasting less time acquiring and releasing resources and is therefore able to spend more time doing useful work), and report fewer errors as the workload increases. The following graph shows the load-test results for the sample application, using the same workload as before, but invoking the `GetProductAsync` method in the `SingleHttpClientInstance` controller:
 
 ![Throughput of the sample application reusing the same instance of an HttpClient object for each request][throughput-single-HTTPClient-instance]
 
