@@ -1,13 +1,10 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Web.Http;
 using System.Threading.Tasks;
 using System.Data.SqlClient;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
+using System.Web.Http;
 using BusyDatabase.Support;
 using Microsoft.Azure;
 
@@ -28,27 +25,17 @@ namespace BusyDatabase.WebApi.Controllers
                 {
                     command.Parameters.AddWithValue("@TerritoryId", id);
 
-                    var reader = await command.ExecuteReaderAsync();
-                    var xml = new StringBuilder();
-                    while (await reader.ReadAsync())
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        xml.Append(reader.GetString(0));
+                        var xml = new StringBuilder();
+                        while (await reader.ReadAsync())
+                        {
+                            xml.Append(reader.GetString(0));
+                        }
+                        return ResponseMessage(HttpResponseHelper.CreateMessageFrom(xml.ToString()));
                     }
-
-                    return ResponseMessage(CreateMessageFrom(xml.ToString()));
                 }
             }
-        }
-
-        //TODO: move this to a better location
-        public static HttpResponseMessage CreateMessageFrom(string result)
-        {
-            var response = new HttpResponseMessage(HttpStatusCode.OK);
-            var mediaType = new MediaTypeHeaderValue("application/xml");
-            mediaType.Parameters.Add(new NameValueHeaderValue("charset", "utf-8"));
-            response.Content = new StringContent(result);
-            response.Content.Headers.ContentType = mediaType;
-            return response;
         }
     }
 }

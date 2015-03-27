@@ -26,17 +26,15 @@ namespace BusyDatabase.WebApi.Controllers
 
         public async Task<IHttpActionResult> Get(int id)
         {
-            try
+            using (var connection = new SqlConnection(SqlConnectionString))
             {
-                using (var connection = new SqlConnection(SqlConnectionString))
+                await connection.OpenAsync();
+                using (var command = new SqlCommand(Query, connection))
                 {
-                    await connection.OpenAsync();
-                    using (var command = new SqlCommand(Query, connection))
+                    command.Parameters.AddWithValue("@TerritoryId", id);
+
+                    using (var reader = await command.ExecuteReaderAsync())
                     {
-                        command.Parameters.AddWithValue("@TerritoryId", id);
-
-                        var reader = await command.ExecuteReaderAsync();
-
                         var lastOrderNumber = string.Empty;
 
                         var doc = new XDocument();
@@ -111,14 +109,11 @@ namespace BusyDatabase.WebApi.Controllers
                                     ));
                         }
 
-                        return ResponseMessage(TooMuchProcSqlController.CreateMessageFrom(doc.ToString()));
+                        return ResponseMessage(HttpResponseHelper.CreateMessageFrom(doc.ToString()));
                     }
                 }
             }
-            catch (Exception e)
-            {
-                throw e;
-            }
         }
+
     }
 }
