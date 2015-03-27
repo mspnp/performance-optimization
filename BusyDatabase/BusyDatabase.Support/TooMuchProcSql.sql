@@ -1,11 +1,8 @@
-﻿DECLARE @OrderId INT
-SET @OrderId = 47001
-
-DECLARE @TerritoryId INT
-SET @TerritoryId = 2
+﻿--DECLARE @TerritoryId INT
+--SET @TerritoryId = 1
 
 SELECT * FROM (
-
+-- root node <Orders />
 SELECT 
 1						AS Tag,
 NULL					AS Parent,
@@ -30,7 +27,7 @@ NULL					AS [LineItem!5!ProductId],
 NULL					AS [LineItem!5!InventoryCheckRequired]
 
 UNION ALL
--- root node
+-- <Order />
 SELECT 
 2						AS Tag,
 1						AS Parent,
@@ -41,9 +38,12 @@ soh.[ShipDate]			AS [Order!2!ShipDate],
 YEAR(soh.[OrderDate])	AS [Order!2!OrderDateYear],
 MONTH(soh.[OrderDate])	AS [Order!2!OrderDateMonth],
 soh.[DueDate]			AS [Order!2!DueDate],
-ROUND(soh.[SubTotal],2)	AS [Order!2!SubTotal],
-ROUND(soh.[TaxAmt],2)	AS [Order!2!TaxAmt],
-ROUND(soh.[TotalDue],2)	AS [Order!2!TotalDue],
+FORMAT(ROUND(soh.[SubTotal],2),'C')	
+						AS [Order!2!SubTotal],
+FORMAT(ROUND(soh.[TaxAmt],2),'C')	
+						AS [Order!2!TaxAmt],
+FORMAT(ROUND(soh.[TotalDue],2),'C')	
+						AS [Order!2!TotalDue],
 CASE WHEN soh.[TotalDue] > 5000 THEN 'Y' ELSE 'N' END 
 						AS [Order!2!ReviewRequired],
 NULL					AS [Customer!3!AccountNumber],
@@ -59,7 +59,7 @@ WHERE soh.[TerritoryId] = @TerritoryId
 
 UNION ALL
 
--- customer info
+-- <Customer />
 SELECT
 3						AS Tag,
 2						AS Parent,
@@ -92,7 +92,7 @@ WHERE soh.[TerritoryId] = @TerritoryId
 
 UNION ALL
 
--- container tag for line items
+-- <OrderLineItems />
 SELECT 
 4						AS Tag,
 2						AS Parent,
@@ -120,7 +120,7 @@ WHERE soh.[TerritoryId] = @TerritoryId
 
 UNION ALL
 
--- line items
+-- <LineItem />
 SELECT 
 5						AS Tag,
 4						AS Parent,
@@ -139,8 +139,10 @@ NULL					AS [Customer!3!AccountNumber],
 NULL					AS [Customer!3!FullName],
 NULL					AS [OrderLineItems!4],
 sod.[OrderQty]			AS [LineItem!5!Quantity],
-sod.[UnitPrice]			AS [LineItem!5!UnitPrice],
-ROUND(sod.[LineTotal],2)AS [LineItem!5!LineTotal],
+FORMAT(sod.[UnitPrice],'C')
+						AS [LineItem!5!UnitPrice],
+FORMAT(ROUND(sod.[LineTotal],2),'C')	
+						AS [LineItem!5!LineTotal],
 sod.[ProductID]			AS [LineItem!5!ProductId],
 CASE WHEN (sod.[ProductID] > 710) AND (sod.[ProductID] < 720) AND (sod.[OrderQty] > 5) THEN 'Y' ELSE 'N' END 
 						AS [LineItem!5!InventoryCheckRequired]
