@@ -1,1 +1,0 @@
-﻿select top 6 AddressLine1,city,stateprovinceid,postalcode,ModifiedDate from  person.address where city = 'Cheltenham'; 
