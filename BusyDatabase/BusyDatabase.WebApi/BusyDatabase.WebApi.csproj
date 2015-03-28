@@ -89,6 +89,7 @@
   <ItemGroup />
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Controllers\HttpResponseHelper.cs" />
     <Compile Include="Controllers\LessProcSqlController.cs" />
     <Compile Include="Controllers\TooMuchProcSqlController.cs" />
     <Compile Include="Global.asax.cs">

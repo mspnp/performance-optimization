@@ -1,1 +1,0 @@
-﻿select top 6  concat('Adress: ', UPPER(AddressLine1), ', city: ',UPPER(city), ', code city: ', UPPER(SUBSTRING(city, 0, 3)), ', Province: ',stateprovinceid,', zip: ', postalcode,',date: ',ModifiedDate) from  person.address where city = 'Cheltenham';
