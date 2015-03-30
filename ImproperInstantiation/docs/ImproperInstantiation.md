@@ -2,7 +2,7 @@
 
 Many .NET Framework libraries provide abstractions around external resources. Internally, these classes typically manage their own connections to these external resources, effectively acting as brokers that clients can use to request access to a resource. Examples of such classes frequently used by Azure applications include  `System.Net.Http.HttpClient` to communicate with a web service by using the HTTP protocol, `Microsoft.ServiceBus.Messaging.QueueClient` for posting and receiving messages to a Service Bus queue,  `Microsoft.Azure.Documents.Client.DocumentClient` for connecting to an Azure DocumentDB instance, and `StackExchange.Redis.ConnectionMultiplexer` for accessing Azure Redis Cache.
 
-These *broker* classes can be expensive to create. Instead, they are intended to be instantiated once and reused throughout the life of an application. However, it is common to misunderstand how these classes are intended to be used, and instead treat them as resources that should be acquired only as necessary and released quickly, as shown by the following code snippet that demonstrates the use of the `HttpClient` class in a web API controller. The `GetProductAsync` method retrieves product information from a remote service:
+These *broker* classes can be expensive to create. Instead, they are intended to be instantiated once and reused throughout the life of an application. However, it is common to misunderstand how these classes are intended to be used, and instead treat them as resources that should be acquired only as necessary and released quickly, as shown by the following code snippet that demonstrates the use of the `HttpClient` class in a web API controller. The `GetProductAsync` method retrieves product information from a remote web service:
 
 **C# web API**
 ``` C#
@@ -29,9 +29,9 @@ public class NewHttpClientInstancePerRequestController : ApiController
 
 ----------
 
-In a web application this technique is not scalable. Each user request results in the creation of a new `HttpClient` object. Under a heavy load, the web server can exhaust the number of sockets available, resulting in `SocketException` errors. 
+In a web application this technique is not scalable. Each user request results in the creation of a new `HttpClient` object. Under a heavy load, the web server can exhaust the number of sockets available resulting in `SocketException` errors. 
 
-This problem is not restricted to the `HttpClient` class. Creating many instances of other classes that wrap resources or are expensice to create might cause similar issues, or at least slow down the performance of the application they are continually created and destroyed. As a second example, consider the following code showing an alternative implementation of the `GetProductAsync` method; this time the data is retrieved from an external service wrapped by using the `ExpensiveToCreateService` class:
+This problem is not restricted to the `HttpClient` class. Creating many instances of other classes that wrap resources or are expensive to create might cause similar issues, or at least slow down the performance of the application as they are continually created and destroyed. As a second example, consider the following code showing an alternative implementation of the `GetProductAsync` method. This time the data is retrieved from an external service wrapped by using the `ExpensiveToCreateService` class:
 
 **C# web API**
 ``` C#
@@ -60,13 +60,13 @@ Symptoms of the *Improper Instantiation* problem include a drop in throughput, p
 
 You can perform the following steps to help identify this problem:
 
-1. Identify points at which response times slow down or the system fails due to lack of resources by performing process monitoring of the production system.
+1. Identify points at which response times slow down or the system fails due to lack of resources, by performing process monitoring of the production system.
 
-2. Examine the telemetry data captured at these points to determine which operations might be creating and destroying large resource-consuming objects at the point of slow-down.
+2. Examine the telemetry data captured at these points to determine which operations might be creating and destroying resource-consuming objects as the system slows down or fails.
 
 3. Perform load testing of each of the operations identified by step 3. Use a controlled test environment rather than the production system.
 
-4. Review the source code for the possible operations to identify the points at which broker objects are created and destroyed.
+4. Review the source code for the possible operations and examine the logic behind the the lifecycle of the broker objects being created and destroyed.
 
 The following sections apply these steps to the sample application described earlier.
 
@@ -76,11 +76,11 @@ The following sections apply these steps to the sample application described ear
 
 ----------
 
-### Identifying points of slow-down
+### Identifying points of slow-down or failure
 
 Instrumenting each operation in the production system to track the duration of each request and then monitoring the live system can help to provide an overall view of how the requests perform. You should monitor the system and track which operations are long-running or cause exceptions.
 
-The following image shows the Overview pane of the New Relic monitor dashboard, highlighting operations that have a poor response time and the increased error rate while these operations are running. In this case, it is operations that invoke the `GetProductAsync` method in the `NewHttpClientInstancePerRequest` controller that are worth investigating further:
+The following image shows the Overview pane of the New Relic monitor dashboard, highlighting operations that have a poor response time and the increased error rate that occurs while these operations are running (this telemetry was gathered while the system was undergoing load-testing, but similar observations are likely to occur in the live system during periods of high usage). In this case, it is operations that invoke the `GetProductAsync` method in the `NewHttpClientInstancePerRequest` controller that are worth investigating further:
 
 ![The New Relic monitor dashboard showing the sample application creating a new instance of an HttpClient object for each request][dashboard-new-HTTPClient-instance]
 
@@ -88,7 +88,7 @@ You should also look for operations that trigger increased memory use and garbag
 
 ### Examining telemetry data and finding correlations
 
-You should examine stack trace information for operations that are slow-running or that generate exceptions. This information can help to identify how they are utilizing resources, and exception information can be used to determine whether errors are caused by the system exhausting shared resources. The image below shows information captured by thread profiling for the period corresponding to that shown in the previous image. Note that the system spends a significant time opening socket connections and even more time closing them and handling socket exceptions:
+You should examine stack trace information for operations that have been identified as slow-running or that generate exceptions when the system is under load. This information can help to identify how these operations are utilizing resources, and exception information can be used to determine whether errors are caused by the system exhausting shared resources. The image below shows data captured by using thread profiling for the period corresponding to that shown in the previous image. Note that the system spends a significant time opening socket connections and even more time closing them and handling socket exceptions:
 
 ![The New Relic thread profiler showing the sample application creating a new instance of an HttpClient object for each request][thread-profiler-new-HTTPClient-instance]
 
@@ -98,17 +98,17 @@ You can use load-testing based on workloads that emulate the typical sequence of
 
 ![Throughput of the sample application creating a new instance of an HttpClient object for each request][throughput-new-HTTPClient-instance]
 
-The volume of requests handled per second increases at the 10-user point due to the increased workload up to approximately 30 users. At this point, the volume of successful requests reaches a limit and the system starts to generate errors. The volume of these exceptions gradually increases with the user load. These failures are reported by the load test as HTTP 500 (Internal Server) errors. Reviewing the telemetry (shown earlier) for this test case reveals that these errors are caused by the system running out of socket resources as more and more `HttpClient` objects are created.
+The volume of requests handled per second increases at the 10-user point due to the increased workload up to approximately 30 users. At this point, the volume of successful requests reaches a limit and the system starts to generate exceptions. The volume of these exceptions gradually increases with the user load. These failures are reported by the load test as HTTP 500 (Internal Server) errors. Reviewing the telemetry (shown earlier) for this test case reveals that these errors are caused by the system running out of socket resources as more and more `HttpClient` objects are created.
 
 The second graph below shows the results of a similar test performed by using the `NewServiceInstancePerRequest` controller. This controller does not use `HttpClient` objects, but instead utilizes a custom object (`ExpensiveToCreateService`) to fetch data:
 
 ![Throughput of the sample application creating a new instance of the ExpensiveToCreateService for each request][throughput-new-ExpensiveToCreateService-instance]
 
-This time, although the controller does not generate any exceptions, throughput still reaches a plateau while the average response time increases by a factor of 20 with user-load. *Note that the scale for the response time and throughput are logarithmic, so the rate at which the response time grows is actually more dramatic than might appear at first glance.* Examining the telemetry for this code should reveal that the main causes of this limitation are the time and resources spent creating new instances of the `ExpensiveToCreateService` for each request.
+This time, although the controller does not generate any exceptions, throughput still reaches a plateau while the average response time increases by a factor of 20 with user-load. *Note that the scale for the response time and throughput are logarithmic, so the rate at which the response time grows is actually more dramatic than appears at first glance.* Examining the telemetry for this code reveals that the main causes of this limitation are the time and resources spent creating new instances of the `ExpensiveToCreateService` for each request.
 
 ### Reviewing the code
 
-If you have managed to identify which parts of an application are causing exceptions due to resource exhaustion, perform a review of the code or use profiling to find out how shareable objects are being instantiated, used, and destroyed. Where appropriate, refactor code to cache and reuse objects, as described in the following section.
+Once you have managed to identify which parts of an application are causing the system to slow down or generate exceptions due to resource exhaustion, perform a review of the code or use profiling to find out how shareable objects are being instantiated, used, and destroyed. Where appropriate, refactor the code to cache and reuse objects, as described in the following section.
 
 ## How to correct the problem
 
@@ -167,7 +167,7 @@ You should consider the following points:
 
 - The type of shared resource might dictate whether you should use a singleton or create a pool. The example shown above creates a single `ProductRepository` object, and by extension a single `HttpClient` object. This is because the `HttpClient` class is designed to be shared rather than pooled. Other types of object might support pooling enabling the system to spread the workload across multiple instances.
 
-- Objects that you share across multiple requests **must** be thread-safe. The `HttpClient` class is designed to be used in this manner, but other classes might not be, so check the available documentation.
+- Objects that you share across multiple requests **must** be thread-safe. The `HttpClient` class is designed to be used in this manner, but other classes might not support concurrent requests, so check the available documentation.
 
 - In the .NET Framework, many objects that establish connections to external resources are created by using static factory methods of other classes that manage these connections. The objects created are intended to be saved and reused rather than being destroyed and recreated as required. For example, the the [Best Practices for Performance Improvements Using Service Bus Brokered Messaging][best-practices-service-bus] page contains the following comment:
 
