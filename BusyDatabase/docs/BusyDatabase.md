@@ -18,40 +18,101 @@ This anti-pattern typically occurs because:
 
 ----------
 
-- It is viewed as a strategy to combat issues with network bandwidth as described by the [Retrieving Too Much Data][retrievingtoomuchdata] anti-pattern.
+- It is viewed as a strategy to combat issues with network bandwidth as described by the [Extraneous Fetching][ExtraneousFetching] anti-pattern.
 
 - An application uses stored procedures in a database to encapsulate business logic because they are easier to maintain and quicker to deploy than doing rolling updates to code in web applications. The process of updating a stored procedure is also less disruptive to end-users of an application (no reinstallation required).
 
-- There is the perception that a database running on powerful hardware is more efficient at performing computations over data than a client application.
+- There is the perception that a database running on powerful hardware is more efficient at performing calculations or transformations over data than a client application running on less-powerful machinery.
 
-The [sample application][fullDemonstrationOfProblem] available with this anti-pattern illustrates a conceptual example that uses Azure SQL Database to perform a set of string manipulations on some test data by using Transact-SQL (the code replaces all occurrences of "ca" in the data retrieved with "cat", and then replaces all commas with spaces):
+The [sample application][fullDemonstrationOfProblem] available with this anti-pattern illustrates an example that uses Azure SQL Database to retrieve the details of the top 20 most valuable orders for a specified sales territory and format the results as XML. This example uses Transact-SQL functions to parse the data as it is retrieved from the various tables in the database and uses the XML capabilities of Transact-SQL to converts the resulting data to XML:
 
 **Transact-SQL:**
 ```SQL
-declare @Items varchar(8000);
-declare @ItemList varchar(8000);
-DECLARE @DelimIndex     INT;
-DECLARE @Item   VARCHAR(8000);
-SELECT @ItemList = ... /* Retrieve the data to be processed from a table in the database */
-declare @Delimiter varchar(1);
-SET @Delimiter = ',';
-SET @DelimIndex = CHARINDEX(@Delimiter, @ItemList, 0);
-SET @Item = LTRIM(SUBSTRING(@ItemList, 0, @DelimIndex));
-SET @Items = @Item;
-WHILE (@DelimIndex != 0)
-BEGIN
-    SET @ItemList = SUBSTRING(@ItemList, @DelimIndex+1, LEN(@ItemList)-@DelimIndex)
-	SET @DelimIndex = CHARINDEX(@Delimiter, @ItemList, 0)
-	SET @Item = LTRIM(SUBSTRING(@ItemList, 0, @DelimIndex))
-	Set @Item =Replace('ca','ca','cat')
-	SET @Items=CONCAT(@Items,' ',@Item)	
-END; -- End WHILE
-SET @Item = LTRIM(SUBSTRING(@ItemList, 0, @DelimIndex))
-SET @Items=CONCAT(@Items,' ',@Item);	
-select  @Items as FormattedList;
+SELECT TOP 20
+  soh.[SalesOrderNumber]  AS '@OrderNumber',
+  soh.[Status]            AS '@Status',
+  soh.[ShipDate]          AS '@ShipDate',
+  YEAR(soh.[OrderDate])   AS '@OrderDateYear',
+  MONTH(soh.[OrderDate])  AS '@OrderDateMonth',
+  soh.[DueDate]           AS '@DueDate',
+  FORMAT(ROUND(soh.[SubTotal],2),'C')
+                          AS '@SubTotal',
+  FORMAT(ROUND(soh.[TaxAmt],2),'C')
+                          AS '@TaxAmt',
+  FORMAT(ROUND(soh.[TotalDue],2),'C')
+                          AS '@TotalDue',
+  CASE WHEN soh.[TotalDue] > 5000 THEN 'Y' ELSE 'N' END
+                          AS '@ReviewRequired',
+  (
+  SELECT
+    c.[AccountNumber]     AS '@AccountNumber',
+    UPPER(LTRIM(RTRIM(REPLACE(
+    CONCAT( p.[Title], ' ', p.[FirstName], ' ', p.[MiddleName], ' ', p.[LastName], ' ', p.[Suffix]),
+    '  ', ' '))))         AS '@FullName'
+  FROM [Sales].[Customer] c
+    INNER JOIN [Person].[Person] p
+  ON c.[PersonID] = p.[BusinessEntityID]
+  WHERE c.[CustomerID] = soh.[CustomerID]
+  FOR XML PATH ('Customer'), TYPE
+  ),
+
+  (
+  SELECT
+    sod.[OrderQty]      AS '@Quantity',
+    FORMAT(sod.[UnitPrice],'C')
+                        AS '@UnitPrice',
+    FORMAT(ROUND(sod.[LineTotal],2),'C')
+                        AS '@LineTotal',
+    sod.[ProductID]     AS '@ProductId',
+    CASE WHEN (sod.[ProductID] >= 710) AND (sod.[ProductID] <= 720) AND (sod.[OrderQty] >= 5) THEN 'Y' ELSE 'N' END
+                        AS '@InventoryCheckRequired'
+
+  FROM [Sales].[SalesOrderDetail] sod
+  WHERE sod.[SalesOrderID] = soh.[SalesOrderID]
+  ORDER BY sod.[SalesOrderDetailID]
+  FOR XML PATH ('LineItem'), TYPE, ROOT('OrderLineItems')
+  )
+
+FROM [Sales].[SalesOrderHeader] soh
+WHERE soh.[TerritoryId] = @TerritoryId
+ORDER BY soh.[TotalDue] DESC
+FOR XML PATH ('Order'), ROOT('Orders')
 ```
 
-The code that invokes this Transact-SQL block is located in the `GetNameConcat` method in the `TooMuchProcSql` web API controller in the sample application.
+----------
+
+**Note:** The code that invokes this Transact-SQL block is located in the `Get` method in the `TooMuchProcSql` web API controller in the sample application.
+
+----------
+
+The following XML fragment shows a sample of the results generated by this query:
+
+**XML**
+```XML
+<Orders>
+  <Order OrderNumber="SO51830" Status="5" ShipDate="2007-08-08T00:00:00" OrderDateYear="2007" OrderDateMonth="8" DueDate="2007-08-13T00:00:00" SubTotal="$112,611.97" TaxAmt="$10,849.67" TotalDue="$126,852.16" ReviewRequired="Y">
+    <Customer AccountNumber="AW00029617" FullName="MS. LINDSEY R. CAMACHO" />
+    <OrderLineItems>
+      <LineItem Quantity="14" UnitPrice="$5.21" LineTotal="$71.54" ProductId="875" InventoryCheckRequired="N" />
+      <LineItem Quantity="5" UnitPrice="$32.39" LineTotal="$161.97" ProductId="881" InventoryCheckRequired="N" />
+      <LineItem Quantity="11" UnitPrice="$649.88" LineTotal="$7,005.75" ProductId="801" InventoryCheckRequired="N" />
+      <LineItem Quantity="9" UnitPrice="$672.29" LineTotal="$6,050.65" ProductId="798" InventoryCheckRequired="N" />
+      ...
+    </OrderLineItems>
+  </Order>
+  <Order OrderNumber="SO57105" Status="5" ShipDate="2007-11-08T00:00:00" OrderDateYear="2007" OrderDateMonth="11" DueDate="2007-11-13T00:00:00" SubTotal="$110,050.84" TaxAmt="$10,818.02" TotalDue="$124,249.49" ReviewRequired="Y">
+    <Customer AccountNumber="AW00029818" FullName="MR. ROGER HARUI" />
+    <OrderLineItems>
+      <LineItem Quantity="8" UnitPrice="$461.69" LineTotal="$3,693.55" ProductId="983" InventoryCheckRequired="N" />
+      <LineItem Quantity="1" UnitPrice="$37.15" LineTotal="$37.15" ProductId="809" InventoryCheckRequired="N" />
+      <LineItem Quantity="2" UnitPrice="$72.16" LineTotal="$144.32" ProductId="810" InventoryCheckRequired="N" />
+      ...
+    </OrderLineItems>
+    ...
+  </Order>
+</Orders>
+```
+This is clearly a complex query that utilizes significant processing resources on the database server. 
 
 ## How to detect the problem
 
@@ -79,19 +140,17 @@ You can use a application performance monitor to track the database activity of 
 
 If you suspect that particular operations might be cause undue database activity, then you can perform load-testing in a controlled environment. Each test should run a mixture of the suspect operations using a variable user-load to see how the system responds. You should also monitor the test system and examine the telemetry generated while the load test is in operation and observe how the database is used.
 
-The following graph shows the results of performing a load-test against the sample application using a step-load of up to 1000 concurrent users. The volume of tests that the system can handle quickly reaches a limit and stays at that level, while the response time steadily increases (not that the scale measuring the number of tests and the response time is logarithmic):
+The following graph shows the results of performing a load-test against the sample application using a step-load of up to 50 concurrent users. The volume of tests that the system can handle quickly reaches a limit and stays at that level, while the response time steadily increases (not that the scale measuring the number of tests and the response time is logarithmic):
 
 ![Load-test results for performing processing in the database][ProcessingInDatabaseLoadTest]
 
-Examining the performance of the SQL Database by using the database monitor in the Azure Management console and capturing the CPU utilization together with the number of database throughput units (DTU) provides a measure of how much processing the database was performing. In the graph below, CPU and DTU utilization both reached 100% during the test (the test ran from 9:05 to 9:30, including some warm-up time)
+Examining the performance of the SQL Database by using the database monitor in the Azure Management console and capturing the CPU utilization together with the number of database throughput units (DTU) provides a measure of how much processing the database was performing. In the graph below, CPU and DTU utilization both quickly reached 100% during the test (the test ran from 10:20 to 10:50.)
 
 ![Azure SQL Database monitor showing the performance of the database while performing processing][ProcessingInDatabaseMonitor]
 
 ### Examining the work performed by the database
 
-It could be that the tasks performed by the database are genuine data access operations, so it is important to understand the SQL statements being run while the database is busy. You can capture this information by using the monitoring information to correlate with the operational requests (user activity) being performed and then retrieve the low-level details of the SQL operations being made by these requests.
-
-**NOTES AND IMAGE SHOWING SQL OPERATIONS FOR A WEB TRANSACTION CAPTURED BY USING NEW RELIC**
+It could be that the tasks performed by the database are genuine data access operations, so it is important to understand the SQL statements being run while the database is busy. You should monitor the system to capture the SQL traffic and correlate the operational requests (user activity) being performed by the application with the SQL operations being executed by these requests.
 
 ### Reviewing the source code
 
@@ -101,33 +160,137 @@ If you identify database operations that perform processing rather than data acc
 
 Relocate processing from the database server to the client application where appropriate. This will involve refactoring the application code, and it may still be necessary to retrieve some information from the database to implement an operation. Ideally, you should limit the database to performing data access operations, and possibly to summarizing information where appropriate if the database server supports the necessary aggregation functions.
 
-In the sample application, the Transact-SQL code can be replaced with the following statements that simply retrieve the data to be processed from the database:
+In the sample application, the Transact-SQL code can be replaced with the following statement that simply retrieves the data to be processed from the database:
 
 **Transact-SQL:**
 ```SQL
-declare @ItemList varchar(8000);
-SELECT @ItemList = ... /* Retrieve the data to be processed from a table in the 
+SELECT 
+soh.[SalesOrderNumber]  AS [OrderNumber],
+soh.[Status]            AS [Status],
+soh.[OrderDate]         AS [OrderDate],
+soh.[DueDate]           AS [DueDate],
+soh.[ShipDate]          AS [ShipDate],
+soh.[SubTotal]          AS [SubTotal],
+soh.[TaxAmt]            AS [TaxAmt],
+soh.[TotalDue]          AS [TotalDue],
+c.[AccountNumber]       AS [AccountNumber],
+p.[Title]               AS [CustomerTitle],
+p.[FirstName]           AS [CustomerFirstName],
+p.[MiddleName]          AS [CustomerMiddleName],
+p.[LastName]            AS [CustomerLastName],
+p.[Suffix]              AS [CustomerSuffix],
+sod.[OrderQty]          AS [Quantity],
+sod.[UnitPrice]         AS [UnitPrice],
+sod.[LineTotal]         AS [LineTotal],
+sod.[ProductID]         AS [ProductId]
+FROM [Sales].[SalesOrderHeader] soh
+INNER JOIN [Sales].[Customer] c ON soh.[CustomerID] = c.[CustomerID]
+INNER JOIN [Person].[Person] p ON c.[PersonID] = p.[BusinessEntityID]
+INNER JOIN [Sales].[SalesOrderDetail] sod ON soh.[SalesOrderID] = sod.[SalesOrderID]
+WHERE soh.[TerritoryId] = @TerritoryId
+AND soh.[SalesOrderId] IN (
+	SELECT TOP 20 SalesOrderId 
+	FROM [Sales].[SalesOrderHeader] soh 
+	WHERE soh.[TerritoryId] = @TerritoryId
+	ORDER BY soh.[TotalDue] DESC)
+ORDER BY soh.[TotalDue] DESC, sod.[SalesOrderDetailID]
 ```
 
-The processing is performed by the client application using the `Replace` method of the `string` class, as follows:
+The processing is performed by the client application using the XML library available with the .NET Framework, as follows:
 
 **C#**
 ```C#
-using (SqlCommand command = new SqlCommand(commandString, connection))
+
+// Create a new SqlCommand to run the Transact-SQL query
+using (var command = new SqlCommand(...))
 {
-    command.CommandType = CommandType.Text;
-    using (SqlDataReader reader = await command.ExecuteReaderAsync())
+    command.Parameters.AddWithValue("@TerritoryId", id);
+
+    // Run the query and create the initial XML document
+    using (var reader = await command.ExecuteReaderAsync())
     {
+        var lastOrderNumber = string.Empty;
+
+        var doc = new XDocument();
+        var orders = new XElement("Orders");
+
+        doc.Add(orders);
+        XElement lineItems = null;
+
+        // Fetch each row in turn, format the results as XML, and add them to the XML document
         while (await reader.ReadAsync())
         {
-            var field = await reader.GetFieldValueAsync<string>(0);       
-            field=field.Replace("ca","cat").Replace(',',' ');
+            var orderNumber = reader["OrderNumber"].ToString();
+
+            if (orderNumber != lastOrderNumber)
+            {
+                lastOrderNumber = orderNumber;
+
+                var order = new XElement("Order");
+                orders.Add(order);
+                var customer = new XElement("Customer");
+                lineItems = new XElement("OrderLineItems");
+                order.Add(customer, lineItems);
+
+                var orderDate = (DateTime)reader["OrderDate"];
+
+                var totalDue = (Decimal)reader["TotalDue"];
+                var reviewRequired = totalDue > 5000
+                    ? 'Y'
+                    : 'N';
+
+                order.Add(
+                    new XAttribute("OrderNumber", orderNumber),
+                    new XAttribute("Status", reader["Status"]),
+                    new XAttribute("ShipDate", reader["ShipDate"]),
+                    new XAttribute("OrderDateYear", orderDate.Year),
+                    new XAttribute("OrderDateMonth", orderDate.Month),
+                    new XAttribute("DueDate", reader["DueDate"]),
+                    new XAttribute("SubTotal", RoundAndFormat(reader["SubTotal"])),
+                    new XAttribute("TaxAmt", RoundAndFormat(reader["TaxAmt"])),
+                    new XAttribute("TotalDue", RoundAndFormat(totalDue)),
+                    new XAttribute("ReviewRequired", reviewRequired));
+
+                    var fullName = string.Join(" ",
+                        reader["CustomerTitle"],
+                        reader["CustomerFirstName"],
+                        reader["CustomerMiddleName"],
+                        reader["CustomerLastName"],
+                        reader["CustomerSuffix"]
+                    )
+                   .Replace("  ", " ") //remove double spaces
+                   .Trim()
+                   .ToUpper();
+
+               customer.Add(
+                    new XAttribute("AccountNumber", reader["AccountNumber"]),
+                    new XAttribute("FullName", fullName));
+            }
+
+            var productId = (int)reader["ProductID"];
+            var quantity = (short)reader["Quantity"];
+
+            var inventoryCheckRequired = (productId >= 710 && productId <= 720 && quantity >= 5)
+                ? 'Y'
+                : 'N';
+
+            lineItems.Add(
+                new XElement("LineItem",
+                    new XAttribute("Quantity", quantity),
+                    new XAttribute("UnitPrice", ((Decimal)reader["UnitPrice"]).ToString("C")),
+                    new XAttribute("LineTotal", RoundAndFormat(reader["LineTotal"])),
+                    new XAttribute("ProductId", productId),
+                    new XAttribute("InventoryCheckRequired", inventoryCheckRequired)
+                ));
         }
+
+        // Match the exact formatting of the XML returned from SQL
+        var xml = doc
+            .ToString(SaveOptions.DisableFormatting)
+            .Replace(" />", "/>");
     }
-    ...
 }
 ```
-
 
 ----------
 
@@ -137,27 +300,30 @@ using (SqlCommand command = new SqlCommand(commandString, connection))
 
 You should consider the following points:
 
-- **TBD**. 
+- Many database systems are highly optimized to perform certain types of data processing, such as calculating aggregate values (such as `SUM`, `MAX`, `MIN`, `AVG`, `COUNT`) over large datasets. Do not transfer these types of processing to the client.
 
+- Do not relocate processing to the client if this decision means that the database server has to transfer far more data over the network (see the [Extraneous Fetching anti-pattern][ExtraneousFetching].)
+
+- The platform hosting the application requesting the data may require scaling to handle the additional processing load.
 
 ## Consequences of the solution
 
-Relocating processing to the client application leaves the database free to focus on supporting data access operations. The following graph shows the results of repeating the load-test from earlier against the updated code Note that the throughput is significantly higher (nearly 10000 requests per second versus 800 earlier), and the response time is correspondingly much lower (below 0.1 seconds compared to 1 second for the previous test):
+Relocating processing to the client application leaves the database free to focus on supporting data access operations. The following graph shows the results of repeating the load-test from earlier against the updated code (the test started just before 11:00 and ran for 30 minutes). Note that the throughput is significantly higher (over 400 requests per second versus 12 earlier), and the response time is correspondingly much lower (just above 0.1 seconds compared to over 4 seconds for the previous test):
 
 ![Load-test results for performing processing in the database][ProcessingInClientApplicationLoadTest]
 
-The database monitor in the Azure Management console shows the following CPU and DTU utilization. Notice that this time both figures only reached 40% despite the increased throughput and performance of the application:
+The database monitor in the Azure Management console shows the following CPU and DTU utilization. Notice that this time the system took far longer to reach saturation despite the increased throughput and performance of the application:
 
 ![Azure SQL Database monitor showing the performance of the database while performing processing in the client application][ProcessingInClientApplicationMonitor]
 
 ## Related resources
 
-- **REFS - TBD**
+- The [Model-View-ViewModel][MVVM] pattern.
 
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
 
-[retrievingtoomuchdata]: http://LINK_TO_TOO_MUCH_DATA_ANTIPATTERN
+[ExtraneousFetching]: http://LINK-TO-EXTRANEOUS-FETCHING-ANTI-PATTERN
 [MVVM]: http://blogs.msdn.com/b/msgulfcommunity/archive/2013/03/13/understanding_2d00_the_2d00_basics_2d00_of_2d00_mvvm_2d00_design_2d00_pattern.aspx
 
 [ProcessingInDatabaseLoadTest]: Figures/ProcessingInDatabaseLoadTest.jpg
