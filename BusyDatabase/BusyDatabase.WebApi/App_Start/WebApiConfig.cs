@@ -9,9 +9,6 @@ namespace BusyDatabase.WebApi
     {
         public static void Register(HttpConfiguration config)
         {
-            // We're explicitly building our responses
-            config.Formatters.Clear();
-
             config.MapHttpAttributeRoutes();
 
             config.Routes.MapHttpRoute(
