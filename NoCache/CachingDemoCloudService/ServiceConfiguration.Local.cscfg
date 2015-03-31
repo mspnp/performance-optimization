@@ -3,16 +3,8 @@
   <Role name="WebRole">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.Enabled" value="true" />
-      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountUsername" value="anoakley" />
-      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountEncryptedPassword" value="MIIBnQYJKoZIhvcNAQcDoIIBjjCCAYoCAQAxggFOMIIBSgIBADAyMB4xHDAaBgNVBAMME1dpbmRvd3MgQXp1cmUgVG9vbHMCEBecMKhjz6KESRPgfiK4U2owDQYJKoZIhvcNAQEBBQAEggEAc7HvP8a+kOLhs76C9p9lX0nFrenKMVC+D4EwaYJMLYj0VgtDMgVXSvmVkyqnKoJTzN6LQLlfd0d5CALWfUUCtt9vHx7D5IvP9QI9x+Gax9gbcpyuq+u9ui6lGC1z0kG5iO5GaiS1KgIljobXrW7gxFk+7EzRvqDYx5rnrYscUaeKAnrGnl7nFTcqZlXWVWoDLNlc2GZNHAQ2KdV/Qgkv8xjM8eJdou81BGedVBGogm3548ZtmTKqaTPw5utTHpJqdm/LRUimScB29S9CGq2YP+iYNRAmNd3nXEZ176d2qZqk9oM95gqec85mFiD+3+yB3p5O2avu7zDivi3Z3ZcQczAzBgkqhkiG9w0BBwEwFAYIKoZIhvcNAwcECJrlTq1D7P3CgBDV9sawQhVtB5rJco674Ddt" />
-      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteAccess.AccountExpiration" value="2016-02-13T23:59:59.0000000-08:00" />
-      <Setting name="Microsoft.WindowsAzure.Plugins.RemoteForwarder.Enabled" value="true" />
       <Setting name="AdventureWorksConnectionString" value="Server=tcp:u61n8x8o4r.database.windows.net,1433;Database=AdventureWorks2012;User ID=cachedemo@u61n8x8o4r;Password=Pass@word1;Trusted_Connection=False;Encrypt=True;Connection Timeout=30;MultipleActiveResultSets=True;App=CachingDemo" />
       <Setting name="RedisConfiguration" value="awcachedemo.redis.cache.windows.net, ssl=true, password=8nrngpPQT7JJOhmOJMNwf/3XzLRYLBBo8JM0u8kglpU=" />
     </ConfigurationSettings>
-    <Certificates>
-      <Certificate name="Microsoft.WindowsAzure.Plugins.RemoteAccess.PasswordEncryption" thumbprint="9DC1FF76874243F279F4D9213E9EAED21323FB5F" thumbprintAlgorithm="sha1" />
-    </Certificates>
   </Role>
 </ServiceConfiguration>
