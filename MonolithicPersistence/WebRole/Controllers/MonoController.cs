@@ -14,7 +14,7 @@ namespace WebRole.Controllers
         private static readonly string ProductionDb = CloudConfigurationManager.GetSetting("ProductionSqlDbCnStr");
         public const string LogTableName = "MonoLog";
 
-        public async Task<IHttpActionResult> PostAsync([FromBody]string value)
+        public async Task<IHttpActionResult> PostAsync()
         {
             await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
 
