@@ -24,8 +24,8 @@ namespace WebRole
         }
         public static void CreateSqldbLogTableIfNotExist(string connectionStr, string LogTableName)
         {
-            // This is a convienent method to save a setup step of creating Log Tables in Database. 
-            // If the database server is not created during the deployment and startup of the of the cloud service
+            // This is a convienent method to save a setup step of creating Log Tables in Databases. 
+            // In case that the database server is not created during the deployment and startup of the of the cloud service, 
             // We don't want the exception to be throw since a database setup can be run after the deployment
             // So we added the try with empty catch.
             try
