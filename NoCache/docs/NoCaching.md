@@ -1,8 +1,10 @@
 # No Caching
 
-The purpose of caching is to avoid repeatedly retrieving the same information from a resource that is expensive to access, and/or to reduce the need to expend processing resources constructing the same items when they are required by multiple requests. In a cloud service that has to handle many concurrent requests, the overhead associated with repeated operations can impact the performance and scalability of the system. 
+The purpose of caching is to avoid repeatedly retrieving the same information from a resource that is expensive to access, and/or to reduce the need to expend processing resources constructing the same items when they are required by multiple requests. In a cloud service that has to handle many concurrent requests, the overhead associated with repeated operations can impact the performance and scalability of the system.
 
-The following code snippet shows an example method that uses Entity Framework to connect to the [AdventureWorks2012][AdventureWorks2012] sample database implemented by using Azure SQL Database. The method then fetches the details of a customer (returned as a `Person` object) specified by the `id` parameter. Each time this method runs, it incurs the expense of communicating with the database. In a system designed to support multiple concurrent users, separate requests might retrieve the same information from the database. The costs associated with repeated requests can accumulate quickly. Additionally, if the system is unable to connect to the database for some reason then requests will fail:
+Caching can also help to reduce costs by reducing traffic into and out of resources such as data stores that make a charge for each request. In some cases, resource access might be metered and limited depending on the level of service provided by the resource host. Exceeding the resource access limit during a specified period of time might make the resource inaccessible or result in increased charges. Examples of such resources include Azure SQL Database where the rate of work and the number of transactions that can be performed each month are governed by the number of Database Throughput Units (DTUs) provided by the service tier and performance level selected for the service; a higher service tier and performance level grants more DTUs but at a higher monthly fee.
+
+The following code snippet shows an example method that uses Entity Framework to connect to the [AdventureWorks2012][AdventureWorks2012] sample database implemented by using Azure SQL Database. The method then fetches the details of a customer (returned as a `Person` object) specified by the `id` parameter. Each time this method runs, it incurs the expense of communicating with the database. In a system designed to support multiple concurrent users, separate requests might retrieve the same information from the database. The costs associated with repeated requests (in terms of I/O overhead and data access charges) can accumulate quickly. Additionally, if the system is unable to connect to the database for some reason then requests will fail:
 
 
 **C#**
@@ -75,7 +77,13 @@ If you are a designer or developer familiar with the structure of the applicatio
 
 ### Instrumenting the application and monitoring the live system
 
-You should instrument the system and monitor it in productions to provide more information about the specific requests that users make while the application is in production. You can then analyze the results to group them by operation. You can use lightweight logging  frameworks such as [NLog][NLog] or [Log4Net][Log4Net] to gather this information. You can also deploy more powerful tools such as [Microsoft Application Insights][AppInsights], [New Relic][NewRelic], or [AppDynamics][AppDynamics] to collect and analyze instrumentation information, but these tools incur more overhead than simple logging, and they should be disabled when not required. 
+You should instrument the system and monitor it in productions to provide more information about the specific requests that users make while the application is in production. You can then analyze the results to group them by operation. You can use lightweight logging  frameworks such as [NLog][NLog] or [Log4Net][Log4Net] to gather this information. You can also deploy more powerful tools such as [Microsoft Application Insights][AppInsights], [New Relic][NewRelic], or [AppDynamics][AppDynamics] to collect and analyze instrumentation information. 
+
+----------
+
+**Note:** Remember that instrumentation imposes a varying degree of overhead in a system, depending on the instrumentation strategy used and the tools adopted.
+
+----------
 
 As an example, if you configure the CachingDemo to capture monitoring data by using [New Relic][NewRelic], the analytics generated can quickly show you the frequency with which each server request occurs, as shown by the image below. In this case, the only HTTP GET operation performed is `Person/GetAsync` (the load-test simply repeats this same request each time), but in a live environment knowing the relative frequency with which each request is performed gives you an insight into which resources might best be cached: 
 
@@ -226,7 +234,7 @@ To determine the efficacy of any caching strategy, you should repeat load-testin
 
 ----------
 
-**Note:** Lack of caching sometimes acts as a natural regulator of throughput, and once this restriction is relaxed the increasing volume of traffic that a web site can support by using caching might result in the system being overwhelmed. This is typified by the system returning a large number of HTTP 403 (Forbidden) and HTTP 503 (Service Unavailable) messages, indicating that the web site hosting the service was temporarily unavailable. This is a common concern; increasing the potential throughput of the application can require that the infrastructure on which the application runs be scaled to handle the additional load.
+**Note:** Lack of caching sometimes acts as a natural regulator of throughput, and once this restriction is relaxed the increasing volume of traffic that a web site can support by using caching might result in the system being overwhelmed. This is typified by the system returning a large number of HTTP 503 (Service Unavailable) messages, indicating that the web site hosting the service is temporarily unavailable due to the volume of work being processed. This is a common concern; increasing the potential throughput of the application can require that the infrastructure on which the application runs be scaled to handle the additional load.
 
 ----------
 
