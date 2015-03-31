@@ -6,9 +6,15 @@ As well as the logic associated with storing and fetching data in a controlled a
 
 However, you should use the increased functionality available with database servers with care to prevent a database server from becoming overloaded. A common occurrence is to perform data processing on the database server in the belief that this is the most efficient way of implementing these tasks. However, offloading processing to a database server can cause it to spend a significant proportion of the time running code rather than responding to requests to store and retrieve data. In turn, this can impact the performance of all client applications using the database.
 
+----------
+
+**Note:** In some cases overloading a database can cause significant scalability issues. For example, you can scale Azure SQL Database vertically but it has a maximum quota in terms of Database Throughput Units (DTUs) which defines a hard-limit for the degree of vertical scalability. Scaling horizontally by using multiple database instances is a non-trivial task in terms of the increased design and programming complexity, and also the additional management effort required.
+
+----------
+
 This anti-pattern typically occurs because:
 
-- The database is viewed as a service rather than a repository. As such, an application might expect the database server to manipulate and format data (such as converting to XML), or perform complex calculations rather than simply returning raw information.
+- The database is viewed as a service rather than a repository. As such, an application might expect the database server to format data (such as converting to XML), manipulate string data, or perform complex calculations rather than simply returning raw information.
 
 - The client application uses data binding against the database and expects queries to return results that can be displayed directly. This might involve combining fields as they are retrieved from the database (for example, using SQL statements such as ` SELECT firstname + ' ' + middlename + ' ' + lastname FROM ...`), or formatting dates, times, currency, and numeric values according to locale.
 
@@ -116,7 +122,7 @@ This is clearly a complex query that utilizes significant processing resources o
 
 ## How to detect the problem
 
-Symptoms of a busy database in an application include a disproportionate degradation in throughput and response time in business operations that access the database.  
+Symptoms of a busy database in an application include a disproportionate degradation in throughput and response time in business operations that access the database. From a management perspective, the runtime costs may be excessive if data store resources are metered and charged (*remember, DTUs with Azure SQL Database*).
 
 You can perform the following steps to help identify this problem:
 
@@ -158,7 +164,7 @@ If you identify database operations that perform processing rather than data acc
 
 ## How to correct the problem
 
-Relocate processing from the database server to the client application where appropriate. This will involve refactoring the application code, and it may still be necessary to retrieve some information from the database to implement an operation. Ideally, you should limit the database to performing data access operations, and possibly to summarizing information where appropriate if the database server supports the necessary aggregation functions.
+Relocate processing from the database server to the client application or business tiere, where appropriate. This will involve refactoring the application code, and it may still be necessary to retrieve some information from the database to implement an operation. Ideally, you should limit the database to performing data access operations, and possibly to summarizing information where appropriate if the database server supports the necessary aggregation functions.
 
 In the sample application, the Transact-SQL code can be replaced with the following statement that simply retrieves the data to be processed from the database:
 
@@ -308,7 +314,9 @@ You should consider the following points:
 
 ## Consequences of the solution
 
-Relocating processing to the client application leaves the database free to focus on supporting data access operations. The following graph shows the results of repeating the load-test from earlier against the updated code (the test started just before 11:00 and ran for 30 minutes). Note that the throughput is significantly higher (over 400 requests per second versus 12 earlier), and the response time is correspondingly much lower (just above 0.1 seconds compared to over 4 seconds for the previous test):
+Relocating processing to the client application leaves the database free to focus on supporting data access operations. This strategy can also help to ensure that sufficient capacity remains available to handle business growth or surges in activity (expected and unexpected) caused by events such as marketing campaigns and product launches.
+
+The following graph shows the results of repeating the load-test from earlier against the updated code (the test started just before 11:00 and ran for 30 minutes). Note that the throughput is significantly higher (over 400 requests per second versus 12 earlier), and the response time is correspondingly much lower (just above 0.1 seconds compared to over 4 seconds for the previous test):
 
 ![Load-test results for performing processing in the database][ProcessingInClientApplicationLoadTest]
 
