@@ -116,8 +116,8 @@
   <ItemGroup>
     <Compile Include="App_Start\SqldbLogConfig.cs" />
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="Controllers\PolyglotController.cs" />
-    <Compile Include="Controllers\MonolithicController.cs" />
+    <Compile Include="Controllers\PolyController.cs" />
+    <Compile Include="Controllers\MonoController.cs" />
     <Compile Include="DataAccess.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>

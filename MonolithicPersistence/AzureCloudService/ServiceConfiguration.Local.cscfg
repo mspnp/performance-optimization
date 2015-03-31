@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ServiceConfiguration serviceName="AzureCloudService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2014-06.2.4">
   <Role name="WebRole">
-    <Instances count="1" />
+    <Instances count="5" />
     <ConfigurationSettings>
-      <Setting name="SQLDBConnectionString" value="[Your SQLDB connection string goes here]" />
-      <Setting name="EventHubName" value="[Your event hub name]" />
-      <Setting name="EventHubNamespace" value="[Your event hub namespace]" />
-      <Setting name="LogPolicyName" value="[your shared access policy name]" />
-      <Setting name="LogPolicyKey" value="[your shared access policy key]" />
+      <Setting name="ProductionSqlDbCnStr" value="[Your Production SQLDB connection string goes here]" />
+      <Setting name="LogSqlDbCnStr" value="[Your Log SQLDB connection string goes here]" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
