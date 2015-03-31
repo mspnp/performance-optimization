@@ -3,8 +3,8 @@
   <Role name="WebRole">
     <Instances count="1" />
     <ConfigurationSettings>
-      <Setting name="AdventureWorksConnectionString" value="Server=tcp:u61n8x8o4r.database.windows.net,1433;Database=AdventureWorks2012;User ID=cachedemo@u61n8x8o4r;Password=Pass@word1;Trusted_Connection=False;Encrypt=True;Connection Timeout=30;MultipleActiveResultSets=True;App=CachingDemo" />
-      <Setting name="RedisConfiguration" value="awcachedemo.redis.cache.windows.net, ssl=true, password=8nrngpPQT7JJOhmOJMNwf/3XzLRYLBBo8JM0u8kglpU=" />
+      <Setting name="AdventureWorksConnectionString" value="Server=tcp:{your sql azure db name}.database.windows.net,1433;Database=AdventureWorks2012;User ID={your userid};Password={your password};Trusted_Connection=False;Encrypt=True;Connection Timeout=30;MultipleActiveResultSets=True;App=CachingDemo" />
+      <Setting name="RedisConfiguration" value="{your azure redis server name}.redis.cache.windows.net, ssl=true, password={your redis password}" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
