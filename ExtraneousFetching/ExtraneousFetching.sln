@@ -7,17 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtraneousFetching.DataAcce
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExtraneousFetching.WebApi", "ExtraneousFetching.WebApi\ExtraneousFetching.WebApi.csproj", "{6EF1565F-1384-4C18-8556-8913388D9281}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "PublishScripts", "PublishScripts", "{2BADC12D-79BC-4340-AD68-B786A3BA981C}"
-	ProjectSection(SolutionItems) = preProject
-		PublishScripts\AzureWebsitePublishModule.psm1 = PublishScripts\AzureWebsitePublishModule.psm1
-		PublishScripts\Publish-WebApplicationWebsite.ps1 = PublishScripts\Publish-WebApplicationWebsite.ps1
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Configurations", "Configurations", "{43FE0805-7615-469A-B36F-F6F6BF288607}"
-	ProjectSection(SolutionItems) = preProject
-		PublishScripts\Configurations\ExtraneousFetchingWebApi-WAWS-dev.json = PublishScripts\Configurations\ExtraneousFetchingWebApi-WAWS-dev.json
-	EndProjectSection
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,8 +24,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{43FE0805-7615-469A-B36F-F6F6BF288607} = {2BADC12D-79BC-4340-AD68-B786A3BA981C}
 	EndGlobalSection
 EndGlobal
