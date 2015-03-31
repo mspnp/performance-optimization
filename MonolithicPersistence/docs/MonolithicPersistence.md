@@ -103,13 +103,19 @@ You should look for matches in increased response times and throughput against a
 
 ### Identifying data stores accessed during periods of poor performance
 
-Monitoring the the data stores used by system should provide an indication of how they are being accessed during the periods of poor performance. In the case of the sample application, the data indicated that poor performance coincided with a significant volume of requests to the SQL database holding the business and log data. As an example, the Monitor pane in the Azure Management Portal for the database used by the sample application showed that during load-testing the Database Throughput Unit (DTU) utilization reached 100% shortly after 5 minutes. This roughly equates with the point at which the throughput shown in the previous graph plateaued:
+Monitoring the the data stores used by system should provide an indication of how they are being accessed during the periods of poor performance. In the case of the sample application, the data indicated that poor performance coincided with a significant volume of requests to the SQL database holding the business and log data. As an example, the SQL Database Monitoring pane in the Azure Portal for the database used by the sample application showed that during load-testing the Database Throughput Unit (DTU) utilization quickly reached 100%. This roughly equates with the point at which the throughput shown in the previous graph plateaued. The database utilization remained very high until the test finished (there is a slight drop, possibly due to throttling, latency due to the competition for database connections, or other environmental factors):
 
 ![The database monitor in the Azure Management Portal showing resource utilization of the database][MonolithicDatabaseUtilization]
 
 A DTU is a measure of the available capacity of the system and is a combination of the CPU utilization, memory allocation, and the rate of read and write operations being performed. Each SQL database server allocates a quota of resources to applications measured in DTUs. The volume of DTUs available to an application depend on the service tier and performance level of the database server; creating an Azure SQL database using the Basic service tier provides 5 DTUs, while a database using the Premium Service Tier and P3 Performance Level has 800 DTUs available. When an application reaches the limit defined by the available DTUs database performance is throttled. At this point, throughput levels off but response time is likely to increase as database requests are queued. This is what happened during the load-test.
 
-### Examining the telemetry for data stores
+----------
+
+**Note:** See [Azure SQL Database Service Tiers and Performance Levels][ServiceTiersPerformanceLevels] for more information about SQL Database and DTUs.
+
+----------
+
+### Examining the telemetry for the data stores
 
 The data stores themselves should also be instrumented to capture the low-level details of the activity that occurs. In the sample application, during the load-test the data access statistics showed a high volume of insert operations performed against the `PurchaseOrderHeader` table and the `MonoLog` table in the AdventureWorks2012 database:
 
@@ -125,17 +131,15 @@ The data stores themselves should also be instrumented to capture the low-level 
 
 At this point you can conduct a review of the source code focussing on the points at which the contended resources are accessed by the application. While reviewing the code, look for situations such as:
 
-- Data that is logically separate being written to the same store.
+- Data that is logically separate being written to the same store; information such as logs, reports, and queued messages should not be held in the same database as business information.
 
-- Information being held in a data store that is not best suited for the operations being performed.
+- Information being held in a data store that is not best suited for the operations being performed, such as large binary objects (video or audio) or XML documents in a relational database.
 
 - Data which has significantly different usage patterns that share the same store, such as data that is written frequently but read relatively infrequently and vice versa.
 
 ## How to correct the problem
 
-Data which has different usage patterns or that is logically distinct can be partitioned into separate data stores. The data storage mechanism selected should be appropriate to the pattern of use for each data set. Additionally, you may be able to partition a single data store and structure the data to avoid hot-spots that are subject to high-levels of contention, or replicate data that is read often but written infrequently to spread the load across data stores.
-
-As an example, the code below is very similar to the `Monolithic` controller except that the log records are written to a different database running on a separate server. This approach helps to reduce pressure on the database holding the business information:
+Separate data according to its use, and select a data storage mechanism most  appropriate to the pattern of use for each data set. As an example, the code below is very similar to the `Monolithic` controller except that the log records are written to a different database running on a separate server. This approach helps to reduce pressure on the database holding the business information:
 
 **C# web API**
 ```C#
@@ -165,7 +169,7 @@ public class PolyController : ApiController
 
 You should consider the following points when determining the most appropriate scheme for storing business and operational data:
 
-- Partition data by the way in which it is used and where it is accessed. For example, don't store log information and audit records in the same data store. Although both types of data are written sequentially, they have significantly different requirements (log records are dispensable and should not contain confidential information whereas audit records must be permanent and may contain sensitive data).
+- Separate data by the way in which it is used and how it is accessed. For example, don't store log information and business data in the same data store. These types of data have significantly different requirements patterns of access (log records are inherently sequential while business data is more likely to be random access).
 
 - Use a storage technology that is most appropriate to the data access pattern for each type of data item. For example, store formatted reports and documents in a document database such as [DocumentDB][DocumentDB], use a specialized solution such as [Azure Redis Cache][Azure-cache] for caching temporary data, or use [Azure Table Storage][Azure-Table-Storage] for holding information written and accessed sequentially such as log files.
 
@@ -177,11 +181,11 @@ For comparison purposes, the following graph shows the results of performing the
 
 ![Load-test performance results using the Polyglot controller][PolyglotScenarioLoadTest]
 
-The pattern of the throughput is similar to that of the earlier graph, but the volume of requests supported when the performance levels out is approximately 500 requests per second higher. The response time is also marginally lower. However, these statistics do not tell the full story. Examining the utilization of the business database by using the Azure Management Portal reveals that DTU utilization now peaks at 67.85%:
+The pattern of the throughput is similar to that of the earlier graph, but the volume of requests supported when the performance levels out is approximately 500 requests per second higher. The response time is also marginally lower. However, these statistics do not tell the full story. Examining the utilization of the business database by using the Azure Management Portal reveals that DTU utilization now peaks at 75.46%:
 
 ![The database monitor in the Azure Management Portal showing resource utilization of the database in the polyglot scenarion][PolyglotDatabaseUtilization]
 
-Similarly, the DTU utilization of the log database only reaches 66.7%:
+Similarly, the maximum DTU utilization of the log database only reaches 70.52%:
 
 ![The database monitor in the Azure Management Portal showing resource utilization of the log database in the polyglot scenarion][LogDatabaseUtilization]
 
@@ -189,7 +193,7 @@ The databases are now no longer the limiting factor in the performance of the sy
 
 ----------
 
-**Note:** If you are still hitting the DTU limits for an Azure SQL database server then you may need to scale up to a higher Service Tier or Performance Level. Currently the Premium/P3 level is the highest level available, supporting up to 800 DTUs. If you anticipate exceeding this throughput, then you should consider scaling horizontally and partitioning the load across database servers.
+**Note:** If you are still hitting the DTU limits for an Azure SQL database server then you may need to scale up to a higher Service Tier or Performance Level. Currently the Premium/P3 level is the highest level available, supporting up to 800 DTUs. If you anticipate exceeding this throughput, then you should consider scaling horizontally and partitioning the load across database servers, although as described earlier this is a non-trivial task that may require redesigning the application.
 
 ----------
 
@@ -213,6 +217,7 @@ The databases are now no longer the limiting factor in the performance of the sy
 [Azure-Table-Storage]: http://azure.microsoft.com/documentation/articles/storage-dotnet-how-to-use-tables/
 [DataPartitioningGuidance]: https://msdn.microsoft.com/library/dn589795.aspx
 [TableStorageVersusDatabase]: https://msdn.microsoft.com/library/azure/jj553018.aspx
+[ServiceTiersPerformanceLevels]: https://msdn.microsoft.com/library/azure/dn741336.aspx
 [MonolithicScenarioLoadTest]: Figures/MonolithicScenarioLoadTest.jpg
 [MonolithicDatabaseUtilization]: Figures/MonolithicDatabaseUtilization.jpg
 [MonolithicDataAccessStats]: Figures/MonolithicDataAccessStats.jpg
