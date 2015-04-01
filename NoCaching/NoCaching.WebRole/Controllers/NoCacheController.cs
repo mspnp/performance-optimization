@@ -3,9 +3,9 @@
 
 using System.Threading.Tasks;
 using System.Web.Http;
-using CachingDemo.Data;
+using NoCaching.Data;
 
-namespace WebRole.Controllers
+namespace NoCaching.WebRole.Controllers
 {
     public class NoCacheController : ApiController
     {

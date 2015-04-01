@@ -3,10 +3,10 @@
 
 using System.Data.Entity;
 using System.Data.Entity.SqlServer;
-using CachingDemo.Data.Models;
 using Microsoft.Azure;
+using NoCaching.Data.Models;
 
-namespace CachingDemo.Data
+namespace NoCaching.Data
 {
     public class AdventureWorksContext : DbContext
     {

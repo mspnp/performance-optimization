@@ -7,7 +7,7 @@ using Microsoft.Azure;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 
-namespace CachingDemo.Data
+namespace NoCaching.Data
 {
     public class CacheService
     {

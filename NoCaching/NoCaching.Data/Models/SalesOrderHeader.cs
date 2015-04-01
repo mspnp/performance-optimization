@@ -3,7 +3,7 @@
 
 using System;
 
-namespace CachingDemo.Data.Models
+namespace NoCaching.Data.Models
 {
     public class SalesOrderHeader
     {

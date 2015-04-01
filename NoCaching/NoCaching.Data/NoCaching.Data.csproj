@@ -7,8 +7,8 @@
     <ProjectGuid>{9FCA9FDB-CCE3-4521-977E-8277AFB6B062}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CachingDemo.Data</RootNamespace>
-    <AssemblyName>CachingDemo.Data</AssemblyName>
+    <RootNamespace>NoCaching.Data</RootNamespace>
+    <AssemblyName>NoCaching.Data</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

@@ -3,9 +3,9 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using CachingDemo.Data.Models;
+using NoCaching.Data.Models;
 
-namespace CachingDemo.Data
+namespace NoCaching.Data
 {
     public class CachedSalesOrderRepository : ISalesOrderRepository
     {
