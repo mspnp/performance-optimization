@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Web.Http;
 
-namespace WebRole.Controllers
+namespace BusyFrontEnd.WebRole.Controllers
 {
     public class WorkInFrontEndController : ApiController
     {

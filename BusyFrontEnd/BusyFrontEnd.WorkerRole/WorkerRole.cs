@@ -5,12 +5,12 @@ using System;
 using System.Diagnostics;
 using System.Net;
 using System.Threading;
+using BusyFrontEnd.ServiceBusQueueHandling;
 using Microsoft.Azure;
 using Microsoft.ServiceBus.Messaging;
 using Microsoft.WindowsAzure.ServiceRuntime;
-using ServiceBusQueueHandling;
 
-namespace WorkerRole
+namespace BusyFrontEnd.WorkerRole
 {
     public class WorkerRole : RoleEntryPoint
     {

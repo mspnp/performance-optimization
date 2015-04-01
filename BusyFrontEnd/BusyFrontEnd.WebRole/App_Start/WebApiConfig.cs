@@ -3,7 +3,7 @@
 
 using System.Web.Http;
 
-namespace WebRole
+namespace BusyFrontEnd.WebRole
 {
     public static class WebApiConfig
     {

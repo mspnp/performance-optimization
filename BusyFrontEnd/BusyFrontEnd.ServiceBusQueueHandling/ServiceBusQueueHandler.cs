@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 
-namespace ServiceBusQueueHandling
+namespace BusyFrontEnd.ServiceBusQueueHandling
 {
     public class ServiceBusQueueHandler
     {

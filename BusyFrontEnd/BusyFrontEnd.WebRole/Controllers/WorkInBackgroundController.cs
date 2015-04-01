@@ -3,11 +3,11 @@
 
 using System.Threading.Tasks;
 using System.Web.Http;
+using BusyFrontEnd.ServiceBusQueueHandling;
 using Microsoft.Azure;
 using Microsoft.ServiceBus.Messaging;
-using ServiceBusQueueHandling;
 
-namespace WebRole.Controllers
+namespace BusyFrontEnd.WebRole.Controllers
 {
     public class WorkInBackgroundController : ApiController
     {
