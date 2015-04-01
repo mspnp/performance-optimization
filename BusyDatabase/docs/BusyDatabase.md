@@ -1,10 +1,10 @@
 # Busy Database
 
-The primary purpose of a database is to act as a repository of information. Technically, a database is simply a collection of data files, but most modern database systems implement a server-based approach that abstracts the details of how these files are structured. A database server also handles aspects such as concurrency and locking to prevent data being corrupted by concurrent read and write operations, and managing security to control access to data.
+The primary purpose of a database is to act as a repository of information. Technically, a database is simply a collection of data files, but most modern database systems implement a server-based approach that abstracts the details of how these files are structured. A database server also handles aspects such as concurrency and locking to prevent data from being corrupted by concurrent read and write operations, and managing security to control access to data.
 
-As well as the logic associated with storing and fetching data in a controlled and safe manner, many database systems include the ability to run code within the server. Examples include stored procedures and triggers. The intent is that it is often more efficient to perform this processing close to the data rather than transmitting the data to a client application for processing. It is possible for a single data update operation to run a number of database triggers and stored procedures, which might in turn invoke further triggers and stored procedures as the results of a single change causes inserts, updates, and deletes to other tables. Consider cascading deletes in a SQL database as an example; removing a one row in one table might trigger updates and deletes of many other related rows in other tables.
+As well as the logic associated with storing and fetching data in a controlled and safe manner, many database systems include the ability to run code within the server. Examples include stored procedures and triggers. The intent is that it is often more efficient to perform this processing close to the data rather than transmitting the data to a client application for processing. It is possible for a single data update operation to run a number of database triggers and stored procedures which might in turn fire further triggers and stored procedures. Consider cascading deletes in a SQL database as an example; removing a one row in one table might trigger updates and deletes of many other related rows in other tables.
 
-However, you should use the increased functionality available with database servers with care to prevent a database server from becoming overloaded. A common occurrence is to perform data processing on the database server in the belief that this is the most efficient way of implementing these tasks. However, offloading processing to a database server can cause it to spend a significant proportion of the time running code rather than responding to requests to store and retrieve data. In turn, this can impact the performance of all client applications using the database.
+However, you should use the increased functionality available with database servers with care to prevent a database server from becoming overloaded. A common occurrence is to perform data processing on the database server in the belief that this is the most efficient way of implementing these tasks. However, offloading processing to a database server can cause it to spend a significant proportion of the time running code rather than responding to requests to store and retrieve data. In turn, this can impact the performance of all client applications using the database; a database is usually a shared resource and as a result it can become a bottleneck during periods of high use.
 
 ----------
 
@@ -26,7 +26,7 @@ This anti-pattern typically occurs because:
 
 - It is viewed as a strategy to combat issues with network bandwidth as described by the [Extraneous Fetching][ExtraneousFetching] anti-pattern.
 
-- An application uses stored procedures in a database to encapsulate business logic because they are easier to maintain and quicker to deploy than doing rolling updates to code in web applications. The process of updating a stored procedure is also less disruptive to end-users of an application (no reinstallation required).
+- An application uses stored procedures in a database to encapsulate business logic because they are considered to be easier to maintain and quicker to deploy than doing rolling updates to code in web applications. The process of updating a stored procedure is also less disruptive to end-users of an application (no re-installation of the application is required).
 
 - There is the perception that a database running on powerful hardware is more efficient at performing calculations or transformations over data than a client application running on less-powerful machinery.
 
@@ -144,7 +144,7 @@ The following sections apply these steps to the sample application described ear
 
 You can use a application performance monitor to track the database activity of the system in production. If the volume of database activity is low or response times are relatively fast, then a busy database is unlikely to be a performance problem.
 
-If you suspect that particular operations might be cause undue database activity, then you can perform load-testing in a controlled environment. Each test should run a mixture of the suspect operations using a variable user-load to see how the system responds. You should also monitor the test system and examine the telemetry generated while the load test is in operation and observe how the database is used.
+If you suspect that particular operations might cause undue database activity, then you can perform load-testing in a controlled environment. Each test should run a mixture of the suspect operations using a variable user-load to see how the system responds. You should also monitor the test system and examine the telemetry generated while the load test is in operation and observe how the database is used.
 
 The following graph shows the results of performing a load-test against the sample application using a step-load of up to 50 concurrent users. The volume of tests that the system can handle quickly reaches a limit and stays at that level, while the response time steadily increases (not that the scale measuring the number of tests and the response time is logarithmic):
 
@@ -164,7 +164,7 @@ If you identify database operations that perform processing rather than data acc
 
 ## How to correct the problem
 
-Relocate processing from the database server to the client application or business tiere, where appropriate. This will involve refactoring the application code, and it may still be necessary to retrieve some information from the database to implement an operation. Ideally, you should limit the database to performing data access operations, and possibly to summarizing information where appropriate if the database server supports the necessary aggregation functions.
+Relocate processing from the database server to the client application or business tier, where appropriate. This will involve refactoring the application code, and it may still be necessary to retrieve some information from the database to implement an operation. Ideally, you should limit the database to performing data access operations, and possibly to summarizing information where appropriate if the database server supports the necessary aggregation functions.
 
 In the sample application, the Transact-SQL code can be replaced with the following statement that simply retrieves the data to be processed from the database:
 
