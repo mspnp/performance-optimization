@@ -1,12 +1,11 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using Microsoft.Azure;
 using System.Threading.Tasks;
 using System.Web.Http;
-using WebRole.Models;
+using Microsoft.Azure;
 
-namespace WebRole.Controllers
+namespace MonolithicPersistence.WebRole.Controllers
 {
     public class PolyController : ApiController
     {

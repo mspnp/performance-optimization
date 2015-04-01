@@ -3,7 +3,7 @@
 
 using System.Web.Http;
 
-namespace WebRole
+namespace MonolithicPersistence.WebRole
 {
     public static class WebApiConfig
     {

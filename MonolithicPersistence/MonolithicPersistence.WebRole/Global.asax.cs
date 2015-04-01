@@ -4,7 +4,7 @@
 ﻿using System.Web;
 using System.Web.Http;
 
-namespace WebRole
+namespace MonolithicPersistence.WebRole
 {
     public class WebApiApplication : HttpApplication
     {

@@ -2,16 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
-using System.Data;
 using System.Data.SqlClient;
-using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Azure;
-using Microsoft.ServiceBus.Messaging;
-using Newtonsoft.Json;
-using WebRole.Models;
+using MonolithicPersistence.WebRole.Models;
 
-namespace WebRole
+namespace MonolithicPersistence.WebRole
 {
     public static class DataAccess
     {
