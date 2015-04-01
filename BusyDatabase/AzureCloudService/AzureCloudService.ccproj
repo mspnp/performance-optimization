@@ -8,10 +8,10 @@
     <ProjectGuid>0746b5f3-d2b1-4e48-b4b7-b8e3dbce2a1b</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DeployToAzure</RootNamespace>
-    <AssemblyName>DeployToAzure</AssemblyName>
+    <RootNamespace>AzureCloudService</RootNamespace>
+    <AssemblyName>AzureCloudService</AssemblyName>
     <StartDevelopmentStorage>True</StartDevelopmentStorage>
-    <Name>DeployToAzure</Name>
+    <Name>AzureCloudService</Name>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
