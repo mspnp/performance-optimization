@@ -37,20 +37,19 @@
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="WebRoleContent\" />
+    <Folder Include="SynchronousIO.WebRoleContent" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WebRole\WebRole.csproj">
-      <Name>WebRole</Name>
+    <DiagnosticsConfiguration Include="SynchronousIO.WebRoleContent\diagnostics.wadcfgx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SynchronousIO.WebRole\SynchronousIO.WebRole.csproj">
+      <Name>SynchronousIO.WebRole</Name>
       <Project>{6653bdeb-7cc1-43a6-b88a-39c655696e6d}</Project>
       <Private>True</Private>
       <RoleType>Web</RoleType>
-      <RoleName>WebRole</RoleName>
-      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+      <RoleName>SynchronousIO.WebRole</RoleName>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <DiagnosticsConfiguration Include="WebRoleContent\diagnostics.wadcfgx" />
   </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>

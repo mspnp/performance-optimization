@@ -5,7 +5,7 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AzureCloudService", "AzureCloudService\AzureCloudService.ccproj", "{3C55BD0F-A0BC-4BC4-BECF-FF796D06FDFB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRole", "WebRole\WebRole.csproj", "{E1A8B52F-6B6E-45FF-B298-4DFB5CE1B779}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonolithicPersistence.WebRole", "MonolithicPersistence.WebRole\MonolithicPersistence.WebRole.csproj", "{E1A8B52F-6B6E-45FF-B298-4DFB5CE1B779}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

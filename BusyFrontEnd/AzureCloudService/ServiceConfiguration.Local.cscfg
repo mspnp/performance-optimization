@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="BackgroundProcessor" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2014-06.2.4">
+  <Role name="BusyFrontEnd.WorkerRole">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.ServiceBus.ConnectionString" value="[Your Service Bus connection string goes here]" />
+      <Setting name="Microsoft.ServiceBus.QueueName" value="RunLongComputation" />
+    </ConfigurationSettings>
+  </Role>
+  <Role name="BusyFrontEnd.WebRole">
+    <Instances count="1" />
+    <ConfigurationSettings>
+      <Setting name="Microsoft.ServiceBus.ConnectionString" value="[Your Service Bus connection string goes here]" />
+      <Setting name="Microsoft.ServiceBus.QueueName" value="RunLongComputation" />
+    </ConfigurationSettings>
+  </Role>
+</ServiceConfiguration>

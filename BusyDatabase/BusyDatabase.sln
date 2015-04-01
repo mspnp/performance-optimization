@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "DeployToAzure", "DeployToAzure\DeployToAzure.ccproj", "{0746B5F3-D2B1-4E48-B4B7-B8E3DBCE2A1B}"
+Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AzureCloudService", "AzureCloudService\AzureCloudService.ccproj", "{0746B5F3-D2B1-4E48-B4B7-B8E3DBCE2A1B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusyDatabase.WebApi", "BusyDatabase.WebApi\BusyDatabase.WebApi.csproj", "{26A546F6-F251-464D-B15D-299F1AD82A47}"
 EndProject

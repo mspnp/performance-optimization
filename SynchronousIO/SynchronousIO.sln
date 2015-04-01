@@ -5,9 +5,9 @@ VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AzureCloudService", "AzureCloudService\AzureCloudService.ccproj", "{E30D11E4-156C-45DB-8CAC-88265A0B7313}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRole", "WebRole\WebRole.csproj", "{6653BDEB-7CC1-43A6-B88A-39C655696E6D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynchronousIO.WebRole", "SynchronousIO.WebRole\SynchronousIO.WebRole.csproj", "{6653BDEB-7CC1-43A6-B88A-39C655696E6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateFileToUpload", "CreateFileToUpload\CreateFileToUpload.csproj", "{7743E579-9EF1-42C5-BB11-2A54B1E0C6CE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynchronousIO.CreateFileToUpload", "SynchronousIO.CreateFileToUpload\SynchronousIO.CreateFileToUpload.csproj", "{7743E579-9EF1-42C5-BB11-2A54B1E0C6CE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B2DB39EB-E4CA-427C-9B8F-F7F93B37A5AC}"
 	ProjectSection(SolutionItems) = preProject

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ServiceConfiguration serviceName="AzureCloudService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2014-06.2.4">
-  <Role name="WebRole">
+  <Role name="ImproperInstantiation.WebRole">
     <Instances count="1" />
     <ConfigurationSettings />
   </Role>
-  <Role name="UserProfileServiceWebRole">
+  <Role name="ImproperInstantiation.UserProfileServiceWebRole">
     <Instances count="1" />
     <ConfigurationSettings />
   </Role>
