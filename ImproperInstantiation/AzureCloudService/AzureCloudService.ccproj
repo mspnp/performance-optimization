@@ -37,20 +37,19 @@
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SimpleWebRole\UserProfileServiceWebRole.csproj">
-      <Name>UserProfileServiceWebRole</Name>
+    <ProjectReference Include="..\ImproperInstantiation.UserProfileServiceWebRole\ImproperInstantiation.UserProfileServiceWebRole.csproj">
+      <Name>ImproperInstantiation.UserProfileServiceWebRole</Name>
       <Project>{525339ef-e67b-475c-8c6a-1e638a4bd8c1}</Project>
       <Private>True</Private>
       <RoleType>Web</RoleType>
-      <RoleName>UserProfileServiceWebRole</RoleName>
+      <RoleName>ImproperInstantiation.UserProfileServiceWebRole</RoleName>
     </ProjectReference>
-    <ProjectReference Include="..\WebRole\WebRole.csproj">
-      <Name>WebRole</Name>
+    <ProjectReference Include="..\ImproperInstantiation.WebRole\ImproperInstantiation.WebRole.csproj">
+      <Name>ImproperInstantiation.WebRole</Name>
       <Project>{cc6c8846-e703-4941-801c-4ab574d902d3}</Project>
       <Private>True</Private>
       <RoleType>Web</RoleType>
-      <RoleName>WebRole</RoleName>
-      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+      <RoleName>ImproperInstantiation.WebRole</RoleName>
     </ProjectReference>
   </ItemGroup>
   <!-- Import the target files for this project template -->
