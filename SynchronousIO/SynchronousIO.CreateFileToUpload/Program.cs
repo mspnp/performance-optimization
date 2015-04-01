@@ -4,7 +4,7 @@
 using System.IO;
 using System.Text;
 
-namespace CreateFileToUpload
+namespace SynchronousIO.CreateFileToUpload
 {
     class Program
     {

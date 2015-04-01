@@ -2,9 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System.Web.Http;
-using WebRole.Models;
+using SynchronousIO.WebRole.Models;
 
-namespace WebRole.Controllers
+namespace SynchronousIO.WebRole.Controllers
 {
     public class SyncController : ApiController
     {

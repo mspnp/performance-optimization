@@ -3,7 +3,7 @@
 
 using System.Web.Http;
 
-namespace WebRole
+namespace SynchronousIO.WebRole
 {
     public static class WebApiConfig
     {

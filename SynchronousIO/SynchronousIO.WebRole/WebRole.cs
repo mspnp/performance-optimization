@@ -3,7 +3,7 @@
 
 using Microsoft.WindowsAzure.ServiceRuntime;
 
-namespace WebRole
+namespace SynchronousIO.WebRole
 {
     public class WebRole : RoleEntryPoint
     {

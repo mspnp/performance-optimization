@@ -3,9 +3,9 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using WebRole.Models;
+using SynchronousIO.WebRole.Models;
 
-namespace WebRole
+namespace SynchronousIO.WebRole
 {
     public class FakeUserProfileService : IUserProfileService
     {

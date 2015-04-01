@@ -3,9 +3,9 @@
 
 using System.Threading.Tasks;
 using System.Web.Http;
-using WebRole.Models;
+using SynchronousIO.WebRole.Models;
 
-namespace WebRole.Controllers
+namespace SynchronousIO.WebRole.Controllers
 {
     public class WrappedSyncController : ApiController
     {

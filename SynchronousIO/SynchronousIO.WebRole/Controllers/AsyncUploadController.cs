@@ -8,7 +8,7 @@ using System.Web.Http;
 using Microsoft.Azure;
 using Microsoft.WindowsAzure.Storage;
 
-namespace WebRole.Controllers
+namespace SynchronousIO.WebRole.Controllers
 {
     public class AsyncUploadController : ApiController
     {

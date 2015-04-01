@@ -7,8 +7,8 @@
     <ProjectGuid>{7743E579-9EF1-42C5-BB11-2A54B1E0C6CE}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CreateFileToUpload</RootNamespace>
-    <AssemblyName>CreateFileToUpload</AssemblyName>
+    <RootNamespace>SynchronousIO.CreateFileToUpload</RootNamespace>
+    <AssemblyName>SynchronousIO.CreateFileToUpload</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
