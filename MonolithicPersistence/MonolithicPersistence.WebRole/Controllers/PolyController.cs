@@ -21,6 +21,5 @@ namespace MonolithicPersistence.WebRole.Controllers
 
             return Ok();
         }
-
     }
 }

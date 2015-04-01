@@ -7,7 +7,6 @@ using Microsoft.Azure;
 
 namespace MonolithicPersistence.WebRole.Controllers
 {
-
     public class MonoController : ApiController
     {
         private static readonly string ProductionDb = CloudConfigurationManager.GetSetting("ProductionSqlDbCnStr");

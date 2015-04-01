@@ -41,9 +41,9 @@ namespace MonolithicPersistence.WebRole
                 }
             }
         }
-        public static async Task LogAsync(string cnStr, string LogTableName)
+        public static async Task LogAsync(string cnStr, string logTableName)
         {
-            string queryString = "INSERT INTO dbo." + LogTableName + "(LogId, Message, LogTime) VALUES(@LogId, @Message, @LogTime)";
+            string queryString = "INSERT INTO dbo." + logTableName + " (LogId, Message, LogTime) VALUES (@LogId, @Message, @LogTime)";
 
             var logMessage = new LogMessage();
 
@@ -56,7 +56,6 @@ namespace MonolithicPersistence.WebRole
                     cmd.Parameters.AddWithValue("@LogTime", logMessage.LogTime);
 
                     await cn.OpenAsync().ConfigureAwait(false);
-
                     await cmd.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
