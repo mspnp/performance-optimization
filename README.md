@@ -26,7 +26,7 @@ The current catalog of cloud performance anti-patterns contains the following it
 
 - **[Improper Instantation][ImproperInstantiation]** describes the effects of repeatedly creating and destroying objects that are designed to be shared and reused.
 
-- **[Monolithic Persistence][MonolithicPersistence]** illustrates the impact on database performance if the same data store is overloaded as the repository for data used by an application.
+- **[Monolithic Persistence][MonolithicPersistence]** illustrates the impact on database performance if the same data store is used as the repository for data that follows distinctly different usage patterns such as logging, session state, and business information.
 
 - **[No Caching][NoCaching]** summarizes the effects of failing to cache information adequately (or at all).
 
