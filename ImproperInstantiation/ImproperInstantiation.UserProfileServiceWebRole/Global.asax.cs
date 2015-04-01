@@ -4,7 +4,7 @@
 using System.Web;
 using System.Web.Http;
 
-namespace UserProfileServiceWebRole
+namespace ImproperInstantiation.UserProfileServiceWebRole
 {
     public class WebApiApplication : HttpApplication
     {

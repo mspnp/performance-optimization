@@ -3,9 +3,9 @@
 
 using System.Threading.Tasks;
 using System.Web.Http;
-using UserProfileServiceWebRole.Models;
+using ImproperInstantiation.UserProfileServiceWebRole.Models;
 
-namespace UserProfileServiceWebRole.Controllers
+namespace ImproperInstantiation.UserProfileServiceWebRole.Controllers
 {
     public class UserProfileController : ApiController
     {

@@ -3,7 +3,7 @@
 
 using Microsoft.WindowsAzure.ServiceRuntime;
 
-namespace UserProfileServiceWebRole
+namespace ImproperInstantiation.UserProfileServiceWebRole
 {
     public class WebRole : RoleEntryPoint
     {

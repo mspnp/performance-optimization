@@ -3,9 +3,9 @@
 
 using System.Threading.Tasks;
 using System.Web.Http;
-using WebRole.Models;
+using ImproperInstantiation.WebRole.Models;
 
-namespace WebRole.Controllers
+namespace ImproperInstantiation.WebRole.Controllers
 {
     public class NewServiceInstancePerRequestController : ApiController
     {

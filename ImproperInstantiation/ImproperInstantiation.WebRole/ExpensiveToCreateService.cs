@@ -4,9 +4,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using WebRole.Models;
+using ImproperInstantiation.WebRole.Models;
 
-namespace WebRole
+namespace ImproperInstantiation.WebRole
 {
     /// <summary>
     /// This ExpensiveToCreateService represents a class that is meant to be long lived. 

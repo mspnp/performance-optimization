@@ -3,7 +3,7 @@
 
 using System.Web.Http;
 
-namespace UserProfileServiceWebRole
+namespace ImproperInstantiation.UserProfileServiceWebRole
 {
     public static class WebApiConfig
     {
