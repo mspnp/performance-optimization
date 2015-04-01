@@ -11,7 +11,7 @@
     <RootNamespace>CachingDemoCloudService</RootNamespace>
     <AssemblyName>CachingDemoCloudService</AssemblyName>
     <StartDevelopmentStorage>True</StartDevelopmentStorage>
-    <Name>CachingDemoCloudService</Name>
+    <Name>AzureCloudService</Name>
     <UseWebProjectPorts>True</UseWebProjectPorts>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -38,21 +38,20 @@
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WebRole\WebRole.csproj">
-      <Name>WebRole</Name>
+    <Folder Include="Profiles" />
+    <Folder Include="NoCaching.WebRoleContent" />
+  </ItemGroup>
+  <ItemGroup>
+    <DiagnosticsConfiguration Include="NoCaching.WebRoleContent\diagnostics.wadcfgx" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NoCaching.WebRole\NoCaching.WebRole.csproj">
+      <Name>NoCaching.WebRole</Name>
       <Project>{7fc643b4-ead8-48b5-8f73-0c597aa335af}</Project>
       <Private>True</Private>
       <RoleType>Web</RoleType>
-      <RoleName>WebRole</RoleName>
-      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+      <RoleName>NoCaching.WebRole</RoleName>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Profiles" />
-    <Folder Include="WebRoleContent\" />
-  </ItemGroup>
-  <ItemGroup>
-    <DiagnosticsConfiguration Include="WebRoleContent\diagnostics.wadcfgx" />
   </ItemGroup>
   <!-- Import the target files for this project template -->
   <PropertyGroup>

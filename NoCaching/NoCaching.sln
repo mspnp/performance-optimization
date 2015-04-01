@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "CachingDemoCloudService", "CachingDemoCloudService\CachingDemoCloudService.ccproj", "{CFEF4998-E94F-44D4-B8BB-76A12D774859}"
+Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AzureCloudService", "AzureCloudService\AzureCloudService.ccproj", "{CFEF4998-E94F-44D4-B8BB-76A12D774859}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRole", "WebRole\WebRole.csproj", "{7FC643B4-EAD8-48B5-8F73-0C597AA335AF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoCaching.WebRole", "NoCaching.WebRole\NoCaching.WebRole.csproj", "{7FC643B4-EAD8-48B5-8F73-0C597AA335AF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CachingDemo.Data", "CachingDemo.Data\CachingDemo.Data.csproj", "{9FCA9FDB-CCE3-4521-977E-8277AFB6B062}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoCaching.Data", "NoCaching.Data\NoCaching.Data.csproj", "{9FCA9FDB-CCE3-4521-977E-8277AFB6B062}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
