@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ServiceConfiguration serviceName="AzureCloudService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2014-06.2.4">
-  <Role name="WebRole">
+  <Role name="MonolithicPersistence.WebRole">
     <Instances count="5" />
     <ConfigurationSettings>
       <Setting name="ProductionSqlDbCnStr" value="[Your Production SQLDB connection string goes here]" />
