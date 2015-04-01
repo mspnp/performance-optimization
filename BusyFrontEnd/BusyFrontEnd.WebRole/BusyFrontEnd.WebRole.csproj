@@ -11,8 +11,8 @@
     <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WebRole</RootNamespace>
-    <AssemblyName>WebRole</AssemblyName>
+    <RootNamespace>BusyFrontEnd.WebRole</RootNamespace>
+    <AssemblyName>BusyFrontEnd.WebRole</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort />
@@ -120,9 +120,9 @@
     <Folder Include="App_Data\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Common.Logic\ServiceBusQueueHandling.csproj">
+    <ProjectReference Include="..\BusyFrontEnd.ServiceBusQueueHandling\BusyFrontEnd.ServiceBusQueueHandling.csproj">
       <Project>{C8EE2AD5-3279-47E9-9B03-319C35EBA2ED}</Project>
-      <Name>Common.Logic</Name>
+      <Name>BusyFrontEnd.ServiceBusQueueHandling</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

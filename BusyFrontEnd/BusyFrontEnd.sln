@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AzureCloudService", "BusyFrontEnd\AzureCloudService.ccproj", "{F81A7EF0-A0F2-46B7-82D3-C20C8F29E658}"
+Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AzureCloudService", "AzureCloudService\AzureCloudService.ccproj", "{F81A7EF0-A0F2-46B7-82D3-C20C8F29E658}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WorkerRole", "WorkerRole\WorkerRole.csproj", "{CE3863C6-4196-4187-811C-2DBAD7D9BB87}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusyFrontEnd.WorkerRole", "BusyFrontEnd.WorkerRole\BusyFrontEnd.WorkerRole.csproj", "{CE3863C6-4196-4187-811C-2DBAD7D9BB87}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceBusQueueHandling", "Common.Logic\ServiceBusQueueHandling.csproj", "{C8EE2AD5-3279-47E9-9B03-319C35EBA2ED}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusyFrontEnd.ServiceBusQueueHandling", "BusyFrontEnd.ServiceBusQueueHandling\BusyFrontEnd.ServiceBusQueueHandling.csproj", "{C8EE2AD5-3279-47E9-9B03-319C35EBA2ED}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebRole", "WebRole\WebRole.csproj", "{412FBABB-EBD1-465F-AC12-0B3EB5D87915}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusyFrontEnd.WebRole", "BusyFrontEnd.WebRole\BusyFrontEnd.WebRole.csproj", "{412FBABB-EBD1-465F-AC12-0B3EB5D87915}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

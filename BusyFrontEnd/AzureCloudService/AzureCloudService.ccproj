@@ -37,20 +37,19 @@
     <ServiceConfiguration Include="ServiceConfiguration.Cloud.cscfg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\WorkerRole\WorkerRole.csproj">
-      <Name>WorkerRole</Name>
-      <Project>{ce3863c6-4196-4187-811c-2dbad7d9bb87}</Project>
-      <Private>True</Private>
-      <RoleType>Worker</RoleType>
-      <RoleName>WorkerRole</RoleName>
-    </ProjectReference>
-    <ProjectReference Include="..\WebRole\WebRole.csproj">
-      <Name>WebRole</Name>
+    <ProjectReference Include="..\BusyFrontEnd.WebRole\BusyFrontEnd.WebRole.csproj">
+      <Name>BusyFrontEnd.WebRole</Name>
       <Project>{412fbabb-ebd1-465f-ac12-0b3eb5d87915}</Project>
       <Private>True</Private>
       <RoleType>Web</RoleType>
-      <RoleName>WebRole</RoleName>
-      <UpdateDiagnosticsConnectionStringOnPublish>True</UpdateDiagnosticsConnectionStringOnPublish>
+      <RoleName>BusyFrontEnd.WebRole</RoleName>
+    </ProjectReference>
+    <ProjectReference Include="..\BusyFrontEnd.WorkerRole\BusyFrontEnd.WorkerRole.csproj">
+      <Name>BusyFrontEnd.WorkerRole</Name>
+      <Project>{ce3863c6-4196-4187-811c-2dbad7d9bb87}</Project>
+      <Private>True</Private>
+      <RoleType>Worker</RoleType>
+      <RoleName>BusyFrontEnd.WorkerRole</RoleName>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
