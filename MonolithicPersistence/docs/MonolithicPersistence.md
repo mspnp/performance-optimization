@@ -1,6 +1,6 @@
 # Monolithic Persistence
 
-All business applications use data, and they need to store this data somewhere. Many existing business applications make use of a single repository for holding the bulk of the information required. Modern cloud-based systems sometimes follow this same approach and attempt to store information either in a single repository or a small set of tightly-coupled data stores. This strategy is typically aimed at keeping the data storage requirements simple by using well-understood technology, and might appear to make sense initially. A distributed application often has additional functional and non-functional requirements though, and besides the raw business information an application might also need to store:
+All business applications use data, and they need to store this data somewhere. Many existing business applications make use of a single repository to store and retrieve data, regardless of how that data is used. This strategy is typically aimed at keeping the data storage requirements simple by using well-understood technology, and might appear to make sense initially. Modern cloud-based systems often have additional functional and non-functional requirements, and besides the raw business information an application might also need to store:
 
 - Formatted reporting data,
 
@@ -14,11 +14,13 @@ All business applications use data, and they need to store this data somewhere. 
 
 - Application log and audit data.
 
-The temptation might be to try and record all of this information in the same repository, but this approach might not be appropriate for the following reasons:
+The temptation might be to follow the traditional approach and record all of this information in the same repository, but this approach might not be appropriate for the following reasons:
 
-- It can cause severe contention in the repository, leading to slow response times or data store connection failures.
+- Storing and retrieving large quantities of unrelated data held in the same repository can cause severe contention, leading to slow response times and data store connection failures.
 
-- The data store might not be optimized to match the requirements of the structure of every piece data or the operations that the application performs on this data. For example, queuing messages requires fast first-in first-out capability whereas business data typically requires a data store that is better tuned to supporting random access capabilities.
+- The data store might not match the requirements of the structure of every piece of data. For example, invoices might be best held in a document database and customer details might be better stored in a relational database.  
+
+- The data store might not be optimized for the operations that the application performs on this data. For example, queuing messages requires fast first-in first-out capability whereas business data typically requires a data store that is better tuned to supporting random access capabilities.
 
 ----------
 
