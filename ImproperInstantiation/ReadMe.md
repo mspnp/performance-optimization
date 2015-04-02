@@ -1,19 +1,28 @@
 # ImproperInstantiation Sample Code
 
-The ImproperInstantiation sample code is composed of:
+The ImproperInstantiation sample code comprises the following items:
+
 * ImproperInstantiation solution file
+
 * AzureCloudService
+
 * UserProfileServiceWebRole
+
 * WebRole WebAPI project
 
-The WebRole WebAPI project has four controllers:
+The WebRole WebAPI project contains four controllers:
+
 * `NewHttpClientInstancePerRequestController`
+
 * `NewServiceInstancePerRequestController`
+
 * `SingleHttpClientInstanceController`
+
 * `SingleServiceInstanceController`
 
-The NewServiceInstancePerRequestController and SingleServiceInstanceController both call the `ExpensiveToCreateService.GetProductByIdAsync` method but handle the lifetime of the` `ExpensiveToCreateService` instance differently. 
-The `NewServiceInstancePerRequestController` creates a new instance of `ExpensiveToCreateService` for every call to `NewServiceInstancePerRequestController.GetProductAsync`.
+The `NewServiceInstancePerRequestController` and `SingleServiceInstanceController` both call the `ExpensiveToCreateService.GetProductByIdAsync` method. The `ExpensiveToCreateService` class is designed to support shared instances. This class uses a delay to simulate setup and configuration. However, the `NewServiceInstancePerRequestController` and `SingleServiceInstanceController` handle the lifetime of the `ExpensiveToCreateService` instance differently: 
+
+* The `NewServiceInstancePerRequestController` creates a new instance of `ExpensiveToCreateService` for every call to `NewServiceInstancePerRequestController.GetProductAsync`:
 
 **C#**
 
@@ -25,7 +34,7 @@ public async Task<Product> GetProductAsync(string id)
 }
 ```
 
-The `SingleServiceInstanceController` creates a static instance of `ExpensiveToCreateService` and uses it during the lifetime of the process.
+* The `SingleServiceInstanceController` creates a static instance of `ExpensiveToCreateService` and uses it during the lifetime of the process:
 
 **C#**
 
@@ -43,10 +52,11 @@ public async Task<Product> GetProductAsync(string id)
 }
 ```
 
-The `ExpensiveToCreateService` simulates a class whose instance is intended to be shared. This class uses a delay to simulate setup and configuration. 
 
-The NewHttpClientInstancePerRequestController and SingleHttpClientInstanceController both use 'HttpClient' to call the UserProfileServiceWebRole but handle the lifetime of the 'HttpClient' instance differently. 
-The NewHttpClientInstancePerRequestController creates a new instance of 'HttpClient' and disposes it for every call to 'NewHttpClientInstancePerRequestController.GetProductAsync'.
+
+The `NewHttpClientInstancePerRequestController` and `SingleHttpClientInstanceController` both use an instance of the `HttpClient` to send requests to the `UserProfileServiceWebRole`. As with the previous pair of controllers, they handle the lifetime of the `HttpClient` instance differently:
+ 
+* The `NewHttpClientInstancePerRequestController` creates a new instance of `HttpClient` and disposes it for every call to `NewHttpClientInstancePerRequestController.GetProductAsync`:
 
 **C#**
 
@@ -63,7 +73,7 @@ public async Task<Product> GetProductAsync(string id)
 }
 ```
 
-The 'SingleHttpClientInstanceController' creates a static instance of `HttpClient` and uses it during the lifetime of the process.
+* The `SingleHttpClientInstanceController` creates a static instance of `HttpClient` and uses it during the lifetime of the controller:
 
 **C#**
 
@@ -84,11 +94,15 @@ public async Task<Product> GetProductAsync(string id)
 }
 ```
 
-## Deploying to Azure
-Right-click on the AzureCloudService and select "Publish" to deploy to Azure.
+## Deploying the project to Azure
 
-## Load testing
-You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) your application.
+In Visual Studio Solution Explorer, right-click the AzureCloudService project and then click *Publish* to deploy the project to Azure.
+
+## Load testing the project
+
+You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) the application.
 
 ## Dependencies
-Azure SDK 2.5
+
+This project requires Azure SDK 2.5
+

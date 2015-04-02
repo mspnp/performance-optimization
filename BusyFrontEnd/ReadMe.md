@@ -1,18 +1,25 @@
 # BusyFrontEnd Sample Code
 
-The BusyFrontEnd sample code is composed of:
+The BusyFrontEnd sample code comprises the following items:
+
 * BusyFrontEnd solution file
+
 * AzureCloudService
+
 * WebRole WebAPI project
+
 * WorkerRole project
+
 * Common.Logic class library
 
-The WebRole WebAPI project has two controllers:
+The WebRole WebAPI project contains two controllers:
+
 * `WorkInFrontEndController`
+
 * `WorkInBackgroundController`
 
 
-The WorkInFrontEndController's Get action creates a new thread which executes a call the Calculator.RunLongComputation method.
+The `Get` action of the `WorkInFrontEndController` creates a new thread which invokes the static `Calculator.RunLongComputation` method:
 
 **C#**
 
@@ -29,7 +36,7 @@ public void Get(double number)
 }
 ```
 
-The WorkInBackgroundController's Get action puts a message on a queue for processing by the WorkerRole.
+The `Get` action of the `WorkInBackgroundController` posts a message to a queue for processing by the worker role:
 
 **C#**
 
@@ -42,15 +49,20 @@ public Task Get(double number)
             number);
 }
 ```
+The worker role listens for incoming messages and performs the equivalent processing to the `Calculator.RunLongComputation` method over each one.
 
-## Configure
-The WorkInBackgroundController and WorkerRole communicate with the use of an Azure Service Bus Queue. Please create an Azure Service Bus Queue instance and provide its connection string in the AzureCloudService ServiceConfiguration files.
+## Configuring the project
 
-## Deploying to Azure
-Right-click on the AzureCloudService and select "Publish" to deploy to Azure.
+The `WorkInBackgroundController` uses an Azure Service Bus Queue to send messages to the worker role. Use the Azure Management Portal to create an Azure Service Bus Queue and add the connection string for this queue to the AzureCloudService ServiceConfiguration files.
 
-## Load testing
-You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) your application.
+## Deploying the project to Azure
+
+In Visual Studio Solution Explorer, right-click the AzureCloudService project and then click *Publish* to deploy the project to Azure.
+
+## Load testing the project
+
+You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) the application.
 
 ## Dependencies
-Azure SDK 2.5
+
+This project requires Azure SDK 2.5
