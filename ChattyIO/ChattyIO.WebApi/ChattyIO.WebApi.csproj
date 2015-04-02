@@ -104,9 +104,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="App_Data\" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\ChattyIO.DataAccess\ChattyIO.DataAccess.csproj">
       <Project>{71798002-e345-4c51-a177-571ff9d71ab7}</Project>
       <Name>ChattyIO.DataAccess</Name>

@@ -14,7 +14,6 @@ namespace ChattyIO.WebApi.Controllers
 
     public class ChattyProductController : ApiController
     {
-
         [HttpGet]
         [Route("chattyproduct/products/{subcategoryId}")]
         public async Task<IHttpActionResult> GetProductsInSubCategoryAsync(int subcategoryId)
