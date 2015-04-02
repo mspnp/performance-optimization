@@ -7,6 +7,13 @@ Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AzureCloudService", "AzureC
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonolithicPersistence.WebRole", "MonolithicPersistence.WebRole\MonolithicPersistence.WebRole.csproj", "{E1A8B52F-6B6E-45FF-B298-4DFB5CE1B779}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3670BD23-2D8F-4FF3-9432-497EFEC44D37}"
+	ProjectSection(SolutionItems) = preProject
+		..\LICENSE.txt = ..\LICENSE.txt
+		docs\MonolithicPersistence.md = docs\MonolithicPersistence.md
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

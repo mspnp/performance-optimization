@@ -99,7 +99,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Global.asax" />
-    <None Include="Readme.md" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
