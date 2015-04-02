@@ -13,6 +13,14 @@ namespace ChattyIO.DataAccess
             Database.SetInitializer<AdventureWorksProductContext>(null);
         }
 
+        public static AdventureWorksProductContext GetEagerContext()
+        {
+            var context = new AdventureWorksProductContext();
+            context.Configuration.LazyLoadingEnabled = false;
+            context.Configuration.ProxyCreationEnabled = false;
+            return context;
+        }
+
         public AdventureWorksProductContext()
             : base("Name=AdventureWorksProductContext")
         {

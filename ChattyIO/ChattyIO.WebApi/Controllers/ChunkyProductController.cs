@@ -15,7 +15,7 @@ namespace ChattyIO.WebApi.Controllers
         [Route("chunkyproduct/products/{subCategoryId}")]
         public async Task<IHttpActionResult> GetProductCategoryDetailsAsync(int subCategoryId)
         {
-            using (var context = GetContext())
+            using (var context = AdventureWorksProductContext.GetEagerContext())
             {
                 var subCategory = await context.ProductSubcategories
                       .Where(psc => psc.ProductSubcategoryId == subCategoryId)
@@ -27,14 +27,6 @@ namespace ChattyIO.WebApi.Controllers
                 
                 return Ok(subCategory);
             }
-        }
-        private AdventureWorksProductContext GetContext()
-        {
-            var context = new AdventureWorksProductContext();
-            // load eagerly
-            context.Configuration.LazyLoadingEnabled = false;
-            context.Configuration.ProxyCreationEnabled = false;
-            return context;
         }
     }
 }
