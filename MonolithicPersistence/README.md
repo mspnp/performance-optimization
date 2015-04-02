@@ -60,7 +60,7 @@ VALUES(@LogId, @Message, @LogTime)
 
 **Note**: **@LogId, @Message** are randam strings and **@LogTime** is obtained at runtime
 
-** Test Steps **
+**Test Steps**
 
 Here are the test steps using Fiddler. You can also use any of your preferred tool to send a post message.
 
