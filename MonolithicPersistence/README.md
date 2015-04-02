@@ -33,7 +33,7 @@ public async Task<IHttpActionResult> PostAsync()
 }
 ```
 
-The method **InsertPurchaseOrderHeaderAsync(ProductionDb)** executes the following SQL querey:
+The method **InsertPurchaseOrderHeaderAsync(ProductionDb)** executes the following SQL query:
 
 ```sql
 INSERT INTO Purchasing.PurchaseOrderHeader(
@@ -51,14 +51,14 @@ VALUES(
 ```
 **Note**: date value is obtained at runtime and will be different from the above.
 
-The method **LogAsync(ProductionDb, LogTableName)** executes the following SQL querey:
+The method **LogAsync(ProductionDb, LogTableName)** executes the following SQL query:
 
 ``` sql
 INSERT INTO dbo.MonoLog(LogId, Message, LogTime)
 VALUES(@LogId, @Message, @LogTime)
 ```
 
-**Note**: **@LogId, @Message** are randam strings and **@LogTime** is obtained at runtime
+**Note**: **@LogId, @Message** are random strings and **@LogTime** is obtained at runtime
 
 **Test Steps**
 
@@ -76,7 +76,7 @@ Here are the test steps using Fiddler. You can also use any of your preferred to
 
 - Change the url to **http://localhost:yourportnumber/api/mono**
 
-  **Note** repalce yourportnumber with the nubmer in the IE address
+  **Note** replace yourportnumber with the number in the IE address
 
 - Click  **Execute**
 
@@ -97,7 +97,7 @@ SELECT Count(*) FROM dbo.MonoLog
 
 - Follow the same procedure as the previous step using **Poly** instead of **Mono**.
 
-- To verfy that the log is insertd to the LogDB, in Sql Server Object Explorer tree view, expand to Log database and run the following query
+- To verify that the log is inserted to the LogDB, in Sql Server Object Explorer tree view, expand to Log database and run the following query
 
 ``` sql
 SELECT Count(*) FROM dbo.PolyLog
@@ -116,17 +116,17 @@ SELECT Count(*) FROM dbo.PolyLog
 
 ## Step 3: Load Test MonoController:
 
-- Create a web test that consists of a web service requests (httppost) with the url **http://mycloudservice.cloudapp.net/api/Mono**
+- Create a web test that consists of a web service requests (http post) with the url **http://mycloudservice.cloudapp.net/api/Mono**
 
-   **Note**: you need to repalce mycloudserve with the actual value.
+   **Note**: you need to replace mycloudservice with the actual value.
 
 - Run web test and make sure that it passes.
 
-- Create a load test that include the above web test and change the load test settings as the following:
+- Create a load test that include the above web test and change the load test settings as follows:
 
 Step Load Pattern       | Value
 ------------------------| -----------
-Pattern	                | Step
+Pattern                 | Step
 Initial User Count      | 1
 Maximum User Count      | 1000
 Step Duration (seconds) | 60
@@ -152,15 +152,15 @@ DELETE FROM dbo.MonoLog
 - Start the load test.
 
 ## Step 3: Load Test PolyController:
-- Create a web test that consists of a web service requests (httppost) with the url **http://mycloudservice.cloudapp.net/api/Poly**
+- Create a web test that consists of a web service requests (http post) with the url **http://mycloudservice.cloudapp.net/api/Poly**
 
-  **Note**: you need to repalce mycloudserve with the actual value.
+  **Note**: you need to replace mycloudservice with the actual value.
 
 - Run web test and make sure that it passes.
 
 - Create a load test that include the above web test and change the load test settings to the same as that of the above load test for the MonoController.
 
-- Connect to the production db and run the following sql to reset the PurchaseOrderHeader tabhle:
+- Connect to the production db and run the following sql to reset the PurchaseOrderHeader table:
 
 ```sql
 DELETE FROM Purchasing.PurchaseOrderHeader WHERE PurchaseOrderID > 4012
