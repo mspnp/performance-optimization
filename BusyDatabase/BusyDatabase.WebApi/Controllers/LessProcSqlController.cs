@@ -28,10 +28,11 @@ namespace BusyDatabase.WebApi.Controllers
         {
             using (var connection = new SqlConnection(SqlConnectionString))
             {
-                await connection.OpenAsync();
                 using (var command = new SqlCommand(Query, connection))
                 {
                     command.Parameters.AddWithValue("@TerritoryId", id);
+
+                    await connection.OpenAsync();
 
                     using (var reader = await command.ExecuteReaderAsync())
                     {
