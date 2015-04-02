@@ -53,16 +53,14 @@ namespace BusyDatabase.WebApi.Controllers
 
                                 var order = new XElement("Order");
                                 orders.Add(order);
+
                                 var customer = new XElement("Customer");
                                 lineItems = new XElement("OrderLineItems");
                                 order.Add(customer, lineItems);
 
                                 var orderDate = (DateTime)reader["OrderDate"];
-
                                 var totalDue = (Decimal)reader["TotalDue"];
-                                var reviewRequired = totalDue > 5000
-                                    ? 'Y'
-                                    : 'N';
+                                var reviewRequired = totalDue > 5000 ? 'Y' : 'N';
 
                                 order.Add(
                                     new XAttribute("OrderNumber", orderNumber),
@@ -95,18 +93,16 @@ namespace BusyDatabase.WebApi.Controllers
                             var productId = (int)reader["ProductID"];
                             var quantity = (short)reader["Quantity"];
 
-                            var inventoryCheckRequired = (productId >= 710 && productId <= 720 && quantity >= 5)
-                                ? 'Y'
-                                : 'N';
+                            var inventoryCheckRequired = (productId >= 710 && productId <= 720 && quantity >= 5) ? 'Y' : 'N';
 
-                            lineItems.Add(
-                                new XElement("LineItem",
-                                    new XAttribute("Quantity", quantity),
-                                    new XAttribute("UnitPrice", ((Decimal)reader["UnitPrice"]).ToString("C")),
-                                    new XAttribute("LineTotal", RoundAndFormat(reader["LineTotal"])),
-                                    new XAttribute("ProductId", productId),
-                                    new XAttribute("InventoryCheckRequired", inventoryCheckRequired)
-                                    ));
+                            var lineItem = new XElement("LineItem",
+                                new XAttribute("Quantity", quantity),
+                                new XAttribute("UnitPrice", ((Decimal)reader["UnitPrice"]).ToString("C")),
+                                new XAttribute("LineTotal", RoundAndFormat(reader["LineTotal"])),
+                                new XAttribute("ProductId", productId),
+                                new XAttribute("InventoryCheckRequired", inventoryCheckRequired));
+
+                            lineItems.Add(lineItem);
                         }
 
                         // match the exact formatting of the XML returned from SQL
@@ -119,6 +115,5 @@ namespace BusyDatabase.WebApi.Controllers
                 }
             }
         }
-
     }
 }
