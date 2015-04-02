@@ -1,323 +1,175 @@
 # Build and Run Monolithic Anti Pattern Code Sample
 
-## Step 1: Create Azure Storage Accounts and update the connections string to the MonoglotPersistence solution
+## Step 1: Set up AdventureWorks DB and update the Settings in ServiceConfiguration cscfg files
 
-- Create two Azure storage accounts.
+- Create an Azure SQL DB in Windows Azure. Install AdventureWorks Database on it, add the IP rules so that you can access the DB from your development box. This is your production database.
 
-- Start Visual Studio and open MonoglotPersistence.sln
+- Create another Azure SQL DB. Create an empty database on it, add the IP rules so that you can access the DB from your development box. This is your Log database.
 
-- Open Web.config file
+- Start **Visual Studio** and open **MonolithicPersistence.sln**
 
-- Update the connectionString for azureStorageConnectionString1
+- Expand **AzureCloudService->Roles->WebRole** and right click **WebRole** and select **Properties**.
 
-- Update the connectionString for azureStorageConnectionString2
+- Click **Settings**.
 
-## Step 2: Set up AdventureWorks DB and update the connections sting to the MonoglotPersistence solution
+- Update the **Value** for **ProductionSQlDbCnStr** with the connection string from the AdventureWorks Production database.
 
-- Install the AdventureWorks Database on Azure DB, Add the IP Rules so that you can access the DB from your dev box. Make sure that the SQLDB version = Standard, level = S1, and storage = 50 GB
+- Update the **Value** for **LogSQlDbCnStr** with the connection string from the Log Database.
 
-- Start Visual Studio and open MonoglotPersistence.sln
+## Step 2: Test the solution locally
 
-- Open Web.config file
+### Test MonoController
 
-- Update the connectionString for sqlServerConnectionString
+You are going to test the following MonoController method:
 
-## Step 3: Create Traces Table for SLAB in AdventureWorks DB
+```C#
+public async Task<IHttpActionResult> PostAsync()
+{
+    await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
 
-- Start Visual Studio and open MonoglotPersistence.sln
+    await DataAccess.LogAsync(ProductionDb, LogTableName);
 
-- Rebuild the solution
+    return Ok();
+}
+```
 
-- Click View-> Sql Server Object Explorer
+The method **InsertPurchaseOrderHeaderAsync(ProductionDb)** executes the following SQL querey:
 
-- In **SQL Server Object Explorer**, right click on SQL Server and click on **Add SQL Server**
+```sql
+INSERT INTO Purchasing.PurchaseOrderHeader(
+    RevisionNumber, Status, EmployeeID, VendorID, ShipMethodID,
+    OrderDate,
+    ShipDate,
+    SubTotal,TaxAmt, Freight,
+    ModifiedDate)
+VALUES(
+    1, 4, 258, 1580, 3,
+    2015-03-05 14:23:04.743,
+    2015-03-05 14:23:04.743,
+    123.40, 12.34, 5.76,
+    2015-03-05 14:23:04.743)
+```
+**Note**: date value is obtained at runtime and will be different from the above.
 
-- In the popup screen enter the Server name and credentials for your AdventureWorks DB server and Connect to it.
+The method **LogAsync(ProductionDb, LogTableName)** executes the following SQL querey:
 
-- In the tree view, expand your SQL server to AdventureWorks2012 database and start a new query
+``` sql
+INSERT INTO dbo.MonoLog(LogId, Message, LogTime)
+VALUES(@LogId, @Message, @LogTime)
+```
 
-- Start windows explorer and browser to \MonoglotPersistence\packages\EnterpriseLibrary.SemanticLogging.Database.2.0.1406.1\scripts
+**Note**: **@LogId, @Message** are randam strings and **@LogTime** is obtained at runtime
 
-- Open CreateSemanticLoggingDatabaseObjects.sql and copy its content to the Visual SQL Query Window and Execute the query
+** Test Steps **
 
-- Verify that dbo.Traces table is created.
+Here are the test steps using Fiddler. You can also use any of your preferred tool to send a post message.
 
-## Step 4: Test the solution locally
+- Start **Visual Studio** and open **MonolithicPersistence.sln**
 
-- Start Visual Studio and open MonoglotPersistence.sln
+- Press **F5** to start debugging session, wait for IE to open. make a note of the port number
 
-- Press F5 to start debugging session, wait for IE to open.
-
-### Test HTTPGet http://localhost:61912/api/monoglot/321
-
-This request will call MonoglotController Method Get(id) and execute the following SQL querey:
-
-**SELECT Description FROM Production.ProductDescription WHERE ProductDescriptionID=321**
-
-The Query Result for Description will be returned.
-
-Here are the steps:
-
-- Browse to http://localhost:61912/api/monoglot/321 (Note: port number may be different for you)
-
-- You should get a popup windows:
-
- *Do you want to open or save 321.json (109 bytes) from localhost?*
-
-- Click on **Open**
-
-- This should open 321.json in Notepad with the following content:
-
-"Description = Same technology as all of our Road series bikes.  Perfect all-around bike for road or racing."
-
-- close the Notepad.
-
-### Test HTTPGet http://localhost:61912/api/poliglot/321
-
-This request will call PoliglotController Method Get(id) and execute the following SQL querey:
-
-**SELECT Description FROM Production.ProductDescription WHERE ProductDescriptionID=321**
-
-The Query Result for Description will be returned.
-
-Here are the steps:
-
-- browse to http://localhost:61912/api/poliglot/321 (Note: port number may be different for you)
-
-- THE rest steps are the same as that for Monoglot.
-
-### Test HTTPPost http://localhost:61912/api/monoglot (Note: port number may be different for you)
-
-This request will call MonoglotController Method Post(value) and execute the following SQL querey:
-
-**INSERT INTO Purchasing.PurchaseOrderHeader**
-**(RevisionNumber, Status, EmployeeID, VendorID, ShipMethodID, OrderDate, ShipDate, SubTotal, TaxAmt, Freight, ModifiedDate)**
-**VALUES(1,4,258,1580,3,2015-03-05 14:23:04.743,2015-03-05 14:23:04.743,123.40,12.34,5.76,2015-03-05 14:23:04.743)**
-
-(Note: Date values is obtained in runtime and will be different from the above)
-
-The No Result is returned.
-
-Here are the steps:
-
-- Start Fiddler
+- Start **Fiddler**
 
 - Click **Composer**
 
-- change http verbs to **POST**
+- Change http verbs to **POST**
 
-- change the url to **http://localhost:61912/api/mologlot**
+- Change the url to **http://localhost:yourportnumber/api/mono**
+
+  **Note** repalce yourportnumber with the nubmer in the IE address
 
 - Click  **Execute**
 
-- Verify the response is  **HTTP/1.1 204 No Content**
+- Verify that record is inserted to the database: In Sql Server Object Explorer tree view, expand to AdventureWorks2012 database and start the following query
 
-- Verify that the record is inserted to the database:
+``` sql
+SELECT Count(*) FROM Purchasing.PurchaseOrderHeader
 
-- In Sql Server Object Explorer tree view, expand to AdventureWorks2012 database and start a new query and enter the following in the query window
-
-**SELECT Count(*) FROM Purchasing.PurchaseOrderHeader**
-
-- make a note of the result for the count.
+SELECT Count(*) FROM dbo.MonoLog
+```
+- Make a note of the result for the count.
 
 - In Fiddler, Execute the POST again
 
 - In SQL query, run the query again. Verify the result count is increased by 1.
 
+### Test PolyController
 
-### Test HTTPPost http://localhost:61912/api/poliglot
+- Follow the same procedure as the previous step using **Poly** instead of **Mono**.
 
-- follow the same procedure as the previous step using **Poliglot** instead of **Monoglot**.
+- To verfy that the log is insertd to the LogDB, in Sql Server Object Explorer tree view, expand to Log database and run the following query
 
-### Verify that the SLAB Logging is working properly for Monoglot Controller:
-
-Monoglot Controller is logging to the SQLDB traces table.
-
-- Run SQL querey against AdventureWorks2012 Database
-
-**SELECT Count(*) FROM dbo.Traces**
-
-- Make a note of the count
-
-- Test HTTPGet http://localhost:61912/api/monoglot/321
-
-- run SQL query again and verify that the count is increased by 5. (the HTTPGet method is add 5 log entries)
-
-- Test HTTPPost http://localhost:61912/api/monoglot
-
-- run SQL query again and verify that the count is increased by 5. (the HTTPPost method is add 5 log entries)
-
-### Verify that the SLAB Logging is working properly for Poliglot Controller:
-
-Poliglot Controller is logging to the Azure Table.
-
-- In Visual Studio, Open Server Explorer, the Expand Azure -> Storage and expand to your storage account associated with azureStorageConnectionString1
-
-- Make a note of the count of entities in the SLABLogsTable
-
-- Test HTTPGet http://localhost:61912/api/poliglot/321
-
-- refresh the entities count in the SLABLogsTable and verify that the count is increased by 5. (the HTTPGet method is add 5 log entries)
-
-- Test HTTPPost http://localhost:61912/api/poliglot
-
-- refresh the entities count in the SLABLogsTable and verify that the count is increased by 5. (the HTTPGet method is add 5 log entries)
+``` sql
+SELECT Count(*) FROM dbo.PolyLog
+```
 
 
-## Step 5: Publish the AzureCloudService to Microsoft Azure
+## Step 3: Publish the AzureCloudService to Microsoft Azure
 
-- Start Visual Studio and open MonoglotPersistence.sln
+- Start **Visual Studio** and open **MonolithicPersistence.sln**
 
-- Right click on **AzureCloudService** and click **Publish...**.  The default setting for the sample is 5 web role instances, medium.
+- Right click on **AzureCloudService** and click **Publish...**.  
 
 - Wait for the publish to complete
 
-## Step 6: Test the the Published Cloud Service
+- Test the deployment follow the same steps as that in Step 2. You need to change the url to point to your cloud service.
 
-You may follow the similar steps as that in Step4.
+## Step 3: Load Test MonoController:
 
-## Step 7: Monoglot BaseLine Load Test:
+- Create a web test that consists of a web service requests (httppost) with the url **http://mycloudservice.cloudapp.net/api/Mono**
 
-- Create a web test that consists of two requests: a http get request and a web services request (httppost):
+   **Note**: you need to repalce mycloudserve with the actual value.
 
-**http://mycloudservice.cloudapp.net/api/Monoglot/321**
+- Run web test and make sure that it passes.
 
-**http://mycloudservice.cloudapp.net/api/Monoglot**
+- Create a load test that include the above web test and change the load test settings as the following:
 
-- run web test and make sure that it passes.
+Step Load Pattern       | Value
+------------------------| -----------
+Pattern	                | Step
+Initial User Count      | 1
+Maximum User Count      | 1000
+Step Duration (seconds) | 60
+Step Ramp Time (seconds)| 30
+Step User Count         | 100
 
-- create a load test that include the above web test, with 50 users, and set the run time to 10 minutes.
 
-Setting           | Value
-------------------| -----------
-run time	        | 10
-Warm-up Duration  |	2
-webrole instances | 5
+Run Settings              | Value
+------------------------  | -----------
+Agent Count (Total Cores) | 20
+Run Duration              | 00:15:00
+Sample Rate               | 00:00:15
+Warm-up Duration          | 00:00:30
 
-- run the following sql to reset the table:
+- Connect to the production db and run the following sql to reset the PurchaseOrderHeader table and the MonoLog table:
 
-  **DELETE FROM Purchasing.PurchaseOrderHeader WHERE PurchaseOrderID > 4012**
+```sql
+DELETE FROM Purchasing.PurchaseOrderHeader WHERE PurchaseOrderID > 4012
 
-- start the load test.
+DELETE FROM dbo.MonoLog
+```
 
-- Here is sample results of a load test:
+- Start the load test.
 
-Count             | Value
-------------------| -----------
-User load         |	50
-Requests/Sec	    | 268
-Errors/Sec	      | 0.00
-Avg Response Time	| 0.17
-Max Response Time	| 0.49
-Total Record Count| 94277
-Error Count	      | 0
+## Step 3: Load Test PolyController:
+- Create a web test that consists of a web service requests (httppost) with the url **http://mycloudservice.cloudapp.net/api/Poly**
 
-The following 4 count are the result of the load test.
+  **Note**: you need to repalce mycloudserve with the actual value.
 
-1. Requests/Sec
-1. Errors/Sec
-1. Avg Response Time
-1. Max Response Time
+- Run web test and make sure that it passes.
 
-**Total Record Count** is obtained by running sql query after the load test:
+- Create a load test that include the above web test and change the load test settings to the same as that of the above load test for the MonoController.
 
-**SELECT Count(*) FROM Purchasing.PurchaseOrderHeader**
+- Connect to the production db and run the following sql to reset the PurchaseOrderHeader tabhle:
 
-**Error Count** is obtained by query Azure table in the second storage account associated with azureStorageConnectionString2.
+```sql
+DELETE FROM Purchasing.PurchaseOrderHeader WHERE PurchaseOrderID > 4012
+```
 
-## Step 8: Run Monoglot BaseLine Load Test while deleting the log entry in dbo.Traces table
+- Connect to the Log db and run the following sql to reset the PolyLog table:
 
-- run the following query to find out the total number of trace entries:
+```sql
+DELETE FROM dbo.PolyLog
+```
 
-**Select count(*) from dbo.traces**
-
-- run the base line load test a few times until traces count is bigger then 2 million.
-
-- Start the base line load test again.
-don't forget to reset the PurchaseOrderHeader table by running sql query  **DELETE FROM Purchasing.PurchaseOrderHeader WHERE PurchaseOrderID > 4012**
-
-- Here is sample results of a load test:
-
-Setting/Count     | base line| deleting log
-------------------| ---------| ------------
-User load         |	50       | 50
-Requests/Sec	    | 268      | 91
-Errors/Sec	      | 0.00     | 0.00
-Avg Response Time	| 0.17     | 0.54
-Max Response Time	| 0.49     | 0.68
-Total Record Count| 94277    |35950
-Error Count	      | 0        |0
-
-You can see the Request/Sec is much lower than the base, and the response time increase significantly.
-
-## Step 9: Double the load on Monoglot BaseLine Load Test
-
-Increase the user load from 50 to 100
-- Start the  load test again.
-don't forget to reset the PurchaseOrderHeader table by running sql query  **DELETE FROM Purchasing.PurchaseOrderHeader WHERE PurchaseOrderID > 4012**
-
-Setting/Count     | base line| mono double
-------------------| ---------| ------------
-User load         |	50       | 100
-Requests/Sec	    | 268      | 327
-Errors/Sec	      | 0.00     | 6.68
-Avg Response Time	| 0.17     | 0.29
-Max Response Time	| 0.49     | 0.92
-Total Record Count| 94,277   | 114,817
-Error Count	      | 0        | 4591
-
-You can see that when doubling the load, the throughput (Requests/Sec) only increase slightly, but latency (response) is increased greatly and we are starting seeing errors. checking the error message we found that SQLDB is throttling which causes some insert operation to fail.
-
-## Step 10: Poliglot Load Test
-
-- Create a web test that consists of two requests: a http get request and a web services request (httppost):
-
-**http://mycloudservice.cloudapp.net/api/Poliglot/321**
-
-**http://mycloudservice.cloudapp.net/api/Poliglot**
-
-- run web test and make sure that it passes.
-
-- create a load test that include the above web test, with 50 users, and set the run time to 10 minutes.
-
-Setting           | Value
-------------------| -----------
-run time	        | 10
-Warm-up Duration  |	2
-webrole instances | 5
-
-- run the following sql to reset the table:
-
-  **DELETE FROM Purchasing.PurchaseOrderHeader WHERE PurchaseOrderID > 4012**
-
-- start the load test.
-
-- here is the test result comparing to the monoglot base line
-
-Setting/Count     | base line| poliglot
-------------------| ---------| ---------
-User load         |	50       | 50
-Requests/Sec	    | 268      | 376
-Errors/Sec	      | 0.00     | 0.00
-Avg Response Time	| 0.17     | 0.12
-Max Response Time	| 0.49     | 0.19
-Total Record Count| 94,277   | 130,553  
-Error Count	      | 0        | 0
-
-You can see that poliglot performnce is much better.
-
-## Step 11: Double the load on Poliglot Load Test
-
-Increase the user load from 50 to 100 for poliglot load test
-- Start the  load test again.
-don't forget to reset the PurchaseOrderHeader table by running sql query  **DELETE FROM Purchasing.PurchaseOrderHeader WHERE PurchaseOrderID > 4012**
-
-Setting/Count     | base line| poliglot | poli double
-------------------| ---------| ---------|------------
-User load         |	50       | 50       | 100
-Requests/Sec	    | 268      | 376      | 396
-Errors/Sec	      | 0.00     | 0.00     | 0
-Avg Response Time	| 0.17     | 0.12     | 0.23
-Max Response Time	| 0.49     | 0.19     | 0.32
-Total Record Count| 94,277   | 130,553  | 139577
-Error Count	      | 0        | 0        | 0
+- Start the load test.
