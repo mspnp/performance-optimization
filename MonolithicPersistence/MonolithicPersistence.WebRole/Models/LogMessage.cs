@@ -10,9 +10,7 @@ namespace MonolithicPersistence.WebRole.Models
         private static readonly Random Rand = new Random();
 
         public Guid LogId { get; set; }
-
         public string Message { get; set; }
-
         public DateTime LogTime { get; set; }
 
         public LogMessage()

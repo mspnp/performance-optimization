@@ -11,7 +11,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SynchronousIO.CreateFileToU
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B2DB39EB-E4CA-427C-9B8F-F7F93B37A5AC}"
 	ProjectSection(SolutionItems) = preProject
+		..\LICENSE.txt = ..\LICENSE.txt
 		ReadMe.md = ReadMe.md
+		docs\SynchronousIO.md = docs\SynchronousIO.md
 	EndProjectSection
 EndProject
 Global

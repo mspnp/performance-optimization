@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2CF0AD34-B750-4CD2-8295-B147505089E3}"
 	ProjectSection(SolutionItems) = preProject
 		docs\ImproperInstantiation.md = docs\ImproperInstantiation.md
+		..\LICENSE.txt = ..\LICENSE.txt
 		ReadMe.md = ReadMe.md
 	EndProjectSection
 EndProject

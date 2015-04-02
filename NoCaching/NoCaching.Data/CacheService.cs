@@ -13,7 +13,7 @@ namespace NoCaching.Data
     {
         private static ConnectionMultiplexer _connection;
 
-        private const double DefaultExpirationTimeInMinutes = 5.0d;
+        private const double DefaultExpirationTimeInMinutes = 5.0;
 
         private static ConnectionMultiplexer Connection
         {
@@ -30,7 +30,7 @@ namespace NoCaching.Data
 
         public static Task<T> GetAsync<T>(string key, Func<Task<T>> loadCache)
         {
-            return GetAsync<T>(key, loadCache, DefaultExpirationTimeInMinutes);
+            return GetAsync(key, loadCache, DefaultExpirationTimeInMinutes);
         }
 
         public static async Task<T> GetAsync<T>(string key, Func<Task<T>> loadCache, double expirationTimeInMinutes)
@@ -40,8 +40,9 @@ namespace NoCaching.Data
                 throw new ArgumentException("key cannot be null, empty, or only whitespace.");
             }
 
-            IDatabase cache = Connection.GetDatabase();
-            T value = await GetAsync<T>(cache, key).ConfigureAwait(false);
+            var cache = Connection.GetDatabase();
+            
+            var value = await GetAsync<T>(cache, key).ConfigureAwait(false);
             if (value == null)
             {
                 value = await loadCache().ConfigureAwait(false);
@@ -64,21 +65,21 @@ namespace NoCaching.Data
             {
                 foreach (var redisEndPoint in adminConnection.GetEndPoints(true))
                 {
-                    IServer server = adminConnection.GetServer(redisEndPoint);
+                    var server = adminConnection.GetServer(redisEndPoint);
                     await server.FlushAllDatabasesAsync().ConfigureAwait(false);
                 }
 
-                await adminConnection.CloseAsync(true).ConfigureAwait(false);
+                await adminConnection.CloseAsync().ConfigureAwait(false);
             }
         }
 
-        private static async Task<T> GetAsync<T>(IDatabase cache, string key)
+        private static async Task<T> GetAsync<T>(IDatabaseAsync cache, string key)
         {
             var json = await cache.StringGetAsync(key).ConfigureAwait(false);
             return Deserialize<T>(json);
         }
 
-        private static async Task SetAsync(IDatabase cache, string key, object value, double expirationTimeInMinutes)
+        private static async Task SetAsync(IDatabaseAsync cache, string key, object value, double expirationTimeInMinutes)
         {
             await cache.StringSetAsync(key, Serialize(value)).ConfigureAwait(false);
 
@@ -88,22 +89,14 @@ namespace NoCaching.Data
 
         private static string Serialize(object o)
         {
-            if (o == null)
-            {
-                return null;
-            }
-
-            return JsonConvert.SerializeObject(o);
+            return o == null ? null : JsonConvert.SerializeObject(o);
         }
 
         private static T Deserialize<T>(string json)
         {
-            if (string.IsNullOrWhiteSpace(json))
-            {
-                return default(T);
-            }
-
-            return JsonConvert.DeserializeObject<T>(json);
+            return string.IsNullOrWhiteSpace(json) 
+                ? default(T) 
+                : JsonConvert.DeserializeObject<T>(json);
         }
     }
 }

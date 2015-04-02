@@ -27,7 +27,7 @@ namespace SynchronousIO.CreateFileToUpload
 
                 var buffer = Encoding.ASCII.GetBytes(loremIpsum);
 
-                int numberOfBuffers = 10240; //Creates a 10 MB file
+                const int numberOfBuffers = 10240; // Creates a 10 MB file
 
                 for (int i = 0; i < numberOfBuffers; i++)
                 {

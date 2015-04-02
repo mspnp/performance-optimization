@@ -14,12 +14,11 @@ namespace ChattyIO.WebApi.Controllers
 
     public class ChattyProductController : ApiController
     {
-
         [HttpGet]
         [Route("chattyproduct/products/{subcategoryId}")]
         public async Task<IHttpActionResult> GetProductsInSubCategoryAsync(int subcategoryId)
         {
-            using (var context = GetContext())
+            using (var context = AdventureWorksProductContext.GetEagerContext())
             {
                 var productSubcategory = await context.ProductSubcategories
                        .Where(psc => psc.ProductSubcategoryId == subcategoryId)
@@ -48,15 +47,6 @@ namespace ChattyIO.WebApi.Controllers
 
                 return Ok(productSubcategory);
             }
-        }
-
-
-        private AdventureWorksProductContext GetContext()
-        {
-            var context = new AdventureWorksProductContext();
-            context.Configuration.LazyLoadingEnabled = false;
-            context.Configuration.ProxyCreationEnabled = false;
-            return context;
         }
     }
 }

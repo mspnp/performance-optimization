@@ -34,15 +34,6 @@ namespace ExtraneousFetching.DataAccess
             modelBuilder.Configurations.Add(new SalesOrderHeaderConfiguration());
         }
 
-        public static DbModelBuilder CreateModel(DbModelBuilder modelBuilder, string schema)
-        {
-            modelBuilder.Configurations.Add(new ProductConfiguration());
-            modelBuilder.Configurations.Add(new SalesPersonConfiguration());
-            modelBuilder.Configurations.Add(new SalesOrderHeaderConfiguration());
-
-            return modelBuilder;
-        }
-
         public DbSet<Product> Products { get; set; }
 
         public DbSet<SalesPerson> SalesPersons { get; set; }

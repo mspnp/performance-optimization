@@ -11,7 +11,7 @@ namespace NoCaching.WebRole.Controllers
     {
         public async Task<IHttpActionResult> GetPerson(int id)
         {
-            IPersonRepository repository = new PersonRepository();
+            var repository = new PersonRepository();
             var person = await repository.GetAsync(id);
 
             if (person == null) return NotFound();
@@ -20,7 +20,7 @@ namespace NoCaching.WebRole.Controllers
 
         public async Task<IHttpActionResult> GetCustomer(int id)
         {
-            ICustomerRepository repository = new CustomerRepository();
+            var repository = new CustomerRepository();
             var customer = await repository.GetAsync(id);
 
             if (customer == null) return NotFound();
@@ -29,7 +29,7 @@ namespace NoCaching.WebRole.Controllers
 
         public async Task<IHttpActionResult> GetEmployee(int id)
         {
-            IEmployeeRepository repository = new EmployeeRepository();
+            var repository = new EmployeeRepository();
             var employee = await repository.GetAsync(id);
 
             if (employee == null) return NotFound();
@@ -38,7 +38,7 @@ namespace NoCaching.WebRole.Controllers
 
         public async Task<IHttpActionResult> GetTopTenSalesOrders()
         {
-            ISalesOrderRepository repository = new SalesOrderRepository();
+            var repository = new SalesOrderRepository();
             var results = await repository.GetTopTenSalesOrdersAsync();
 
             if (results == null) return NotFound();
@@ -47,7 +47,7 @@ namespace NoCaching.WebRole.Controllers
 
         public async Task<IHttpActionResult> GetTopTenSalesPeople()
         {
-            ISalesPersonRepository repository = new SalesPersonRepository();
+            var repository = new SalesPersonRepository();
             var results = await repository.GetTopTenSalesPeopleAsync();
 
             if (results == null) return NotFound();

@@ -18,9 +18,7 @@ namespace NoCaching.Data
 
         public async Task<ICollection<SalesOrderHeader>> GetTopTenSalesOrdersAsync()
         {
-            return await CacheService.GetAsync<ICollection<SalesOrderHeader>>(
-                "soh:topTen",
-                () => _innerRepository.GetTopTenSalesOrdersAsync()).ConfigureAwait(false);
+            return await CacheService.GetAsync("soh:topTen", () => _innerRepository.GetTopTenSalesOrdersAsync()).ConfigureAwait(false);
         }
     }
 }
