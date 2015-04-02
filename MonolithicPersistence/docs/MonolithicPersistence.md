@@ -6,7 +6,7 @@ All business applications use data, and they need to store this data somewhere. 
 
 - Documents,
 
-- Images and blobs, 
+- Images and blobs,
 
 - Cached information and other temporary data used to improve system performance,
 
@@ -37,7 +37,7 @@ public class MonoController : ApiController
     private static readonly string ProductionDb = ...;
     public const string LogTableName = "MonoLog";
 
-    public async Task<IHttpActionResult> PostAsync([FromBody]string value)
+    public async Task<IHttpActionResult> PostAsync()
     {
         await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
 
@@ -85,7 +85,7 @@ The following sections apply these steps to the sample application described ear
 
 This step is a matter of configuring the system to record the key statistics required to capture the performance signature of the application. You should capture timing information for each operation as well as the points at which the application reads and writes data. If possible, monitor the system running for a few days in a production environment and capture the telemetry of obtain a real-world view of how the system is used. If this is not possible, then perform scripted load-testing using a realistic volume of virtual users performing a typical series of operations.
 
-As an example, the following graph shows the load-test results for a scenario in which a step load of up to 1000 concurrent users issue HTTP POST requests to the `Monolithic` controller. 
+As an example, the following graph shows the load-test results for a scenario in which a step load of up to 1000 concurrent users issue HTTP POST requests to the `Monolithic` controller.
 
 ![Load-test performance results for the SQL-based controller][MonolithicScenarioLoadTest]
 
@@ -151,7 +151,7 @@ public class PolyController : ApiController
     private static readonly string LogDb = ...;
     public const string LogTableName = "PolyLog";
 
-    public async Task<IHttpActionResult> PostAsync([FromBody]string value)
+    public async Task<IHttpActionResult> PostAsync()
     {
         await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
 
@@ -226,4 +226,3 @@ The databases are now no longer the limiting factor in the performance of the sy
 [PolyglotScenarioLoadTest]: Figures/PolyglotScenarioLoadTest.jpg
 [PolyglotDatabaseUtilization]: Figures/PolyglotDatabaseUtilization.jpg
 [LogDatabaseUtilization]: Figures/LogDatabaseUtilization.jpg
-
