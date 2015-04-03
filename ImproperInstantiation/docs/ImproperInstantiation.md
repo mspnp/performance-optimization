@@ -66,7 +66,7 @@ You can perform the following steps to help identify this problem:
 
 3. Perform load testing of each of the operations identified by step 3. Use a controlled test environment rather than the production system.
 
-4. Review the source code for the possible operations and examine the logic behind the the lifecycle of the broker objects being created and destroyed.
+4. Review the source code for the possible operations and examine the logic behind the the life cycle of the broker objects being created and destroyed.
 
 The following sections apply these steps to the sample application described earlier.
 

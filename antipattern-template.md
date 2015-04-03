@@ -6,7 +6,7 @@ Here we give a concise description of the anti-pattern. We should answer the fol
 - What are the symptoms that the anti-pattern exhibits in a system? 
 
 ``` C#
-// if possible, we should provide inline snippets here demonstrating the anti-pattern
+// if possible, we should provide in-line snippets here demonstrating the anti-pattern
 // the snippet should be clearly indicate where the problem spots are
 
 for (var message in batch) {
@@ -17,10 +17,10 @@ for (var message in batch) {
 
 ## How to detect the problem
 In the context of the anti-pattern, we want to discuss how to capture meaningful data about the impact of the problem on the system. The emphasis here should be on the type of work and the data we're collecting; not necessarily about tools and how to use them.
-We should favor showing real measurable data, preferrably numeric. The data should set a baseline so that we can validate the solution.
+We should favor showing real measurable data, preferably numeric. The data should set a baseline so that we can validate the solution.
 
 ## How to correct the problem
-Here we discuss how to replace the anti-pattern with something more approriate. There may be more than one solution, but we do not to be comprehensive. The solution should be practical. The solution should be relative limited in scope. If the solution requires a "big design change", the anti-pattern in question may not be a good fit for this guidance.
+Here we discuss how to replace the anti-pattern with something more appropriate. There may be more than one solution, but we do not to be comprehensive. The solution should be practical. The solution should be relative limited in scope. If the solution requires a "big design change", the anti-pattern in question may not be a good fit for this guidance.
 
 ``` C#
 // We want to show the counter sample to the demonstration of the anti-pattern earlier

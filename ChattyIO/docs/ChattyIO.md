@@ -6,7 +6,7 @@ Common examples of chatty I/O operations include:
 
 - Reading and writing individual records to a database as distinct requests. The following code snippet shows part of a controller in a service implemented by using Web API. The example is based on the AdventureWorks2012 database. In this database, products are grouped into subcategories and are held in the `Product` and `ProductSubcategory` tables respectively. Pricing information for each product is held in a separate table named `ProductListPriceHistory`. The  `GetProductsInSubCategoryAsync` method shown below retrieves the details for all products (including price information) for a specified subcategory. The method achieves this by using the Entity Framework to perform the following operations:
 
-	- Fetch the details of the specified subcatgeory from the `ProductSubcategory` table,
+	- Fetch the details of the specified subcategory from the `ProductSubcategory` table,
 
 	- Find all products in the subcategory by querying the `Product` table,
 
@@ -218,7 +218,7 @@ Taking a closer look at the work performed by the `GetProductsInSubCategoryAsync
 
 ----------
 
-**Note:** The trace information shown is for the slowest instance of the `GetProductsInSubCategoryAsync` operation performed by the load-test. In a production environment, you should examine the traces of as many slow-running operations as possible to determine whether there is a pattern in the behaviour of these operations that suggests why they might be running slowly.
+**Note:** The trace information shown is for the slowest instance of the `GetProductsInSubCategoryAsync` operation performed by the load-test. In a production environment, you should examine the traces of as many slow-running operations as possible to determine whether there is a pattern in the behavior of these operations that suggests why they might be running slowly.
 
 ----------
 
@@ -377,7 +377,7 @@ As well as buffering data for output, you should also consider caching data retr
 
 You should consider the following points:
 
-- When reading data, do not make your I/O requests too large. An application should only retrieve the information that it is likely to use. It may be necessary to partition the information for an object into two chunks; *frequently accessed data* that accounts for 90% of the requests and *less frequently accessed data* that is used only 10% of the time. When an application requests data, it should be retrieve  the *90%* chunk. The *10%* chunk should only be fetched if necessary. If the *10%* chunk constitues a large proportion of the information for an object this approach can save significant I/O overhead.
+- When reading data, do not make your I/O requests too large. An application should only retrieve the information that it is likely to use. It may be necessary to partition the information for an object into two chunks; *frequently accessed data* that accounts for 90% of the requests and *less frequently accessed data* that is used only 10% of the time. When an application requests data, it should be retrieve  the *90%* chunk. The *10%* chunk should only be fetched if necessary. If the *10%* chunk constitutes a large proportion of the information for an object this approach can save significant I/O overhead.
 
 - When writing data, avoid locking resources for longer than necessary to reduce the chances of contention during a lengthy operation. If a write operation spans multiple data stores, files, or services then adopt an eventually consistent approach (see [Data Consistency guidance][data-consistency-guidance] for details).
 
