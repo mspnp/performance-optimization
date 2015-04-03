@@ -15,16 +15,6 @@ namespace ExtraneousFetching.DataAccess
             DbInterception.Add(new ConnectionInterceptor());
         }
 
-        public AdventureWorksContext()
-            : base("Name=AdventureWorksContext")
-        {
-        }
-
-        public AdventureWorksContext(string connectionString)
-            : base(connectionString)
-        {
-        }
-
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

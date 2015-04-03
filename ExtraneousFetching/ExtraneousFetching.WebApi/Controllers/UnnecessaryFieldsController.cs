@@ -1,7 +1,6 @@
 ﻿// Copyright (c) Microsoft. All rights reserved.
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
-using System.Configuration;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +16,7 @@ namespace ExtraneousFetching.WebApi.Controllers
         [Route("api/allfields")]
         public async Task<IHttpActionResult> GetAllFieldsAsync()
         {
-            using (var context = GetContext())
+            using (var context = new AdventureWorksContext())
             {
                 var products = await context.Products.ToListAsync(); // Execute query.
 
@@ -31,7 +30,7 @@ namespace ExtraneousFetching.WebApi.Controllers
         [Route("api/requiredfields")]
         public async Task<IHttpActionResult> GetRequiredFieldsAsync()
         {
-            using (var context = GetContext())
+            using (var context = new AdventureWorksContext())
             {
                 var result = await context.Products
                     .Select(p => new ProductInfo {Id = p.ProductId, Name = p.Name}) // Project fields.
@@ -39,12 +38,6 @@ namespace ExtraneousFetching.WebApi.Controllers
 
                 return Ok(result);
             }
-        }
-
-        private AdventureWorksContext GetContext()
-        {
-            var connectionString = ConfigurationManager.ConnectionStrings["AdventureWorksContext"].ConnectionString;
-            return new AdventureWorksContext(connectionString);
         }
     }
 }
