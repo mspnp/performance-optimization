@@ -18,9 +18,11 @@ namespace ExtraneousFetching.WebApi.Controllers
         {
             using (var context = new AdventureWorksContext())
             {
-                var products = await context.Products.ToListAsync(); // Execute query.
+                // execute the query
+                var products = await context.Products.ToListAsync();
 
-                var result = products.Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name }); // Project fields.
+                // project fields from the query results
+                var result = products.Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name });
 
                 return Ok(result);
             }
@@ -32,9 +34,10 @@ namespace ExtraneousFetching.WebApi.Controllers
         {
             using (var context = new AdventureWorksContext())
             {
+                // project fields as part of the query itself
                 var result = await context.Products
-                    .Select(p => new ProductInfo {Id = p.ProductId, Name = p.Name}) // Project fields.
-                    .ToListAsync(); // Execute query.
+                    .Select(p => new ProductInfo {Id = p.ProductId, Name = p.Name})
+                    .ToListAsync();
 
                 return Ok(result);
             }
