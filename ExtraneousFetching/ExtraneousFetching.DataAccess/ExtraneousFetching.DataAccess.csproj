@@ -55,7 +55,6 @@
     <Compile Include="Product.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SalesOrderHeader.cs" />
-    <Compile Include="SalesPerson.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

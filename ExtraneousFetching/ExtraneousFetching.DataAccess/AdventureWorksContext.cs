@@ -15,27 +15,16 @@ namespace ExtraneousFetching.DataAccess
             DbInterception.Add(new ConnectionInterceptor());
         }
 
-        public AdventureWorksContext()
-            : base("Name=AdventureWorksContext")
-        {
-        }
-
-        public AdventureWorksContext(string connectionString)
-            : base(connectionString)
-        {
-        }
-
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Configurations.Add(new ProductConfiguration());
-            modelBuilder.Configurations.Add(new SalesPersonConfiguration());
             modelBuilder.Configurations.Add(new SalesOrderHeaderConfiguration());
         }
 
         public DbSet<Product> Products { get; set; }
 
-        public DbSet<SalesPerson> SalesPersons { get; set; }
+        public DbSet<SalesOrderHeader> SalesOrderHeaders { get; set; }
     }
 }
