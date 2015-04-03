@@ -18,17 +18,11 @@ namespace ExtraneousFetching.WebApi.Controllers
         {
             using (var context = GetEagerLoadingContext())
             {
-                var salesPersons = await context.SalesPersons
-                    .Include(sp => sp.SalesOrderHeaders) // This include forces eager loading.
-                    .ToListAsync();
+                // fetch all order totals from the database
+                var orderAmounts = await context.SalesOrderHeaders.Select(soh => soh.TotalDue).ToListAsync();
 
-                decimal total = 0;
-                foreach (var salesPerson in salesPersons)
-                {
-                    var orderHeaders = salesPerson.SalesOrderHeaders;
-
-                    total += orderHeaders.Sum(x => x.TotalDue);
-                }
+                // sum the order totals here in the controller
+                var total = orderAmounts.Sum();
 
                 return Ok(total);
             }
@@ -40,11 +34,8 @@ namespace ExtraneousFetching.WebApi.Controllers
         {
             using (var context = GetContext())
             {
-                var query = from sp in context.SalesPersons
-                            from soh in sp.SalesOrderHeaders
-                            select soh.TotalDue;
-
-                var total = await query.DefaultIfEmpty(0).SumAsync();
+                // fetch the sum of all order totals, as computed on the database server
+                var total = await context.SalesOrderHeaders.SumAsync(soh => soh.TotalDue);
 
                 return Ok(total);
             }

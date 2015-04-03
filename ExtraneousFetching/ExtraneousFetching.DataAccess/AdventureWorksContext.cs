@@ -37,5 +37,7 @@ namespace ExtraneousFetching.DataAccess
         public DbSet<Product> Products { get; set; }
 
         public DbSet<SalesPerson> SalesPersons { get; set; }
+
+        public DbSet<SalesOrderHeader> SalesOrderHeaders { get; set; }
     }
 }
