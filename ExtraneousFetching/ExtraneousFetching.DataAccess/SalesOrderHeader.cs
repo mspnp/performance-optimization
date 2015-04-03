@@ -58,7 +58,5 @@ namespace ExtraneousFetching.DataAccess
         public Guid Rowguid { get; set; } // rowguid
 
         public DateTime ModifiedDate { get; set; } // ModifiedDate
-
-        public virtual SalesPerson SalesPerson { get; set; }
     }
 }

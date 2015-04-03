@@ -30,13 +30,10 @@ namespace ExtraneousFetching.DataAccess
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Configurations.Add(new ProductConfiguration());
-            modelBuilder.Configurations.Add(new SalesPersonConfiguration());
             modelBuilder.Configurations.Add(new SalesOrderHeaderConfiguration());
         }
 
         public DbSet<Product> Products { get; set; }
-
-        public DbSet<SalesPerson> SalesPersons { get; set; }
 
         public DbSet<SalesOrderHeader> SalesOrderHeaders { get; set; }
     }
