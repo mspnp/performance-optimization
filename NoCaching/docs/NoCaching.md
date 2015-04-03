@@ -35,7 +35,7 @@ This anti-pattern typically occurs because:
 
 - There is a concern over the overhead of maintaining the accuracy and freshness of cached data and the coding complications that this might entail.
 
-- Direct access to data might form part of an on-premises system where network latency is not an issue, the system runs on expensive high-performance hardware, and caching is not considered. If this system is migrated to the cloud network latency is increased, and it is typically hosted on commodity hardware in a remote datacenter. An explicit decision needs to be made to explore the possible performance benefits of caching.
+- Direct access to data might form part of an on-premises system where network latency is not an issue, the system runs on expensive high-performance hardware, and caching is not considered. If this system is migrated to the cloud network latency is increased, and it is typically hosted on commodity hardware in a remote data center. An explicit decision needs to be made to explore the possible performance benefits of caching.
 
 - A lack of awareness that caching is a possibility in a given scenario. A common example concerns the use of ETags when implementing a web API. 
 
@@ -241,11 +241,11 @@ To determine the efficacy of any caching strategy, you should repeat load-testin
 ## Related resources
 - [The Cache-Aside Pattern][cache-aside-pattern].
 
-- [Data Consistency guidance][data-consistency-guidance].
+- [Data Consistency Guidance][data-consistency-guidance].
 
 - [Caching Guidance][caching-guidance].
 
-- [Azure Cache documentation][Azure-cache].
+- [Azure Cache Documentation][Azure-cache].
 
 
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz

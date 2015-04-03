@@ -173,7 +173,7 @@ For each data source, you should instrument the system to capture the frequency 
 
 ![Observing end-to-end behavior of operations][End-to-End]
 
-Capturing this data might involve observing the live system and tracing the lifecycle of each user request, or you can model a series of synthetic workloads and run them against a test system if you need to observe behavior in a more controlled environment.
+Capturing this data might involve observing the live system and tracing the life cycle of each user request, or you can model a series of synthetic workloads and run them against a test system if you need to observe behavior in a more controlled environment.
 
 The following graphs show the results of telemetry captured by using New Relic during the load-test of the `GetAllFieldsAsync` method. It is important to note the differences between the volumes of data received from the database and the corresponding HTTP responses. 
 
@@ -207,7 +207,7 @@ The statistics summarize the resources used by this query.
 
 ### Performing a resource-specific analysis of the slow-running queries
 
-Examining the queries frequently performed against a data source, and the way in which an application uses this information, can provide an insight into how key operations might be speeded up. In some cases, it may be advisable to partition resources horizontally if different attributes of the data (columns in a relational table, or fields in a NoSQL store) are accessed separately by different functions; this can help to reduce contention; often 90% of operations are run against 10% of the data held in the various data sources, so spreading this load may improve performance.
+Examining the queries frequently performed against a data source, and the way in which an application uses this information, can provide an insight into how key operations might be sped up. In some cases, it may be advisable to partition resources horizontally if different attributes of the data (columns in a relational table, or fields in a NoSQL store) are accessed separately by different functions; this can help to reduce contention; often 90% of operations are run against 10% of the data held in the various data sources, so spreading this load may improve performance.
 
 Depending on the nature of the data store, you may be able to exploit the features that it implements to efficiently store and retrieve information. For example, if an application requires an aggregation over a number of items (such as a count, sum, min or max operation), SQL databases typically provide aggregate functions that can perform these operations without requiring that an application fetches all of the data and implement the calculation itself. In other types of data store, it may be possible to maintain this information separately within the store as records are added, updated, or removed, again eliminating the requirement of an application to fetch a potentially large amount of data and perform the calculation itself.
 
@@ -322,9 +322,9 @@ The amount of data retrieved from the database was vastly reduced, from over 1MB
 
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
-[chatty-io]: http://LINK-TO-CHATTY-IO-ANTI-PATTERN
-[MonolithicPersistence]: http://LINK-TO-MONOLITHIC-PERSISTENCE-ANTI-PATTERN
-[BusyDatabase]: http://LINK-TO-BUSY-DATABASE-ANTI-PATTERN
+[chatty-io]: ../../ChattyIO/docs/ChattyIO.md
+[MonolithicPersistence]: ../../MonolithicPersistence/docs/MonolithicPersistence.md
+[BusyDatabase]: ../../BusyDatabase/docs/BusyDatabase.md
 [IEnumerableVsIQueryable]: https://www.sellsbrothers.com/posts/Details/12614
 [full-product-table]:Figures/ProductTable.jpg
 [product-sales-tables]:Figures/SalesPersonAndSalesOrderHeaderTables.jpg

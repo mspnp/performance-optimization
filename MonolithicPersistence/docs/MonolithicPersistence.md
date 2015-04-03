@@ -131,7 +131,7 @@ The data stores themselves should also be instrumented to capture the low-level 
 
 ### Identifying contended resources and understanding how they are used
 
-At this point you can conduct a review of the source code focussing on the points at which the contended resources are accessed by the application. While reviewing the code, look for situations such as:
+At this point you can conduct a review of the source code focusing on the points at which the contended resources are accessed by the application. While reviewing the code, look for situations such as:
 
 - Data that is logically separate being written to the same store; information such as logs, reports, and queued messages should not be held in the same database as business information.
 

@@ -331,7 +331,7 @@ The database monitor in the Azure Management console shows the following CPU and
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
 
-[ExtraneousFetching]: http://LINK-TO-EXTRANEOUS-FETCHING-ANTI-PATTERN
+[ExtraneousFetching]: ../../ExtraneousFetching/docs/ExtraneousFetching.md
 [MVVM]: http://blogs.msdn.com/b/msgulfcommunity/archive/2013/03/13/understanding_2d00_the_2d00_basics_2d00_of_2d00_mvvm_2d00_design_2d00_pattern.aspx
 
 [ProcessingInDatabaseLoadTest]: Figures/ProcessingInDatabaseLoadTest.jpg

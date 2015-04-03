@@ -24,7 +24,7 @@ The current catalog of cloud performance anti-patterns contains the following it
 
 - **[Extraneous Fetching][ExtraneousFetching]** highlights what can happen if an application retrieves data that it may or may not need in a speculative manner.
 
-- **[Improper Instantation][ImproperInstantiation]** describes the effects of repeatedly creating and destroying objects that are designed to be shared and reused.
+- **[Improper Instantiation][ImproperInstantiation]** describes the effects of repeatedly creating and destroying objects that are designed to be shared and reused.
 
 - **[Monolithic Persistence][MonolithicPersistence]** illustrates the impact on database performance if the same data store is used as the repository for data that follows distinctly different usage patterns such as logging, session state, and business information.
 
@@ -40,5 +40,5 @@ Note that this project is still very much a work-in-progress. We will likely be 
 [ExtraneousFetching]: ExtraneousFetching/docs/ExtraneousFetching.md
 [ImproperInstantiation]: ImproperInstantiation/docs/ImproperInstantiation.md
 [MonolithicPersistence]: MonolithicPersistence/docs/MonolithicPersistence.md
-[NoCaching]: NoCache/docs/NoCaching.md
+[NoCaching]: NoCaching/docs/NoCaching.md
 [SynchronousIO]: SynchronousIO/docs/SynchronousIO.md
