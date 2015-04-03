@@ -322,9 +322,9 @@ The amount of data retrieved from the database was vastly reduced, from over 1MB
 
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
-[chatty-io]: http://LINK-TO-CHATTY-IO-ANTI-PATTERN
-[MonolithicPersistence]: http://LINK-TO-MONOLITHIC-PERSISTENCE-ANTI-PATTERN
-[BusyDatabase]: http://LINK-TO-BUSY-DATABASE-ANTI-PATTERN
+[chatty-io]: ../../ChattyIO/docs/ChattyIO.md
+[MonolithicPersistence]: ../../MonolithicPersistence/docs/MonolithicPersistence.md
+[BusyDatabase]: ../../BusyDatabase/docs/BusyDatabase.md
 [IEnumerableVsIQueryable]: https://www.sellsbrothers.com/posts/Details/12614
 [full-product-table]:Figures/ProductTable.jpg
 [product-sales-tables]:Figures/SalesPersonAndSalesOrderHeaderTables.jpg

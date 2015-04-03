@@ -385,7 +385,7 @@ You should consider the following points:
 
 ## <a name="Consequences"></a>Consequences of the solution
 
-The system should spend less time performing I/O, and contention for I/O resources should be decreased. This should manifest itself as an improvement in response time and throughput in an application. However, you should ensure that each request only fetches the data that is likely to be required. Making requests that are far too big can be as damaging for performance as making lots of small requests; avoid retrieving data speculatively. For more information, see the [Retrieving Too Much Data][retrieving-too-much-data] anti-pattern.
+The system should spend less time performing I/O, and contention for I/O resources should be decreased. This should manifest itself as an improvement in response time and throughput in an application. However, you should ensure that each request only fetches the data that is likely to be required. Making requests that are far too big can be as damaging for performance as making lots of small requests; avoid retrieving data speculatively. For more information, see the [Extraneous Fetching][extraneous-fetching] anti-pattern.
 
 Performing load-testing against the Chatty I/O sample application by using the `chunky` API generated the following results:
 
@@ -416,7 +416,7 @@ Although this query is considerably more complex than that used by the chatty AP
 [fullDemonstrationOfProblem]: http://github.com/mspnp/performance-optimization/xyz
 [fullDemonstrationOfSolution]: http://github.com/mspnp/performance-optimization/123
 [data-consistency-guidance]: http://LINK-TO-CONSISTENCY-GUIDANCE-WHEN-PUBLISHED
-[retrieving-too-much-data]: http://LINK-TO-RETRIEVING-TOO-MUCH-DATA-ANTIPATTERN-WHEN-PUBLISHED
+[extraneous-fetching-guidance]: ../../ExtraneousFetching/docs/ExtraneousFetching.md
 [caching-guidance]: https://msdn.microsoft.com/library/dn589802.aspx
 [key-indicators-chatty-io]: Figures/ChattyIO.jpg
 [key-indicators-chunky-io]: Figures/ChunkyIO.jpg

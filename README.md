@@ -40,5 +40,5 @@ Note that this project is still very much a work-in-progress. We will likely be 
 [ExtraneousFetching]: ExtraneousFetching/docs/ExtraneousFetching.md
 [ImproperInstantiation]: ImproperInstantiation/docs/ImproperInstantiation.md
 [MonolithicPersistence]: MonolithicPersistence/docs/MonolithicPersistence.md
-[NoCaching]: NoCache/docs/NoCaching.md
+[NoCaching]: NoCaching/docs/NoCaching.md
 [SynchronousIO]: SynchronousIO/docs/SynchronousIO.md
