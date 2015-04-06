@@ -30,8 +30,8 @@ Maximum User Count  | 50
 Step Duration       | 30s
 Step Ramp Time      | 30s
 Step User Count     | 1
-
-Each load test ran for 30 minutes, with a 30 second warm-up period.
+Test Duration       | 30 minutes
+Test Warm Up        | 30 seconds
 
 [AW2012]: http://msftdbprodsamples.codeplex.com/releases/view/37304
 [AzureSQL]: http://azure.microsoft.com/en-us/pricing/details/sql-database/
