@@ -2,31 +2,26 @@
 
 ## Deployment
 
-Our load tests were ran against an Azure SQL Database premium instance (P3).
-We used the [Adventure Works for Azure SQL Database][AW2012].
-
-The ASP.NET application was deployed as a [Cloud Service][AzureCloudService],
-using a single [Large instance][AzureCloudServiceSizes].
-
-The `Max Pool Size` in the connection string was set to an arbitrarily high
-value (4000) in order to prevent the connection pool from being a constraining
-resource.
+ Option             | Value  
+------------------- | -------------
+Compute             | Cloud Service
+VM Size             | Large
+Instances Count     | 1
+SQL Tier            | P3
+`Max Pool Size`     | 4000
 
 ## Test Configuration
 
-We used [Visual Studio Online][VsoLoadTesting] to perform our tests.
-There were two webtests, each invoking a `GET` using the `Generate Random Integer`
-plugin.
+The load test project included two webtests, each invoking a `GET` using the
+`Generate Random Integer` plugin.
 
 The urls were similar to
 
 - http://something.cloudapp.net/toomuchprocsql/get/{{orderid}}
 - http://something.cloudapp.net/lessprocsql/get/{{orderid}}
 
-We had a load test for each web test. The load tests were ran against the same
-deployment but at different times .
-
-Both load tests used a *Step* load pattern with the following parameter values:
+The project include two load tests, one for each web test. Both load tests were
+ran against a single deployment but at different times.
 
 Parameter           | Value
 ------------------- | ------------:
