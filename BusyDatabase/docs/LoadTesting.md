@@ -1,5 +1,7 @@
 # Load Testing BusyDatabase
 
+Read about our [general approach][] to deployment and load testing.
+
 ## Deployment
 
  Option             | Value  
@@ -33,8 +35,4 @@ Step User Count     | 1
 Test Duration       | 30 minutes
 Test Warm Up        | 30 seconds
 
-[AW2012]: http://msftdbprodsamples.codeplex.com/releases/view/37304
-[AzureSQL]: http://azure.microsoft.com/en-us/pricing/details/sql-database/
-[AzureCloudService]: http://azure.microsoft.com/en-us/documentation/services/cloud-services/
-[AzureCloudServiceSizes]: https://msdn.microsoft.com/library/azure/dn197896.aspx
-[VsoLoadTesting]: https://www.visualstudio.com/get-started/test/load-test-your-app-vs
+[general approach]: /LoadTesting.md
