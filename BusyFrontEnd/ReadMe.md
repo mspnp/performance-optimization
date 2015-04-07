@@ -19,7 +19,8 @@ The WebRole WebAPI project contains two controllers:
 * `WorkInBackgroundController`
 
 
-The `Get` action of the `WorkInFrontEndController` creates a new thread which invokes the static `Calculator.RunLongComputation` method:
+The `Get` action of the `WorkInFrontEndController` creates a new thread which invokes
+the static `Calculator.RunLongComputation` method:
 
 **C#**
 
@@ -36,7 +37,8 @@ public void Get(double number)
 }
 ```
 
-The `Get` action of the `WorkInBackgroundController` posts a message to a queue for processing by the worker role:
+The `Get` action of the `WorkInBackgroundController` posts a message to a queue for
+processing by the worker role:
 
 **C#**
 
@@ -49,19 +51,25 @@ public Task Get(double number)
             number);
 }
 ```
-The worker role listens for incoming messages and performs the equivalent processing to the `Calculator.RunLongComputation` method over each one.
+The worker role listens for incoming messages and performs the equivalent processing to
+the `Calculator.RunLongComputation` method over each one.
 
 ## Configuring the project
 
-The `WorkInBackgroundController` uses an Azure Service Bus Queue to send messages to the worker role. Use the Azure Management Portal to create an Azure Service Bus Queue and add the connection string for this queue to the AzureCloudService ServiceConfiguration files.
+The `WorkInBackgroundController` uses an Azure Service Bus Queue to send messages to
+the worker role. Use the Azure Management Portal to create an Azure Service Bus Queue
+and add the connection string for this queue to the AzureCloudService
+ServiceConfiguration files.
 
 ## Deploying the project to Azure
 
-In Visual Studio Solution Explorer, right-click the AzureCloudService project and then click *Publish* to deploy the project to Azure.
+In Visual Studio Solution Explorer, right-click the AzureCloudService project and then
+click *Publish* to deploy the project to Azure.
 
 ## Load testing the project
 
-You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) the application.
+You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) the
+application.
 
 ## Dependencies
 
