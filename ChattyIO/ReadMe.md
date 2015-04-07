@@ -4,7 +4,7 @@ The BusyFrontEnd sample code comprises the following items:
 
 * ChattyIO solution file
 
-* ChattyIO WebAPI project
+* ChattyIO WebAPI project (*Note that this project is an Azure web application and not a cloud service*)
 
 * ChattyIO.DataAccess class library
 
@@ -20,7 +20,10 @@ The `GetProductCategoryDetailsAsync` action of the `ChunkyProductController` per
 
 ## Configuring the project
 
-This project uses the [AdventureWorks2012][AdventureWorks2012] database stored by using Azure SQL Database. Create the database by using the Azure Management Portal and add the connection string to the `AdventureWorksProductContext` connection string in the web.config file for the ChattyIO WebAPI project.
+This project uses the [AdventureWorks2012][AdventureWorks2012] database stored by using Azure SQL Database. Create the database by using the Azure Management Portal and add the connection string to the `AdventureWorksProductContext` connection string in the web.config file for the ChattyIO WebAPI project. Note that the new Azure portal provides a simplified version of the database (AdventureWorksLT).
+The AdventureWorksLT database uses a different schema from that expected by this sample
+application which might not function correctly unless the full
+[AdventureWorks2012][AdventureWorks2012] database is installed.
 
 ## Deploying the project to Azure
 
@@ -36,6 +39,6 @@ This project requires:
 
 * Azure SDK 2.5
 
-* An instance of the [AdventureWorks2012] database 
+* An instance of the [AdventureWorks2012] database
 
 [AdventureWorks2012]: https://msftdbprodsamples.codeplex.com/releases/view/37304
