@@ -1,175 +1,75 @@
-# Build and Run Monolithic Anti Pattern Code Sample
+# MonolithicPersistence Sample Code
 
-## Step 1: Set up AdventureWorks DB and update the Settings in ServiceConfiguration cscfg files
+The MonolithicPersistence sample code comprises the following items:
 
-- Create an Azure SQL DB in Windows Azure. Install AdventureWorks Database on it, add the IP rules so that you can access the DB from your development box. This is your production database.
+* MonolithicPersistence solution file
 
-- Create another Azure SQL DB. Create an empty database on it, add the IP rules so that you can access the DB from your development box. This is your Log database.
+* AzureCloudService
 
-- Start **Visual Studio** and open **MonolithicPersistence.sln**
+* MonolithicPersistence.WebRole WebAPI project
 
-- Expand **AzureCloudService->Roles->WebRole** and right click **WebRole** and select **Properties**.
+The MonolithicPersistence.WebRole project contains two controllers:
 
-- Click **Settings**.
+* `MonoController`
 
-- Update the **Value** for **ProductionSQlDbCnStr** with the connection string from the AdventureWorks Production database.
+* `PolyController`
 
-- Update the **Value** for **LogSQlDbCnStr** with the connection string from the Log Database.
+The `Post` action of both controllers add a new `PurchaseOrderHeader` record to the
+[AdventureWorks2012][AdventureWorks2012] database deployed in the cloud, and then
+create a log record that describes the operation just performed. The following snippet
+shows the code for the `MonoController`. The `PolyController` is very similar, except
+that the log record is written to a different database:
 
-## Step 2: Test the solution locally
-
-### Test MonoController
-
-You are going to test the following MonoController method:
-
-```C#
-public async Task<IHttpActionResult> PostAsync()
+**C#**
+``` C#
+public class MonoController : ApiController
 {
-    await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
+    private static readonly string ProductionDb = CloudConfigurationManager.GetSetting("ProductionSqlDbCnStr");
+    public const string LogTableName = "MonoLog";
 
-    await DataAccess.LogAsync(ProductionDb, LogTableName);
+    public async Task<IHttpActionResult> PostAsync()
+    {
+        await DataAccess.InsertPurchaseOrderHeaderAsync(ProductionDb);
 
-    return Ok();
+        await DataAccess.LogAsync(ProductionDb, LogTableName);
+
+        return Ok();
+    }
 }
 ```
 
-The method **InsertPurchaseOrderHeaderAsync(ProductionDb)** executes the following SQL query:
+## Configuring the project
 
-```sql
-INSERT INTO Purchasing.PurchaseOrderHeader(
-    RevisionNumber, Status, EmployeeID, VendorID, ShipMethodID,
-    OrderDate,
-    ShipDate,
-    SubTotal,TaxAmt, Freight,
-    ModifiedDate)
-VALUES(
-    1, 4, 258, 1580, 3,
-    2015-03-05 14:23:04.743,
-    2015-03-05 14:23:04.743,
-    123.40, 12.34, 5.76,
-    2015-03-05 14:23:04.743)
-```
-**Note**: date value is obtained at runtime and will be different from the above.
+Both controllers use the [AdventureWorks2012][AdventureWorks2012] database stored by
+using Azure SQL Database. Create the database by using the Azure Management Portal and
+add the connection string to the `ProductionSqlDbCnStr` setting in the Service
+Configuration files in the AzureCloudService project.
 
-The method **LogAsync(ProductionDb, LogTableName)** executes the following SQL query:
+The `PolyController` also requires a separate Azure SQL Database to hold the log
+table. Create a new database on another SQL server by using the Azure Management
+Portal and add the connection string to the `LogSqlDbCnStr` setting in the
+Service Configuration files in the AzureCloudService project.
 
-``` sql
-INSERT INTO dbo.MonoLog(LogId, Message, LogTime)
-VALUES(@LogId, @Message, @LogTime)
-```
+Note that the new Azure portal provides a simplified version of the database (AdventureWorksLT). The AdventureWorksLT database uses a different schema from that expected by this sample application which might not function correctly unless the full [AdventureWorks2012][AdventureWorks2012] database is installed.
 
-**Note**: **@LogId, @Message** are random strings and **@LogTime** is obtained at runtime
+The tables used to hold log records are created automatically when the service starts running.
 
-**Test Steps**
+## Deploying the project to Azure
 
-Here are the test steps using Fiddler. You can also use any of your preferred tool to send a post message.
+In Visual Studio Solution Explorer, right-click the AzureCloudService project and then click *Publish* to deploy the project to Azure.
 
-- Start **Visual Studio** and open **MonolithicPersistence.sln**
+## Load testing the project
 
-- Press **F5** to start debugging session, wait for IE to open. make a note of the port number
+You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) the application.
 
-- Start **Fiddler**
+## Dependencies
 
-- Click **Composer**
+This project requires:
 
-- Change http verbs to **POST**
+* Azure SDK 2.5
 
-- Change the url to **http://localhost:yourportnumber/api/mono**
+* An instance of the [AdventureWorks2012] database
 
-  **Note** replace yourportnumber with the number in the IE address
+* An empty Azure SQL Database instance running on a different SQL server
 
-- Click  **Execute**
-
-- Verify that record is inserted to the database: In Sql Server Object Explorer tree view, expand to AdventureWorks2012 database and start the following query
-
-``` sql
-SELECT Count(*) FROM Purchasing.PurchaseOrderHeader
-
-SELECT Count(*) FROM dbo.MonoLog
-```
-- Make a note of the result for the count.
-
-- In Fiddler, Execute the POST again
-
-- In SQL query, run the query again. Verify the result count is increased by 1.
-
-### Test PolyController
-
-- Follow the same procedure as the previous step using **Poly** instead of **Mono**.
-
-- To verify that the log is inserted to the LogDB, in Sql Server Object Explorer tree view, expand to Log database and run the following query
-
-``` sql
-SELECT Count(*) FROM dbo.PolyLog
-```
-
-
-## Step 3: Publish the AzureCloudService to Microsoft Azure
-
-- Start **Visual Studio** and open **MonolithicPersistence.sln**
-
-- Right click on **AzureCloudService** and click **Publish...**.  
-
-- Wait for the publish to complete
-
-- Test the deployment follow the same steps as that in Step 2. You need to change the url to point to your cloud service.
-
-## Step 3: Load Test MonoController:
-
-- Create a web test that consists of a web service requests (http post) with the url **http://mycloudservice.cloudapp.net/api/Mono**
-
-   **Note**: you need to replace mycloudservice with the actual value.
-
-- Run web test and make sure that it passes.
-
-- Create a load test that include the above web test and change the load test settings as follows:
-
-Step Load Pattern       | Value
-------------------------| -----------
-Pattern                 | Step
-Initial User Count      | 1
-Maximum User Count      | 1000
-Step Duration (seconds) | 60
-Step Ramp Time (seconds)| 30
-Step User Count         | 100
-
-
-Run Settings              | Value
-------------------------  | -----------
-Agent Count (Total Cores) | 20
-Run Duration              | 00:15:00
-Sample Rate               | 00:00:15
-Warm-up Duration          | 00:00:30
-
-- Connect to the production db and run the following sql to reset the PurchaseOrderHeader table and the MonoLog table:
-
-```sql
-DELETE FROM Purchasing.PurchaseOrderHeader WHERE PurchaseOrderID > 4012
-
-DELETE FROM dbo.MonoLog
-```
-
-- Start the load test.
-
-## Step 3: Load Test PolyController:
-- Create a web test that consists of a web service requests (http post) with the url **http://mycloudservice.cloudapp.net/api/Poly**
-
-  **Note**: you need to replace mycloudservice with the actual value.
-
-- Run web test and make sure that it passes.
-
-- Create a load test that include the above web test and change the load test settings to the same as that of the above load test for the MonoController.
-
-- Connect to the production db and run the following sql to reset the PurchaseOrderHeader table:
-
-```sql
-DELETE FROM Purchasing.PurchaseOrderHeader WHERE PurchaseOrderID > 4012
-```
-
-- Connect to the Log db and run the following sql to reset the PolyLog table:
-
-```sql
-DELETE FROM dbo.PolyLog
-```
-
-- Start the load test.
+[AdventureWorks2012]: https://msftdbprodsamples.codeplex.com/releases/view/37304
