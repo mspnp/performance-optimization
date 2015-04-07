@@ -48,16 +48,16 @@ commonplace:
 [Route("api/allfields")]
 public async Task<IHttpActionResult> GetAllFieldsAsync()
 {
-	  using (var context = new AdventureWorksContext())
-	  {
-		  	// execute the query
-			  var products = await context.Products.ToListAsync();
+    using (var context = new AdventureWorksContext())
+    {
+        // execute the query
+        var products = await context.Products.ToListAsync();
 
-			  // project fields from the query results
-			  var result = products.Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name });
+        // project fields from the query results
+        var result = products.Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name });
 
-			  return Ok(result);
-	  }
+        return Ok(result);
+    }
 }
 ```
 
@@ -75,16 +75,16 @@ every record for all orders sold, and then calculates the total sales value from
 [Route("api/aggregateonclient")]
 public async Task<IHttpActionResult> AggregateOnClientAsync()
 {
-	  using (var context = new AdventureWorksContext())
-	  {
-		  	// fetch all order totals from the database
-			  var orderAmounts = await context.SalesOrderHeaders.Select(soh => soh.TotalDue).ToListAsync();
+    using (var context = new AdventureWorksContext())
+    {
+        // fetch all order totals from the database
+        var orderAmounts = await context.SalesOrderHeaders.Select(soh => soh.TotalDue).ToListAsync();
 
-			  // sum the order totals here in the controller
-			  var total = orderAmounts.Sum();
+        // sum the order totals here in the controller
+        var total = orderAmounts.Sum();
 
-			  return Ok(total);
-	  }
+        return Ok(total);
+    }
 }
 ```
 
@@ -388,11 +388,12 @@ database rather than fetching and filtering data in the application code:
 [Route("api/requiredfields")]
 public async Task<IHttpActionResult> GetRequiredFieldsAsync()
 {
-    using (var context = GetContext())
+    using (var context = new AdventureWorksContext())
     {
+        // project fields as part of the query itself
         var result = await context.Products
-            .Select(p => new ProductInfo {Id = p.ProductId, Name = p.Name}) // Project fields.
-            .ToListAsync(); // Execute query.
+            .Select(p => new ProductInfo {Id = p.ProductId, Name = p.Name})
+            .ToListAsync();
 
         return Ok(result);
     }
@@ -416,13 +417,10 @@ aggregation in the database rather than in the client application code:
 [Route("api/aggregateondatabase")]
 public async Task<IHttpActionResult> AggregateOnDatabaseAsync()
 {
-    using (var context = GetContext())
+    using (var context = new AdventureWorksContext())
     {
-        var query = from sp in context.SalesPersons
-                    from soh in sp.SalesOrderHeaders
-                    select soh.TotalDue;
-
-        var total = await query.DefaultIfEmpty(0).SumAsync();
+        // fetch the sum of all order totals, as computed on the database server
+        var total = await context.SalesOrderHeaders.SumAsync(soh => soh.TotalDue);
 
         return Ok(total);
     }
