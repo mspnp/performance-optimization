@@ -16,7 +16,10 @@ The NoCaching.WebRole WebAPI project contains two controllers:
 
 * `CacheController`
 
-The `NoCacheController` exposes a number of actions that retrieve data from the AdventureWorks2012 database. The information is fetched directly from the database (by using the Entity Framework) and is not cached. The following code snippet shows an example:
+The `NoCacheController` exposes a number of actions that retrieve data from the
+AdventureWorks2012 database. The information is fetched directly from the database
+(by using the Entity Framework) and is not cached. The following code snippet shows
+an example:
 
 **C#**
 
@@ -31,7 +34,8 @@ public async Task<IHttpActionResult> GetPerson(int id)
 }
 ```
 
-The `CacheController` provides the same actions. The difference is that the code for these actions a different context class that implements the cache-aside pattern:
+The `CacheController` provides the same actions. The difference is that the code for
+these actions a different context class that implements the cache-aside pattern:
 
 **C#**
 
@@ -46,7 +50,11 @@ public async Task<IHttpActionResult> GetPerson(int id)
 }
 ```
 
-In this code snippet, the `CachedPersonRepository` class provides a wrapper around the `PersonRepository` class. The `CachedPersonRepository` class checks to see whether the requested information has been previously retrieved and cached, otherwise it uses a `PersonRepository` object to fetch the information from the database which is then added to the cache. The cache is implemented by using [Azure Redis Cache][AzureRedisCache]:
+In this code snippet, the `CachedPersonRepository` class provides a wrapper around
+the `PersonRepository` class. The `CachedPersonRepository` class checks to see
+whether the requested information has been previously retrieved and cached, otherwise
+it uses a `PersonRepository` object to fetch the information from the database which
+is then added to the cache. The cache is implemented by using [Azure Redis Cache][AzureRedisCache]:
 
 **C#**
 
@@ -69,17 +77,29 @@ public class CachedPersonRepository : IPersonRepository
 
 ## Configuring the project
 
-This project uses the [AdventureWorks2012][AdventureWorks2012] database stored by using Azure SQL Database. Create the database by using the Azure Management Portal and add the connection string to the `AdventureWorksConnectionString` setting in the ServiceConfiguration files for the AzureCloudService project.
+This project uses the [AdventureWorks2012][AdventureWorks2012] database stored by
+using Azure SQL Database. Create the database by using the Azure Management Portal
+and add the connection string to the `AdventureWorksConnectionString` setting in the
+ServiceConfiguration files for the AzureCloudService project.
 
-This project also requires an instance of [Azure Redis Cache][AdventureWorks2012]. Create the cache by using the new Azure Portal and add the connection settings to the `RedisConfiguration` setting in the ServiceConfiguration files
+Note that the new Azure portal provides a simplified version of the database
+(AdventureWorksLT). The AdventureWorksLT database uses a different schema from that
+expected by this sample application which might not function correctly unless the
+full [AdventureWorks2012][AdventureWorks2012] database is installed.
+
+This project also requires an instance of [Azure Redis Cache][AdventureWorks2012].
+Create the cache by using the new Azure Portal and add the connection settings to the
+`RedisConfiguration` setting in the ServiceConfiguration files
 
 ## Deploying the project to Azure
 
-In Visual Studio Solution Explorer, right-click the AzureCloudService project and then click *Publish* to deploy the project to Azure.
+In Visual Studio Solution Explorer, right-click the AzureCloudService project and
+then click *Publish* to deploy the project to Azure.
 
 ## Load testing the project
 
-You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) the application.
+You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) the
+application.
 
 ## Dependencies
 
@@ -87,10 +107,9 @@ This project requires:
 
 * Azure SDK 2.5
 
-* An instance of the [AdventureWorks2012] database 
+* An instance of the [AdventureWorks2012] database
 
 * An instance of [Azure Redis Cache][AzureRedisCache]
 
 [AzureRedisCache]: http://azure.microsoft.com/services/cache/
 [AdventureWorks2012]: https://msftdbprodsamples.codeplex.com/releases/view/37304
-
