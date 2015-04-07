@@ -63,11 +63,10 @@ public async Task<IHttpActionResult> GetAllFieldsAsync()
 
 - Similarly, the application might retrieve data to perform aggregations or other
 forms of operations. The following sample code (also taken from the sample
-application) calculated the total sales made by all sales people in the company. The
-application retrieves every record for orders sold by a sales person (as opposed to
-orders placed directly by customers), and then calculate the total sales value from these records:
+application) calculated the total sales for the company. The application retrieves
+every record for all orders sold, and then calculates the total sales value from these records:
 
-![Entity Framework data model showing the SalesPerson and SalesOrderHeader tables][product-sales-tables]
+![Entity Framework data model showing the SalesOrderHeader table][product-sales-table]
 
 **C# web API**
 
@@ -511,7 +510,7 @@ more information, see the [Busy Database anti-pattern][BusyDatabase]
 [BusyDatabase]: ../../busydatabase/docs/busydatabase.md
 [IEnumerableVsIQueryable]: https://www.sellsbrothers.com/posts/Details/12614
 [full-product-table]:Figures/ProductTable.jpg
-[product-sales-tables]:Figures/SalesPersonAndSalesOrderHeaderTables.jpg
+[product-sales-table]:Figures/SalesOrderHeaderTable.jpg
 [Load-Test-Results-Client-Side1]:Figures/LoadTestResultsClientSide1.jpg
 [Load-Test-Results-Client-Side2]:Figures/LoadTestResultsClientSide2.jpg
 [Load-Test-Results-Database-Side1]:Figures/LoadTestResultsDatabaseSide1.jpg
