@@ -1,6 +1,8 @@
 # Optimizing Performance for Cloud Applications
 ## *- what not to do if you want your systems to be fast and scalable*
 
+[![Join the chat at https://gitter.im/mspnp/performance-optimization](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mspnp/performance-optimization?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Building applications that you can deploy to the cloud by using Azure is relatively simple. Building applications that scale well and run fast under a heavy load in the cloud is more difficult. A common scenario is that an application appears to perform well during performance testing and displays no problems. But once it is released to the cloud, accessed by a large number of concurrent users, and subjected to a much bigger, more random workload it frequently exhibits undesirable behavior (such as rejecting user requests, stalling, or throwing exceptions). The development team is then faced with two questions:
 
 1. Why did this behavior not show up during testing? and
