@@ -12,11 +12,13 @@ The BusyFrontEnd sample code comprises the following items:
 
 * Common.Logic class library
 
-The WebRole WebAPI project contains two controllers:
+The WebRole WebAPI project contains three controllers:
 
 * `WorkInFrontEndController`
 
 * `WorkInBackgroundController`
+
+* `UserProfileController`
 
 
 The `Get` action of the `WorkInFrontEndController` creates a new thread which invokes the static `Calculator.RunLongComputation` method:
@@ -51,6 +53,18 @@ public Task Get(double number)
 ```
 The worker role listens for incoming messages and performs the equivalent processing to the `Calculator.RunLongComputation` method over each one.
 
+The `UserProfileController` exposes a `Get` operation that performs a small piece of simulated processing. This processing is intended to run concurrently with the `Get` actions of the other controllers to demonstrate the effects of performing work in the foreground and background on unrelated business operations:
+
+**C#**
+
+``` C#
+public UserProfile Get(int id)
+{
+    //Simulate processing
+    return new UserProfile() {FirstName = "Alton", LastName = "Hudgens"};
+}
+```
+
 ## Configuring the project
 
 The `WorkInBackgroundController` uses an Azure Service Bus Queue to send messages to the worker role. Use the Azure Management Portal to create an Azure Service Bus Queue and add the connection string for this queue to the AzureCloudService ServiceConfiguration files.
@@ -58,6 +72,7 @@ The `WorkInBackgroundController` uses an Azure Service Bus Queue to send message
 ## Deploying the project to Azure
 
 In Visual Studio Solution Explorer, right-click the AzureCloudService project and then click *Publish* to deploy the project to Azure.
+.
 
 ## Load testing the project
 
