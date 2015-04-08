@@ -62,6 +62,10 @@ The `AsyncUploadController` and `SyncUploadController` WebAPI controllers call c
 
 The CreateFileToUpload project is a console app that can be used to generate a file named "FileToUpload.txt" that is 10 MB in size.
 
+## Configuring the project
+
+The `SyncUploadController` and `AsyncUploadController` use Azure Storage to save blob data. Use the Azure Management Portal to create an Azure Storage Account and add the connection string for this account to the AzureCloudService ServiceConfiguration files.
+
 ## Deploying the project to Azure
 
 In Visual Studio Solution Explorer, right-click the AzureCloudService project and then click *Publish* to deploy the project to Azure.
@@ -70,8 +74,11 @@ In Visual Studio Solution Explorer, right-click the AzureCloudService project an
 ## Load testing
 
 You can use [Visual Studio Online](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx)  to load test your application.
+For details of the load testing strategy for this sample, see [Load Testing][Load Testing].
 
 For more realistic results, configure the user load to simulate bursts of traffic with periods of low usage between bursts of high usage. In order to raise and lower the user load within a load test, you will need to create a [custom load test plugin](https://msdn.microsoft.com/en-us/library/ms243153.aspx).
 
 ## Dependencies
 This project requires Azure SDK 2.5
+
+[Load Testing]: docs/LoadTesting.md
