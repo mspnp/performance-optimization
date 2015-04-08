@@ -61,6 +61,7 @@ In Visual Studio Solution Explorer, right-click the AzureCloudService project an
 ## Load testing the project
 
 You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) the application.
+For details of the load testing strategy for this sample, see [Load Testing][Load Testing].
 
 ## Dependencies
 
@@ -73,3 +74,4 @@ This project requires:
 * An empty Azure SQL Database instance running on a different SQL server
 
 [AdventureWorks2012]: https://msftdbprodsamples.codeplex.com/releases/view/37304
+[Load Testing]: docs/LoadTesting.md

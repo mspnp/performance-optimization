@@ -12,11 +12,13 @@ The BusyFrontEnd sample code comprises the following items:
 
 * Common.Logic class library
 
-The WebRole WebAPI project contains two controllers:
+The WebRole WebAPI project contains three controllers:
 
 * `WorkInFrontEndController`
 
 * `WorkInBackgroundController`
+
+* `UserProfileController`
 
 
 The `Get` action of the `WorkInFrontEndController` creates a new thread which invokes
@@ -54,6 +56,18 @@ public Task Get(double number)
 The worker role listens for incoming messages and performs the equivalent processing to
 the `Calculator.RunLongComputation` method over each one.
 
+The `UserProfileController` exposes a `Get` operation that performs a small piece of simulated processing. This processing is intended to run concurrently with the `Get` actions of the other controllers to demonstrate the effects of performing work in the foreground and background on unrelated business operations:
+
+**C#**
+
+``` C#
+public UserProfile Get(int id)
+{
+    //Simulate processing
+    return new UserProfile() {FirstName = "Alton", LastName = "Hudgens"};
+}
+```
+
 ## Configuring the project
 
 The `WorkInBackgroundController` uses an Azure Service Bus Queue to send messages to
@@ -70,7 +84,10 @@ click *Publish* to deploy the project to Azure.
 
 You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) the
 application.
+For details of the load testing strategy for this sample, see [Load Testing][Load Testing].
 
 ## Dependencies
 
 This project requires Azure SDK 2.5
+
+[Load Testing]: docs/LoadTesting.md
