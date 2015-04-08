@@ -48,26 +48,25 @@ commonplace:
 [Route("api/allfields")]
 public async Task<IHttpActionResult> GetAllFieldsAsync()
 {
-	  using (var context = new AdventureWorksContext())
-	  {
-		  	// execute the query
-			  var products = await context.Products.ToListAsync();
+    using (var context = new AdventureWorksContext())
+    {
+        // execute the query
+        var products = await context.Products.ToListAsync();
 
-			  // project fields from the query results
-			  var result = products.Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name });
+        // project fields from the query results
+        var result = products.Select(p => new ProductInfo { Id = p.ProductId, Name = p.Name });
 
-			  return Ok(result);
-	  }
+        return Ok(result);
+    }
 }
 ```
 
 - Similarly, the application might retrieve data to perform aggregations or other
 forms of operations. The following sample code (also taken from the sample
-application) calculated the total sales made by all sales people in the company. The
-application retrieves every record for orders sold by a sales person (as opposed to
-orders placed directly by customers), and then calculate the total sales value from these records:
+application) calculated the total sales for the company. The application retrieves
+every record for all orders sold, and then calculates the total sales value from these records:
 
-![Entity Framework data model showing the SalesPerson and SalesOrderHeader tables][product-sales-tables]
+![Entity Framework data model showing the SalesOrderHeader table][product-sales-table]
 
 **C# web API**
 
@@ -76,16 +75,16 @@ orders placed directly by customers), and then calculate the total sales value f
 [Route("api/aggregateonclient")]
 public async Task<IHttpActionResult> AggregateOnClientAsync()
 {
-	  using (var context = new AdventureWorksContext())
-	  {
-		  	// fetch all order totals from the database
-			  var orderAmounts = await context.SalesOrderHeaders.Select(soh => soh.TotalDue).ToListAsync();
+    using (var context = new AdventureWorksContext())
+    {
+        // fetch all order totals from the database
+        var orderAmounts = await context.SalesOrderHeaders.Select(soh => soh.TotalDue).ToListAsync();
 
-			  // sum the order totals here in the controller
-			  var total = orderAmounts.Sum();
+        // sum the order totals here in the controller
+        var total = orderAmounts.Sum();
 
-			  return Ok(total);
-	  }
+        return Ok(total);
+    }
 }
 ```
 
@@ -389,11 +388,12 @@ database rather than fetching and filtering data in the application code:
 [Route("api/requiredfields")]
 public async Task<IHttpActionResult> GetRequiredFieldsAsync()
 {
-    using (var context = GetContext())
+    using (var context = new AdventureWorksContext())
     {
+        // project fields as part of the query itself
         var result = await context.Products
-            .Select(p => new ProductInfo {Id = p.ProductId, Name = p.Name}) // Project fields.
-            .ToListAsync(); // Execute query.
+            .Select(p => new ProductInfo {Id = p.ProductId, Name = p.Name})
+            .ToListAsync();
 
         return Ok(result);
     }
@@ -417,13 +417,10 @@ aggregation in the database rather than in the client application code:
 [Route("api/aggregateondatabase")]
 public async Task<IHttpActionResult> AggregateOnDatabaseAsync()
 {
-    using (var context = GetContext())
+    using (var context = new AdventureWorksContext())
     {
-        var query = from sp in context.SalesPersons
-                    from soh in sp.SalesOrderHeaders
-                    select soh.TotalDue;
-
-        var total = await query.DefaultIfEmpty(0).SumAsync();
+        // fetch the sum of all order totals, as computed on the database server
+        var total = await context.SalesOrderHeaders.SumAsync(soh => soh.TotalDue);
 
         return Ok(total);
     }
@@ -511,7 +508,7 @@ more information, see the [Busy Database anti-pattern][BusyDatabase]
 [BusyDatabase]: ../../busydatabase/docs/busydatabase.md
 [IEnumerableVsIQueryable]: https://www.sellsbrothers.com/posts/Details/12614
 [full-product-table]:Figures/ProductTable.jpg
-[product-sales-tables]:Figures/SalesPersonAndSalesOrderHeaderTables.jpg
+[product-sales-table]:Figures/SalesOrderHeaderTable.jpg
 [Load-Test-Results-Client-Side1]:Figures/LoadTestResultsClientSide1.jpg
 [Load-Test-Results-Client-Side2]:Figures/LoadTestResultsClientSide2.jpg
 [Load-Test-Results-Database-Side1]:Figures/LoadTestResultsDatabaseSide1.jpg
