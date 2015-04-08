@@ -21,11 +21,10 @@ The WebRole WebAPI project contains four controllers:
 * `SingleServiceInstanceController`
 
 The `NewServiceInstancePerRequestController` and `SingleServiceInstanceController` both call the
-`ExpensiveToCreateService.GetProductByIdAsync` method. The `ExpensiveToCreateService` class is
-designed to support shared instances. This class uses a delay to simulate setup and
-configuration. However, the `NewServiceInstancePerRequestController` and
-`SingleServiceInstanceController` handle the lifetime of the `ExpensiveToCreateService` instance
-differently:
+`ExpensiveToCreateService.GetProductByIdAsync` method. The `ExpensiveToCreateService` class is 
+designed to support shared instances. This class uses a delay to simulate setup and configuration.
+However, the `NewServiceInstancePerRequestController` and `SingleServiceInstanceController` handle
+the lifetime of the `ExpensiveToCreateService` instance differently:
 
 * The `NewServiceInstancePerRequestController` creates a new instance of
 `ExpensiveToCreateService` for every call to
@@ -62,8 +61,8 @@ public async Task<Product> GetProductAsync(string id)
 
 
 
-The `NewHttpClientInstancePerRequestController` and `SingleHttpClientInstanceController` both use
-an instance of the `HttpClient` to send requests to the `UserProfileServiceWebRole`. As with the
+The `NewHttpClientInstancePerRequestController` and `SingleHttpClientInstanceController` both use 
+an instance of the `HttpClient` to send requests to the `UserProfileServiceWebRole`. As with the 
 previous pair of controllers, they handle the lifetime of the `HttpClient` instance differently:
 
 * The `NewHttpClientInstancePerRequestController` creates a new instance of `HttpClient` and
@@ -113,7 +112,9 @@ In Visual Studio Solution Explorer, right-click the AzureCloudService project an
 ## Load testing the project
 
 You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) the application.
+For details of the load testing strategy for this sample, see [Load Testing][Load Testing].
 
 ## Dependencies
 
 This project requires Azure SDK 2.5
+[Load Testing]: docs/LoadTesting.md

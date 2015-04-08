@@ -100,6 +100,7 @@ then click *Publish* to deploy the project to Azure.
 
 You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) the
 application.
+For details of the load testing strategy for this sample, see [Load Testing][Load Testing].
 
 ## Dependencies
 
@@ -113,3 +114,4 @@ This project requires:
 
 [AzureRedisCache]: http://azure.microsoft.com/services/cache/
 [AdventureWorks2012]: https://msftdbprodsamples.codeplex.com/releases/view/37304
+[Load Testing]: docs/LoadTesting.md
