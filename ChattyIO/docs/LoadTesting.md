@@ -38,4 +38,15 @@ Step User Count     | 100
 Test Duration       | 15 minutes
 Test Warm Up        | 30 seconds
 
+The load test for the http://yourwebapp.azurewebsites.net/chattyproduct/products/{SubcategoryId} web test generated the following results:
+
+![Load-test results][ChattyIO]
+
+The load test for the http://yourwebapp.azurewebsites.net/chunkyproduct/products/{SubcategoryId} web test generated the following results:
+
+![Load-test results][ChunkyIO]
+
 [general approach]: /LoadTesting.md
+
+[ChattyIO]: Figures/ChattyIO.jpg
+[ChunkyIO]: Figures/ChunkyIO.jpg

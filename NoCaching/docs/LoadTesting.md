@@ -51,4 +51,15 @@ Step User Count     | 75
 Test Duration       | 15 minutes
 Test Warm Up        | 30 seconds
 
+The load test for the *nocache* web test generated the following results:
+
+![Load-test results][LoadTest1]
+
+The load test for the *cache* web test generated the following results:
+
+![Load-test results][LoadTest2]
+
 [general approach]: /LoadTesting.md
+
+[LoadTest1]: Figures/InitialLoadTestResults.jpg
+[LoadTest2]: Figures/CachedLoadTestResults.jpg
