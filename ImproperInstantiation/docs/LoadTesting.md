@@ -38,4 +38,25 @@ Step User Count     | 100
 Test Duration       | 10 minutes
 Test Warm Up        | 30 seconds
 
+The load test for the http://yourservice.cloudapp.net/api/newhttpclientinstanceperrequest/{ProductID} web test generated the following results:
+
+![Load-test results][LoadTest1]
+
+The load test for the http://yourservice.cloudapp.net/api/singlehttpclientinstance/{ProductID} web test generated the following results:
+
+![Load-test results][LoadTest2]
+
+The load test for the http://yourservice.cloudapp.net/api/newserviceinstanceperrequest/{ProductID web test generated the following results:
+
+![Load-test results][LoadTest3]
+
+The load test for the http://yourservice.cloudapp.net/api/singleserviceinstance/{ProductID} web test generated the following results:
+
+![Load-test results][LoadTest4]
+
 [general approach]: /LoadTesting.md
+
+[LoadTest1]: Figures/HttpClientInstancePerRequest.jpg
+[LoadTest2]: Figures/SingleHttpClientInstance.jpg
+[LoadTest3]: Figures/ServiceInstancePerRequest.jpg
+[LoadTest4]: Figures/SingleServiceInstance.jpg

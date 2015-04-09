@@ -38,4 +38,25 @@ Step User Count     | 40
 Test Duration       | 15 minutes
 Test Warm Up        | 30 seconds
 
+The load test for the http://yourwebapp.azurewebsites.net/api/allfields web test generated the following results:
+
+![Load-test results][AllFields]
+
+The load test for the http://yourwebapp.azurewebsites.net/api/requiredfields web test generated the following results:
+
+![Load-test results][RequiredFields]
+
+The load test for the http://yourwebapp.azurewebsites.net/api/aggregateonclient web test generated the following results:
+
+![Load-test results][AggregateOnClient]
+
+The load test for the http://yourwebapp.azurewebsites.net/api/aggregateondatabase web test generated the following results:
+
+![Load-test results][AggregateOnDatabase]
+
 [general approach]: /LoadTesting.md
+
+[AllFields]: Figures/LoadTestResultsClientSide1.jpg
+[RequiredFields]: Figures/LoadTestResultsDatabaseSide1.jpg
+[AggregateOnClient]: Figures/LoadTestResultsClientSide2.jpg
+[AggregateOnDatabase]: Figures/LoadTestResultsDatabaseSide2.jpg

@@ -36,4 +36,15 @@ Step User Count     | 100
 Test Duration       | 15 minutes
 Test Warm Up        | 30 seconds
 
+The load test for the http://yourservice.cloudapp.net/api/mono web test generated the following results:
+
+![Load-test results][LoadTest1]
+
+The load test for the http://yourservice.cloudapp.net/api/poly web test generated the following results:
+
+![Load-test results][LoadTest2]
+
 [general approach]: /LoadTesting.md
+
+[LoadTest1]: Figures/MonolithicScenarioLoadTest.jpg
+[LoadTest2]: Figures/PolyglotScenarioLoadTest.jpg

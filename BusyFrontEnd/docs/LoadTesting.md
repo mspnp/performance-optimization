@@ -51,4 +51,15 @@ Test Warm Up        | 30 seconds
 
 Both load tests were run against a single deployment but at different times.
 
+The load test for the http://yourservice.cloudapp.net/api/workinfrontend web test generated the following results:
+
+![Load-test results][InitialLoadTestResults]
+
+The load test for the http://yourservice.cloudapp.net/api/workinbackground web test generated the following results:
+
+![Load-test results][LoadTestResultsBackground]
+
 [general approach]: /LoadTesting.md
+
+[InitialLoadTestResults]: Figures/InitialLoadTestResultsFrontEnd.jpg
+[LoadTestResultsBackground]: Figures/LoadTestResultsBackground.jpg

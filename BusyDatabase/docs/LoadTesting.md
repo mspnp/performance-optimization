@@ -38,4 +38,14 @@ Step User Count     | 1
 Test Duration       | 30 minutes
 Test Warm Up        | 30 seconds
 
+The load test for the http://yourservice.cloudapp.net/toomuchprocsql/get/{orderid} web test generated the following results:
+
+![Load-test results][ProcessingInDatabaseLoadTest]
+
+The load test for the http://yourservice.cloudapp.net/lessprocsql/get/{orderid} web test generated the following results:
+
+![Load-test results][ProcessingInClientApplicationLoadTest]
+
 [general approach]: /LoadTesting.md
+[ProcessingInDatabaseLoadTest]: Figures/ProcessingInDatabaseLoadTest.jpg
+[ProcessingInClientApplicationLoadTest]: Figures/ProcessingInClientApplicationLoadTest.jpg
