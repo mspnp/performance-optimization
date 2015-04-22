@@ -46,3 +46,14 @@ Note that this project is still very much a work-in-progress. We will likely be 
 [MonolithicPersistence]: MonolithicPersistence/docs/MonolithicPersistence.md
 [NoCaching]: NoCaching/docs/NoCaching.md
 [SynchronousIO]: SynchronousIO/docs/SynchronousIO.md
+
+
+Dependencies
+These projects require:
+
+•Azure SDK 2.5
+
+
+•An instance of the AdventureWorks2012 database
+
+
