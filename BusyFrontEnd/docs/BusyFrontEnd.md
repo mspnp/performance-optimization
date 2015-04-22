@@ -228,7 +228,7 @@ Guidance][ComputePartitioning] available on the Microsoft website.
 
 With Azure, you can offload the image processing work to a set of worker roles. The
 POST request in the `WorkInBackground` controller shown below submits the details of
-the request to a queue, and instances of the web role can pick up these requests and
+the request to a queue, and instances of the worker role can pick up these requests and
 perform the necessary tasks. The web role is then free to focus on user-facing tasks.
 Furthermore, the queue acts as a natural load-leveller, buffering requests until a
 worker role instance is available. If the queue length becomes too long, you can
