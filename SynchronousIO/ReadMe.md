@@ -95,5 +95,5 @@ user load within a load test, you will need to create a [custom load test plugin
 ## Dependencies
 This project requires Azure SDK 2.5
 
-[docs]: docs/SynchonousIO.md
+[docs]: docs/SynchronousIO.md
 [Load Testing]: docs/LoadTesting.md
