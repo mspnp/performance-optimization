@@ -8,6 +8,8 @@ The ExtraneousFetching sample code comprises the following items:
 
 * ExtraneousFetching.DataAccess class library
 
+* [Detailed Documentation][docs]
+
 The WebRole WebAPI project contains two controllers:
 
 * `UnnecessaryFieldsController`
@@ -129,6 +131,6 @@ This project requires:
 
 * An instance of the [AdventureWorks2012] database
 
+[docs]: docs/ExtraneousFetching.md
 [AdventureWorks2012]: https://msftdbprodsamples.codeplex.com/releases/view/37304
-
 [Load Testing]: docs/LoadTesting.md
