@@ -8,6 +8,8 @@ The BusyFrontEnd sample code comprises the following items:
 
 * ChattyIO.DataAccess class library
 
+* [Detailed Documentation][docs]
+
 The ChattyIO WebAPI project contains two controllers:
 
 * `ChattyProductController`
@@ -42,5 +44,6 @@ This project requires:
 
 * An instance of the [AdventureWorks2012] database
 
+[docs]: docs/ChattyIO.md
 [AdventureWorks2012]: https://msftdbprodsamples.codeplex.com/releases/view/37304
 [Load Testing]: docs/LoadTesting.md
