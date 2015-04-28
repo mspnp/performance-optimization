@@ -10,6 +10,8 @@ The BusyDatabase sample code comprises the following items:
 
 * BusyDatabase.Support class library
 
+* [Detailed Documentation][docs]
+
 The BusyDatabase WebAPI project contains two controllers:
 
 * `TooMuchProcSqlController`
@@ -52,5 +54,6 @@ This project requires:
 
 * An instance of the [AdventureWorks2012] database
 
+[docs]: docs/BusyDatabase.md
 [AdventureWorks2012]: https://msftdbprodsamples.codeplex.com/releases/view/37304
 [Load Testing]: docs/LoadTesting.md
