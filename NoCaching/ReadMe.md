@@ -10,6 +10,8 @@ The NoCaching sample code comprises the following items:
 
 * NoCaching class library
 
+* [Detailed Documentation][docs]
+
 The NoCaching.WebRole WebAPI project contains two controllers:
 
 * `NoCacheController`
@@ -112,6 +114,7 @@ This project requires:
 
 * An instance of [Azure Redis Cache][AzureRedisCache]
 
+[docs]: docs/NoCaching.md
 [AzureRedisCache]: http://azure.microsoft.com/services/cache/
 [AdventureWorks2012]: https://msftdbprodsamples.codeplex.com/releases/view/37304
 [Load Testing]: docs/LoadTesting.md

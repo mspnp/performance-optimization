@@ -10,6 +10,8 @@ The SynchronousIO sample code illustrates techniques for retrieving information 
 
 * WebRole WebAPI project
 
+* [Detailed Documentation][docs]
+
 The sample simulates fetching information from a data store. The data returned is a
 `UserProfile` object (defined in the Models folder in the WebRole project):
 
@@ -93,4 +95,5 @@ user load within a load test, you will need to create a [custom load test plugin
 ## Dependencies
 This project requires Azure SDK 2.5
 
+[docs]: docs/SynchronousIO.md
 [Load Testing]: docs/LoadTesting.md

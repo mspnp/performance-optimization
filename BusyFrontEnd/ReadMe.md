@@ -12,6 +12,8 @@ The BusyFrontEnd sample code comprises the following items:
 
 * Common.Logic class library
 
+* [Detailed Documentation][docs]
+
 The WebRole WebAPI project contains three controllers:
 
 * `WorkInFrontEndController`
@@ -90,4 +92,5 @@ For details of the load testing strategy for this sample, see [Load Testing][Loa
 
 This project requires Azure SDK 2.5
 
+[docs]: docs/BusyFrontEnd.md
 [Load Testing]: docs/LoadTesting.md

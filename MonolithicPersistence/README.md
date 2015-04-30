@@ -8,6 +8,8 @@ The MonolithicPersistence sample code comprises the following items:
 
 * MonolithicPersistence.WebRole WebAPI project
 
+* [Detailed Documentation][docs]
+
 The MonolithicPersistence.WebRole project contains two controllers:
 
 * `MonoController`
@@ -73,5 +75,6 @@ This project requires:
 
 * An empty Azure SQL Database instance running on a different SQL server
 
+[docs]: docs/MonolithicPersistence.md
 [AdventureWorks2012]: https://msftdbprodsamples.codeplex.com/releases/view/37304
 [Load Testing]: docs/LoadTesting.md
