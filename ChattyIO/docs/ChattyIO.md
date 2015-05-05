@@ -162,10 +162,10 @@ added, the I/O overhead can quickly accumulate.
 
 ```C#
 [Serializable]
-public struct Customer
+public class Customer
 {
-    public int Id;
-    public string Name;
+    public int Id { get; set; }
+    public string Name { get; set; }
     ...
 }
 ...
@@ -438,10 +438,10 @@ to reduce fragmentation of the file on disk.
 **C#**
 ```C#
 [Serializable]
-public struct Customer
+public class Customer
 {
-    public int Id;
-    public string Name;
+    public int Id { get; set; }
+    public string Name { get; set; }
     ...
 }
 ...
