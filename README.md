@@ -1,5 +1,5 @@
 # Optimizing Performance for Cloud Applications
-## *- what not to do if you want your systems to be fast and scalable*
+## What not to do if you want your systems to be fast and scalable
 
 [![Join the chat at https://gitter.im/mspnp/performance-optimization](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mspnp/performance-optimization?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
@@ -36,7 +36,11 @@ The current catalog of cloud performance anti-patterns contains the following it
 
 - **[Synchronous I/O][SynchronousIO]** describes how performing I/O operations synchronously can consume resources and seriously impact scalability. 
 
-Note that this project is still very much a work-in-progress. We will likely be adding further anti-patterns, and we welcome feedback, suggestions, and other contributions to those that we have already documented.
+:pencil:
+This project is still very much a work-in-progress. We will likely be adding further anti-patterns, and we welcome feedback, suggestions, and other contributions to those that we have already documented.
+
+:pencil:
+The instructions and dependencies vary for each project. Please see the readme file in the root of each project folder for specifics.
 
 [BusyDatabase]: BusyDatabase/docs/BusyDatabase.md
 [BusyFrontEnd]: BusyFrontEnd/docs/BusyFrontEnd.md
