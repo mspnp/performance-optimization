@@ -187,7 +187,3 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
-
-# Ignore provisioning temp files
-Provisioning/database.zip
-Provisioning/temp/
