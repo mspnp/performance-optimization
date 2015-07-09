@@ -14,7 +14,7 @@ efficient to perform this processing close to the data rather than transmitting 
 data to a client application for processing. It is possible for a single data update
 operation to run a number of database triggers and stored procedures which might in
 turn fire further triggers and stored procedures. Consider cascading deletes in a SQL
-database as an example; removing a one row in one table might trigger updates and
+database as an example; removing one row in one table might trigger updates and
 deletes of many other related rows in other tables.
 
 However, you should use the increased functionality available with database servers
