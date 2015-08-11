@@ -501,7 +501,7 @@ data stores, files, or services then adopt an eventually consistent approach (se
 [Data Consistency guidance][data-consistency-guidance] for details).
 
 - Data buffered in memory to optimize write requests is vulnerable if the application
-crashes and may be lost.
+crashes and may be lost.  If the data rate is bursty or relatively sparse, buffering the data in an external durable queue (such as [Event Hubs](http://azure.microsoft.com/en-us/services/event-hubs/)) may be more appropriate to protect against losing a significant amount of in-memory buffered data.
 
 ## <a name="Consequences"></a>Consequences of the solution
 
