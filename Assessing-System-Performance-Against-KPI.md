@@ -19,7 +19,8 @@ These factors might appear obvious, but of course they will vary depending on th
 
 > **Note**: Including "think-times" is an important part of load-testing to ensure that simulated workloads remain realistic. Without including this element, it is possible that operations in the test workload could become artificially synchronized and affect the results. For more information, see [Editing Think Times to Simulate Website Human Interaction Delays in Load Tests Scenarios](https://msdn.microsoft.com/library/dd997697.aspx). 
 
-[](#insertgraphic#)
+![](Figures/performanceVSLoad-SimpleCloudService.png)
+
 _Figure 1._
 
 **Profile of performance versus user load for a simple cloud service**
@@ -39,7 +40,8 @@ However, a graph such as this does not necessarily show the full picture. Althou
 
 Figure 3 shows an extension of the previous graph illustrating the behavior profile of the same simple cloud service when placed under breaking strain. 
  
-[](#insertgraphic#)
+![](Figures/performanceVSLoad-ServiceUnderBreakingStrain.png)
+
 _Figure 2._
 
 **Profile of performance versus user load for a simple cloud service under severe strain**
@@ -48,7 +50,8 @@ In this graph, as the load passes 600 users, requests start timing out and the s
 
 One further complication to consider is that a system may be resilient enough to recover (at least temporarily) and as the number of requests waiting to be serviced drops due to failing quickly, further requests may be handled successfully. The system can enter a period of oscillation where the success request rate peaks and falls alternately with the failure rate. Figure 4 shows a graph illustrating this phenomenon taken from the [Improper Instantiation](https://github.com/mspnp/performance-optimization/blob/master/ImproperInstantiation/docs/ImproperInstantiation.md) anti-pattern.
  
-[](#insertgraphic#)
+![](Figures/performanceVSLoad-SuccessAndFailureOscillation.png)
+
 _Figure 3._
 
 **Success and failure rates oscillating while the service is under increasing strain**
@@ -78,7 +81,8 @@ Most modern browsers enable you to gather performance data covering client-side 
 
 [Microsoft AppInsights](http://azure.microsoft.com/documentation/articles/app-insights-get-started/) follows a similar approach. You manually embed calls to AppInsight API functions in the code that is executed in the browser when pages are viewed. Using functions such as [TrackPageView](#insertlink#) and [TrackEvent](#insertlink#) you can monitor the performance of individual browser sessions. You can then use the Azure portal to view this information in near real-time. Figure 4 shows an example:
  
-[](#insertgraphic#)
+![](Figures/AppInsights page Views.png)
+
 _Figure 4._
 
 **Monitoring page views by using the AppInsights APIs**
@@ -87,7 +91,8 @@ Many Application Performance Monitoring (APM) tools also support client-side bro
 
 > **Note**: The injected code might not work if the user's browser is located behind a firewall or proxy that does not have access to the New Relic CDN that hosts the data capture utility code, or if access to New Relic's public network is blocked.
  
-[](#insertgraphic#)
+![](Figures/New Relic page Views.png)
+
 _Figure 5._
 
 **Monitoring browser performance data by using New Relic**
@@ -106,14 +111,16 @@ The client-side code could be running in a variety of different devices and oper
 
 Figure 6 shows an example of this data captured by using New Relic. This figure shows the throughput measured in pages per minute (ppm), but other statistics are also available, including page load time and front-end load time.
  
-[](#insertgraphic#)
+![](Figures/New Relic Browsers.png)
+
 _Figure 6._
 
 **Analyzing page views by browser using New Relic**
 
 Note that New Relic reports on different browsers. There may be a correlation with device type and operating; most Apple devices will likely run iOS and use the Safari browser, Android devices will most probably be using Chrome, and Windows devices are likely to be running Internet Explorer. There could be some exceptions though, and there might be other devices running different browsers. In this case, if you need to capture device information rather than simply recording which browser was used, then you may need to incorporate custom code that records device data into each page. Figure 7 shows an example using AppInsights to capture information about the client operating system:
  
-[](#insertgraphic#)
+![](Figures/AppInsights Sessions by OS.png)
+
 _Figure 7._
 
 **Analyzing sessions by operating system using AppInsights**
@@ -124,7 +131,8 @@ The JavaScript and HTML code in a web application might utilize features not sup
 ### The Geographic Location of Clients 
 The locations of clients should be correlated against page load times and latency usage of the application. Many clients will be coming from other locations, and this data can help to detect resources that take time to be downloaded. This information can be used to help design applications that have to handle high latency scenarios. Figure 8 shows New Relic recording the average page load times across different states in the USA. 
  
-[](#insertgraphic#)
+![](Figures/geolocation.png)
+
 _Figure 8._
 
 **Average page load times by state for a web application**
@@ -142,14 +150,16 @@ Many APM tools are designed specifically to collect this type of information. Fo
 
 Using this technique, New Relic can capture statistics about the individual business operations being requested by clients. You can break this information down to show the throughput of each operation (in requests per minute), and average response time (in milliseconds), as shown in Figure 9.
  
-[](#insertgraphic#)
+![](Figures/New Relic Transactions.png)
+
 _Figure 9._
 
 **Average transaction times for operations in New Relic**
 
 AppInsights provides similar features, enabling you to capture performance and throughput statistics for each operation in a web application.
  
-[](#insertgraphic#)
+![](Figures/AppInsights Transactions.png)
+
 _Figure 10._
 
 **Average transaction times for operations in AppInsights**
@@ -162,14 +172,16 @@ Consider the points raised in the following sections when deciding which busines
 ### Business Transactions that Violate Service Level Objectives (SLOs)
 All business transactions should raise alerts if SLOs are violated. SLOs are the part of the SLA that document how your organization defines acceptable business system performance. SLOs should be defined in terms of measurable aspects of the system, such the percentile response time for operations (for example, 99% of all requests for operation _X_ must be performed in _Y_ms or less). You need to be informed if your system is consistently failing to meet SLOs. AppInsights enables you to define rules that can trip alerts when performance metrics exceed specified thresholds. The example shown in the figure below emails the operator when the service response time for any web page in the application exceeds 1 second:
   
-[](#insertgraphic#)
+![](Figures/AppInsights Alerts.png)
+
 _Figure 11._
 
 **Creating an alert in AppInsights**
 
 Figure 12 shows the message sent by the AppInsights alert to the operator:
  
-[](#insertgraphic#)
+![](Figures/AppInsights Alert Email.png)
+
 _Figure 12._
 
 **An alert email sent by AppInsights**
@@ -182,7 +194,8 @@ In a similar manner, New Relic enables you to specify policies that can trip ale
 
 The image below shows the default transaction alert policy in New Relic. In this case, an alert is raised if the Apdex drops below 0.85 for 10 minutes, or below 0.7 for 5 minutes. Similarly, the alert is raised if the error rate exceeds 1% of requests in 10 minutes, or 5% in 3 minutes. Finally, the alert is also raised if the web application is deemed to be unresponsive (by pinging a defined health endpoint) for 1 minute.
  
-[](#insertgraphic#) 
+![](Figures/New Relic Alert Policy.png)
+
 _Figure 13._
 
 **Configuring the alert policy in New Relic**
@@ -190,14 +203,16 @@ _Figure 13._
 ### <a name=" businesstransactionsthatfail " href="#" xmlns:xlink="http://www.w3.org/1999/xlink"><span /></a>Business Transactions that Fail
 All business transactions should be monitored for failures. SLO alerting can indicate recurring problems over a specified period, but it is also important to track individual failures to determine their causes. Information about exceptions can be captured as they are thrown (the application might record them in the Windows Event log, or the APM can inject custom logging code as described earlier). The following figure illustrates how this information is reported by using New Relic. 
  
-[](#insertgraphic#)
+![](Figures/New Relic Errors.png)
+
 _Figure 14._
 
 **Reporting exceptions in New Relic**
 
 You can capture similar information by using AppInsights, and you can drill through the details to obtain the specific information about the causes of individual exceptions.
  
-[](#insertgraphic#)
+![](Figures/AppInsights Failed Operations.png)
+
 _Figure 15._
 
 **Reporting failed requests in AppInsights**
@@ -205,7 +220,8 @@ _Figure 15._
 ### Trends in Throughput and Response Time of Business Transactions
 All business transactions should be monitored for throughput and response time that allows trend analysis over periods of business cycles. This facet of tracing requires that the APM has access to historical data. Many APMs can generate reports that enable you to analyze historical performance data for individual operations. The report below was generated by using new Relic, showing how the current performance of various web transactions compares with the previous day. 
  
-[](#insertgraphic#)
+![](Figures/New Relic Alert Reports.png)
+
 _Figure 16._
 
 **New Relic trend reporting**
@@ -232,14 +248,16 @@ Note that the operations performed by the system include not only interactive re
 
 The image below shows the New Relic Overview screen, displaying the performance of a live system. At the time highlighted by the operator, the system was performing a significant amount of database work (MSSQL), but the application is performing poorly (the Apdex was 0.53, which indicates poor performance.) At the same time, the throughput was 710 requests per minute. The system was performing work implemented by two operations (web transactions). Of these two operations, the transaction with the ChattyProduct URI appears to be accounting for most of the server time.
  
-[](#insertgraphic#)
+![](Figures/New Relic Overview.jpg)
+
 _Figure 17._
 
 **The New Relic overview screen, showing the throughput and latency of a sample web application for a short period of time**
 
 In the case of the ChattyIO request, it is necessary to examine what resources the request is utilizing in order to explain why it might be performing poorly. The telemetry should enable you to drill into a request to determine what it is actually doing. New Relic provides the transaction trace facility for this purpose, as shown by the following image:
  
-[](#insertgraphic#)
+![](Figures/New Relic Transaction Trace.jpg)
+
 _Figure 18._
 
 **The New Relic transaction trace screen showing the details of the actions performed by a request**
@@ -248,7 +266,8 @@ In this example, it is clear that the operation is using significant database re
 
 Drilling deeper into the trace details shows how the operation is using connections; it creates a new connection for each query rather than recycling an existing connection:
  
-[](#insertgraphic#) 
+![](Figures/New Relic Transaction Trace Details.jpg)
+
 _Figure 19._
 
 **The New Relic transaction trace details screen showing detailed activity performed by a request**
@@ -260,14 +279,16 @@ Exceptions are a primary cause of frustration to users. They can indicate bugs i
 
 Returning to the New Relic overview screen (see below), it is apparent that something suddenly caused a substantial number of exceptions to occur. This resulted in a significant drop in performance (Apdex fell to 0). The throughput actually spiked at this point, but this was probably due to the errors causing operations to fail quickly:
  
-[](#insertgraphic#)
+![](Figures/New Relic Overview Errors.jpg)
+
 _Figure 20._
 
 **The New Relic overview screen highlighting the excessive error rate**
 
 Examining the Errors screen in New Relic provides more information, including the details of the exception and the operation that was being performed at the time. Note that New Relic also enables you to drill down further into an exception to obtain the full call stack:
  
-[](#insertgraphic#)
+![](Figures/New Relic Error Details.jpg)
+
 _Figure 21._
 
 **The New Relic error details screen showing where exceptions were raised**
@@ -292,19 +313,22 @@ To continue the web server example, you should always investigate the possible c
 
 The example chart below (generated by using New Relic) shows the request queueing time for a sample application that performs synchronous I/O operations. The time spent queueing increases because the synchronous operations are causing thread starvation and IIS is not being able to complete the requests in a timely manner. Note that the processor time and network utilization (shown in the second chart) are very low. 
  
-[](#insertgraphic#)
+![](Figures/Request Queue.jpg)
+
 _Figure 22._
 
 **Chart showing increasing request queueing times for a web application performing synchronous I/O operations**
  
-[](#insertgraphic#)
+![](Figures/other resources request queue.jpg)
+
 _Figure 23._
 
 **Chart showing resource utilization for the same web application**
  
 As the request length grows, response times will be degraded and the number of failed requests will increase. The graph below shows the results of a load test performed against the sample application. As the user load increases the latency (operations time) and throughput (operations/sec) also increase. Note that the linear left-hand axis indicates the user load, and the logarithmic right-hand axis measures the latency and throughput. When the user load passes 6000, requests start to generate exceptions (either time outs and/or rejections caused by excessive queue length). These exceptions actually cause a drop in latency and an increase in throughput, but this is only because the exceptions are being raised more quickly than the time taken to process successful requests.
  
-[](#insertgraphic#)
+![](Figures/Figure24.png)
+
 _Figure 24._
 
 **Load-test results for the web application**
@@ -312,7 +336,8 @@ _Figure 24._
 ### How Much Headroom is Available in the System
 As the user-base grows, so will the workload that the system has to undertake. You need to ensure that the system will not reach a point where it will suddenly collapse under the strain. To do this, you need to monitor the overall resource use in your system (CPU, memory, network bandwidth, and so on) and plot this information against throughput and/or latency. This form of measurement also frequently requires that you capture infrastructure level metrics and telemetry for other services on which your application depends. These items are described more fully later in this document, but as an example, the following image shows the telemetry from New Relic for the sample application described in the previous points. This image shows the CPU utilization and memory occupancy for the application. CPU use is relatively constant and within reasonable bounds (the system has multiple CPUs which is why utilization can exceed 100%), although it spikes with throughput. You should check to see whether the system started generating exceptions at this point; if so, then this could indicate a potentially lack of capacity as the workload grows. Memory utilization is also fairly stable, although it is increasing slowly. If this occupancy continues to increase without any change in workload than this might indicate a memory leak:
  
-[](#insertgraphic#)
+![](Figures/New Relic Machine Resources.jpg)
+
 _Figure 25._
 
 **The server resources section of the New Relic overview screen**
@@ -336,21 +361,24 @@ PerfView was originally designed to run locally, but it can be used to capture d
 
 Windows Azure Diagnostics and PerfView are useful for providing data that can be used "after the fact" to examine resource use. However, most DevOps staff members need to see a live view of the performance data to detect and head-off possible performance problems before they occur. APM tools can provide this information. For example, the Troubleshooting tools for a web application provided by the Azure portal can display a series of graphs showing memory, CPU, and network utilization:
  
-[](#insertgraphic#)
+![](Figures/Azure Portal Troubleshooting Tools.png)
+
 _Figure 26._
 
 **CPU and memory utilization displayed by the Azure troubleshooting tools from the portal**
 
 The Azure web portal provides a health dashboard for most services based on common system metrics:
  
-[](#insertgraphic#)
+![](Figures/Azure Portal Dashboard.png)
+
 _Figure 27._
 
 **Service dashboard in the Azure web portal**
 
 Similarly, the Diagnostics pane in the Azure web portal lets you track a configurable subset of the most frequently used performance counters. You can also define rules that alert an operator if the values of a counter repeatedly exceed a specified threshold during a define period:
  
-[](#insertgraphic#)
+![](Figures/Azure Portal Monitor.png)
+
 _Figure 28._
 
 **The service monitor page in the Azure web portal**
@@ -359,7 +387,8 @@ The Azure web portal retains the performance data for 7 days. If you require acc
 
 The Websites Process Explorer in the Azure portal enables you to drill into the details of individual processes running on a web site highlighting correlations between the use of various system-level resources.
   
-[](#insertgraphic#)
+![](Figures/Azure Portal Process Explorer.png)
+
 _Figure 29._
 
 **The Websites Process Explorer in the Azure portal**
@@ -395,14 +424,16 @@ You should also consider that higher memory footprint can cause memory fragmenta
 
 Many APM tools provide views that indicate process and system memory usage without the need for an in-depth understanding of how memory works. As an example, the load-test graph below shows the throughput (left-hand axis) and response time (right-hand axis) for an application running under constant load. After approximately 6 minutes, the throughput suddenly drops and the response time leaps, recovering a couple of minutes later.
  
-[](#insertgraphic#)
+![](Figures/Figure30.png)
+
 _Figure 30._
 
 **Load-test results for a sample application**
 
 The telemetry for the application (captured by using New Relic) shows an excessive memory allocation causing operations to fail with a process recycle. Memory grows while disk utilization goes up due to paging. These are the classic symptoms of a memory leak:
  
-[](#insertgraphic#)
+![](Figures/memory2.jpg)
+
 _Figure 31._
 
 **Telemetry for the sample application showing excessive memory allocation**
@@ -425,7 +456,8 @@ The performance of the network is especially critical for cloud applications as 
  
 Network latency is the round-trip duration of a request. Currently Windows does not provide any performance counters to measure the latency of individual application requests directly. However, Resource Monitor is a great tool for analyzing live network traffic entering and exiting the local machine (you can configure Remote Desktop when you deploy an Azure cloud service to log in locally on a server hosting a web or worker role). Resource Monitor provides information such as packet loss and overall latency for active TCP/IP sessions. Packet loss gives an idea of the quality of the connection. Latency shows how long it takes for a TCP/IP packet to do a round trip. Figure 29 shows the Network tab in Resource Monitor, highlighting the Packet Loss and Latency data:
  
-[](#insertgraphic#)
+![](Figures/Resource Monitor.png)
+
 _Figure 32._
 
 **Resource Monitor showing local network activity**
@@ -447,7 +479,8 @@ If these figures are persistently close to, or at, 100%, then network saturation
 
 The Azure Portal can display the network utilization aggregated across all instances of a cloud service as well as for the individual role instances. The portal provides the _Network In_ and _Network Out_ counters which correspond to the _Bytes Received/sec_ and _Bytes Sent/sec_ performance counters:
  
-[](#insertgraphic#)
+![](Figures/NetworkMonitor.jpg)
+
 _Figure 33._
 
 **Monitoring network utilization using the Azure Management Portal**
@@ -459,7 +492,8 @@ If network latency is high but network utilization is low, then the network is u
 ### Volume of Network Traffic
 Another frequent cause of latency is high volumes of network traffic. You should investigate the density of traffic directed to backend services. Many APM tools enable you to monitor the traffic directed towards a cloud service or web application. Figure 31 shows an example taken from New Relic illustrating the network traffic entering and exiting a web API service. The volume of traffic (~200Mb/sec worth data entering and exiting the service) results in high latency for clients consuming the service:
  
-[](#insertgraphic#)
+![](Figures/network utilization new relic.jpg)
+
 _Figure 34._
 
 **Levels of network traffic entering and exiting a web service**
@@ -471,12 +505,14 @@ High network latency could be due to network overheads, such as protocol negotia
 
 The graphs below show how locality can affect latency and throughput for a sample service. A constant stream of requests was dispatched to the service from a set of clients for three minutes. The same service was used for both tests. In the first test, the clients were in the same region as the service, and in the second test the clients were in a different region. In both graphs, the left-hand axis indicates the throughput in transactions per second, while the right-hand axis measures the response time in seconds:
  
-[](#insertgraphic#)
+![](Figures/Figure35.png)
+
 _Figure 35._
 
 **Throughput and response time for clients located in the same region as the service**
  
-[](#insertgraphic#)
+![](Figures/Figure36.png)
+
 _Figure 36._
 
 **Throughput and response time for clients located in a different region from the service**
@@ -488,12 +524,14 @@ The payload size of requests and responses can have a significant effect on thro
 
 The following graphs illustrate the effects that different payload sizes can have on the throughput and response time for a sample service. As before, the same service was used to generate both graphs. In both tests, all clients were located in the same region as the service:
  
-[](#insertgraphic#)
+![](Figures/Figure37.png)
+
 _Figure 37._
 
 **Throughput and response time for requests with a 60Kb payload**
  
-[](#insertgraphic#)
+![](Figures/Figure38.png)
+
 _Figure 38._
 
 **Throughput and response time for requests with a 600Kb payload**
@@ -505,12 +543,14 @@ Chattiness is another common cause of network delays. Chattiness is the frequenc
 
 To help detect chattiness, all operations should include telemetry that captures the number of times an operation has been invoked, by whom, and when. The telemetry should also capture the size of network requests entering and leaving an operation. A large number of relatively small requests in a short period of time sent by the same client might indicate that the system could be optimized by combining operations together so that they can be invoked by a single request (this will require redesigning the relevant parts of the application and services used). As an example, Figure 22 below shows the telemetry data captured for a sample system that exposes a web API. Each API call makes one or more calls to a database implemented by using Azure SQL Database. During the monitoring period, throughput averaged 13,900 requests per minute. Figure 23 shows the database telemetry indicating that during the same period the system made in excess of 250,000 calls to the database per minute. These figures indicate that each web API call makes an average of nearly 18 database calls, highlighting possible chattiness in the web API.
  
-[](#insertgraphic#)
+![](Figures/web api calls.jpg)
+
 _Figure 39._
 
 **Throughput and response time for web API calls made to a sample system**
        
-[](#insertgraphic#)
+![](Figures/database calls.jpg)
+
 _Figure 40._
 
 **Database calls made by the same system during the same period**
@@ -518,14 +558,16 @@ _Figure 40._
 ### CPU Utilization at the Server and Instance Level
 CPU utilization is a measure of how much work the machine is performing, and CPU availability is an indication of how much spare processor capacity the machine has available to handle additional load. You can capture this information for a specific server running your web service or cloud application by using an APM. Figure 38 shows the statistics gathered by using New Relic:
  
-[](#insertgraphic#)
+![](Figures/New Relic CPU Usage.png)
+
 _Figure 41._
 
 **CPU utilization for a server reported by New Relic**
 
 The Azure web portal enables you to view the CPU data for individual instances of a service:
  
-[](#insertgraphic#)
+![](Figures/Azure Portal CPU Usage.png)
+
 _Figure 42._
 
 **CPU utilization for service instances reported by the Azure web portal**
@@ -546,7 +588,8 @@ A CPU operates in two modes; user mode and privileged mode. In user mode, the CP
 ### Processes Exhibiting High-Levels of CPU Utilization
 You can investigate possible causes of high CPU utilization in a controlled test environment by simulating business workloads. This strategy should help to eliminate effects due to external factors. Additionally, many APM tools support thread profiling to assist in performing CPU stack analysis. Figure 43 shows an example with New Relic.
  
-[](#insertgraphic#)
+![](Figures/threadprofile.jpg)
+
 _Figure 43._
 
 **Profiling by using New Relic**
@@ -566,14 +609,16 @@ In Azure, virtual disks (disks that are attached to VMs) are created within stor
 
 You can measure the potential performance of different disk configurations by uNote: sing the [SQLIO Disk Subsystem Benchmark Tool](http://www.microsoft.com/download/details.aspx?id=20163). For example, running this utility on a VM with a single Standard tier disk generates the following results:
  
-[](#insertgraphic#)
+![](Figures/sqlio-single-standard-disk.png)
+
 _Figure 44._
 
 **I/O Performance of a single Standard tier disk in a VM**
 
 These results show that the disk can operate at around 500 IOPS, as expected. Repeating the same test over a disk comprising 4 RAID stripes (each stripe is a Standard tier disk), yields these results:
  
-[](#insertgraphic#)
+![](Figures/sqlio-striped-disk.png)
+
 _Figure 45._
 
 **I/O Performance of a striped disk in a VM**
@@ -583,8 +628,9 @@ In this case, striping supported over 1400 IOPS. Using the same technique with P
 Note that throttling can occur if your application’s IOPS or throughput exceed the allocated limits for a Premium Storage disk (5000 IOPS) or if the total disk traffic across all disks on the VM exceeds the disk bandwidth limit available for the VM. To avoid throttling, you should limit the number of pending I/O requests for disk based on the scalability and performance targets for the storage account containing the disk and based on the disk bandwidth available to the VM. For more information, see [Premium Storage: High-Performance Storage for Azure Virtual Machine Workloads](https://azure.microsoft.com/en-us/documentation/articles/storage-premium-storage-preview-portal/#scalability-and-performance-targets-when-using-premium-storage).
 
 The Azure web portal enables you to monitor the overall I/O throughput of a virtual machine, but many APM tools provide information about the activity of individual disks. The example below shows disk performance information captured by using New Relic. The statistics gathered include the IOPS, enabling you to see how close the disk is to its performance limits. Notice that when the I/O utilization is at 100% the IOPS measurement is around 1500. This corresponds to the maximum throughput for a 4-striped RAID configuration based on Standard tier disks:
- 
-[](#insertgraphic#)
+
+![](Figures/New Relic Disk Activity.png)
+
 _Figure 46._
 
 **Disk activity captured by using New Relic**
@@ -621,7 +667,8 @@ Azure storage is used by many applications to store data, either as blobs or in 
 
 The Azure portal provides diagnostics that measure the end-to-end latency of requests for a storage account, and the average server latency for blobs. The end-to-end latency captures telemetry from client-side and includes any network overhead, whereas server latency illustrates only the server-side telemetry:
  
-[](#insertgraphic#)
+![](Figures/Azure Portal Storage Metrics.png)
+
 _Figure 47._
 
 **Storage latency captured by using the Azure portal**
@@ -631,7 +678,8 @@ You should analyze the rate of data ingress and egress from storage. Azure stora
 
 You can view the rates of ingress and egress for each storage account by using the Azure portal, and you can also monitor the number of throttling errors that have occurred. Frequent throttling indicates a need for better partitioning to spread your transactions across multiple partitions, or that you should switch to a storage tier that provides increased throughput. 
  
-[](#insertgraphic#)
+![](Figures/Azure Portal Storage Ingress and Egress.png)
+
 _Figure 48._
 
 **Storage ingress, egress, and throttling errors captured by using the Azure portal**
@@ -639,7 +687,8 @@ _Figure 48._
 ### Azure SQL Database Connection Failures
 Frequent connection failures to a resource such as Azure SQL Database can indicate that either the database has become unavailable for some reason, or that connection resources have been exhausted. In either case, performance is likely to suffer. You can determine the health of the database quickly by viewing the page for the server in the Azure portal, as shown below:
  
-[](#insertgraphic#)
+![](Figures/Azure Portal Database Availability.png)
+
 _Figure 49._
 
 **Database availability shown by using the Azure portal**
@@ -648,7 +697,8 @@ Azure SQL Database servers are managed by Microsoft. A database that is unavaila
 
 Connection resources can become exhausted if an instance of an application tries to make too many concurrent connections, or the number of instances that are attempting to connect exceed the number of connections supported by the database or your application (your connection pool size might be too small). You can track the number of connections errors by using an APM that monitors interactions between your application and the database. The example below shows New Relic reporting a number of connection errors and the associated exception details. In this case, the application is consuming too many connections from the connection pool causing subsequent requests to time out.
  
-[](#insertgraphic#)
+![](Figures/New Relic Error Details.jpg)
+
 _Figure 50._
 
 **Database connection errors captured by using New Relic**
@@ -658,7 +708,8 @@ Connection throttling can occur at the database if the rate at which requests ar
 ### Azure SQL Database DTU Rates
 Resources are allocated (and charged) to instances of Azure SQL Database in terms of Database Throughput Units, or DTUs. A DTU is a metric that combines CPU, memory, and I/O usage. You purchase Azure SQL Database capacity by selecting an appropriate performance tier. Different database performance tiers offer different quantities of DTUs, ranging from 5 DTUs at the Basic level up to 1750 DTUs at the Premium/P11 level. If an application attempts to exceed the DTU quota for the databases that it is using, connections may be throttled or rejected. You can track how an application is burning through DTUs by monitoring the DTU percentage metric for the database in the Azure portal. The following image shows how a burst in activity caused by a large number of connections affects the database resource utilization:
  
-[](#insertgraphic#)
+![](Figures/Azure Portal Database DTU.png)
+
 _Figure 51._
 
 **Monitoring DTU rates in the Azure web portal**
@@ -668,17 +719,20 @@ Higher performance tiers provide more capacity in terms of available CPU, memory
 
 You can use the SQL dynamic management views to obtain statistics about the resources that queries and other database operations performed by your application have used in the last hour. The following query retrieves information from the _sys.dm_db_resource_stats_ dynamic management view to obtain information about how your database’s resource consumption fits within the resource limits provided by the current performance tier, (fit percent) making an assumption that you want to have your database run within 80% of your performance level limits.
 
-```SELECT 
-    (COUNT(end_time) - SUM(CASE WHEN avg_cpu_percent > 80 THEN 1 ELSE 0 END) * 1.0) / COUNT(end_time) AS 'CPU Fit Percent'
+```
+SELECT 
+     (COUNT(end_time) - SUM(CASE WHEN avg_cpu_percent > 80 THEN 1 ELSE 0 END) * 1.0) / COUNT(end_time) AS 'CPU Fit Percent'
     ,(COUNT(end_time) - SUM(CASE WHEN avg_log_write_percent > 80 THEN 1 ELSE 0 END) * 1.0) / COUNT(end_time) AS 'Log Write Fit Percent'
     ,(COUNT(end_time) - SUM(CASE WHEN avg_data_io_percent > 80 THEN 1 ELSE 0 END) * 1.0) / COUNT(end_time) AS 'Physical Data Read Fit Percent' 
-FROM sys.dm_db_resource_stats```
+FROM sys.dm_db_resource_stats
+```
 
 If this query returns a value less than 99.9% for any of the three resource dimensions, you should consider either moving to the next higher performance level or tune your application to reduce the load on the Azure SQL Database. 
 
 You can also monitor these statistics from the Azure web portal:
  
-[](#insertgraphic#)
+![](Figures/Azure Portal Database Stats.png)
+
 _Figure 52._
 
 **Azure SQL Database Statistics in the Azure web portal**
@@ -686,14 +740,16 @@ _Figure 52._
 ### Query Performance
 Poorly performing database queries can affect throughput and latency significantly, and can account for excessive resource utilization. You can obtain information about queries from the dynamic management views, but you can see the same data visually by using Azure SQL Database Management portal. The Query Performance page displays cumulative statistics for queries executed against the database in the last hour, including the total amount of CPU time and I/O consumed by each query:
  
-[](#insertgraphic#)
+![](Figures/Query Performance.png)
+
 _Figure 53._
 
 **The Query Performance page in the Azure SQL Database Management portal**
 
 You can drill down into queries that are consuming considerable resources to view the query execution plan. This data can help to identify why a query is running slowly, and can give a database designer information on how the query might be better phrased to improve performance. 
  
-[](#insertgraphic#)
+![](Figures/Query Plan.png)
+
 _Figure 54._
 
 **The Query Execution plan page in the Azure SQL Database Management portal**
@@ -701,7 +757,8 @@ _Figure 54._
 ### High Volumes of Database Requests
 High volumes of traffic between the application and the database can also indicate a lack of caching. You should track the data retrieved by database requests to ascertain whether the same data is being continually retrieved or updated, and assess whether this data could be cached locally within the application (if the same sessions reuse the same data), or by using a shared cache (if the same data is referenced by multiple sessions from different users). The Query Performance page in the Azure SQL Database Management portal provides useful information in the form of the Run Count for each query:
  
-[](#insertgraphic#)
+![](Figures/Query Performance Run Count.png)
+
 _Figure 55._
 
 **Monitoring the frequency of queries in the Azure SQL Database Management portal**
@@ -733,14 +790,16 @@ Ingress is throttled to the amount of capacity provided by the number of through
 
 You can monitor the performance of an event hub by viewing the dashboard for the event hub in the Azure portal:
  
-[](#insertgraphic#)
+![](Figures/Azure Portal Event Hub Dashboard.png)
+
 _Figure 56._
 
 **The dashboard for an event hub in the Azure portal**
 
 If you receive publishing rate exceptions or are expecting to see higher rate of egress, check how many throughput units you have purchased for the namespace in which the event hub was created. You can view this information by using the Scale tab in the Service Bus page of the Azure portal:
  
-[](#insertgraphic#)
+![](Figures/Azure Portal Event Hub Throughput Units.png)
+
 _Figure 57._
 
 **Allocating Event Hub throughput units in the Azure portal**
@@ -760,7 +819,8 @@ Aside from Storage, SQL Database, and Service Bus, many Azure applications make 
 
 	This information is readily available in the Azure portal:
  
-[](#insertgraphic#)
+![](Figures/redis-cache-hits-and-misses.png)
+
 _Figure 58._
 
 **Monitoring Azure Redis Cache hits and misses in the Azure web portal**
