@@ -227,7 +227,7 @@ The following list summarizes many of the points raised in this document:
 *	[Building Big: Lessons Learned from Azure Customers](https://channel9.msdn.com/Events/Build/2014/3-633)
 *	[Assessing System Performance against Key Performance Metrics][assessing-kpi]
 
-[Monitoring and Diagnostics]: https://github.com/mspnp/azure-guidance/blob/master/Monitoring.md
+[Monitoring and Diagnostics]: https://github.com/mspnp/azure-guidance/blob/master/Monitoring.md#instrumenting-an-application
 [assessing-kpi]: Assessing-System-Performance-Against-KPI.md
 [AppInsights]: http://azure.microsoft.com/documentation/articles/app-insights-get-started/
 [AppDynamics]: http://www.appdynamics.com/product/application-performance-management/
