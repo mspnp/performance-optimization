@@ -200,7 +200,7 @@ help you examine applications and services systematically.
 
 ### Monitoring the volume of database activity
 
-You can use a application performance monitor to track the database activity of the
+You can use an application performance monitor to track the database activity of the
 system in production. If the volume of database activity is low or response times are
 relatively fast, then a busy database is unlikely to be a performance problem.
 
