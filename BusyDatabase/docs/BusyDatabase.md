@@ -200,7 +200,7 @@ help you examine applications and services systematically.
 
 ### Monitoring the volume of database activity
 
-You can use a application performance monitor to track the database activity of the
+You can use an application performance monitor to track the database activity of the
 system in production. If the volume of database activity is low or response times are
 relatively fast, then a busy database is unlikely to be a performance problem.
 
@@ -213,7 +213,7 @@ while the load test is in operation and observe how the database is used.
 The following graph shows the results of performing a load-test against the sample
 application using a step-load of up to 50 concurrent users. The volume of tests that
 the system can handle quickly reaches a limit and stays at that level, while the
-response time steadily increases (not that the scale measuring the number of tests and
+response time steadily increases (note that the scale measuring the number of tests and
 the response time is logarithmic):
 
 ![Load-test results for performing processing in the database][ProcessingInDatabaseLoadTest]
