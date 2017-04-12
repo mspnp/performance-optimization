@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
-<ServiceConfiguration serviceName="CachingDemoCloudService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2014-06.2.4">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceConfiguration serviceName="CachingDemoCloudService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceConfiguration" osFamily="4" osVersion="*" schemaVersion="2015-04.2.6">
   <Role name="NoCaching.WebRole">
     <Instances count="1" />
     <ConfigurationSettings>
       <Setting name="AdventureWorksConnectionString" value="Server=tcp:{your sql azure db name}.database.windows.net,1433;Database=AdventureWorks2012;User ID={your userid};Password={your password};Trusted_Connection=False;Encrypt=True;Connection Timeout=30;MultipleActiveResultSets=True;App=CachingDemo" />
       <Setting name="RedisConfiguration" value="{your azure redis server name}.redis.cache.windows.net, ssl=true, password={your redis password}" />
+      <Setting name="Microsoft.WindowsAzure.Plugins.Diagnostics.ConnectionString" value="UseDevelopmentStorage=true" />
     </ConfigurationSettings>
   </Role>
 </ServiceConfiguration>
