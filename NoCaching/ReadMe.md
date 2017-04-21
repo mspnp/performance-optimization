@@ -108,7 +108,7 @@ For details of the load testing strategy for this sample, see [Load Testing][Loa
 
 This project requires:
 
-* Azure SDK 2.5
+* Azure SDK 2.9
 
 * An instance of the [AdventureWorks2012] database
 
