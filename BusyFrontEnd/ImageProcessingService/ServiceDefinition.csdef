@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ServiceDefinition name="ImageProcessingService" xmlns="http://schemas.microsoft.com/ServiceHosting/2008/10/ServiceDefinition" schemaVersion="2014-06.2.4">
+  <WebRole name="ImageProcessing" vmsize="Small">
+    <Startup>
+      <Task commandLine="AppDynamics\startup.cmd azure-store-917443.saas.appdynamics.com 80 azure-store-917443 dyV51aqtnsiY &quot;ImageProcessing&quot; false" executionContext="elevated" taskType="simple">
+        <Environment>
+          <Variable name="EMULATED">
+            <RoleInstanceValue xpath="/RoleEnvironment/Deployment/@emulated" />
+          </Variable>
+        </Environment>
+      </Task>
+    </Startup>
+    <Sites>
+      <Site name="Web">
+        <Bindings>
+          <Binding name="Endpoint1" endpointName="Endpoint1" />
+        </Bindings>
+      </Site>
+    </Sites>
+    <Endpoints>
+      <InputEndpoint name="Endpoint1" protocol="http" port="80" />
+    </Endpoints>
+    <ConfigurationSettings>
+      <Setting name="Microsoft.ServiceBus.ConnectionString" />
+      <Setting name="Microsoft.ServiceBus.QueueName" />
+    </ConfigurationSettings>
+  </WebRole>
+  <WorkerRole name="ImageProcessor" vmsize="Small">
+    <Startup>
+      <Task commandLine="AppDynamics\startup.cmd azure-store-917443.saas.appdynamics.com 80 azure-store-917443 dyV51aqtnsiY &quot;ImageProcessing&quot; false" executionContext="elevated" taskType="simple">
+        <Environment>
+          <Variable name="EMULATED">
+            <RoleInstanceValue xpath="/RoleEnvironment/Deployment/@emulated" />
+          </Variable>
+        </Environment>
+      </Task>
+    </Startup>
+    <ConfigurationSettings>
+      <Setting name="Microsoft.ServiceBus.ConnectionString" />
+      <Setting name="Microsoft.ServiceBus.QueueName" />
+    </ConfigurationSettings>
+  </WorkerRole>
+</ServiceDefinition>
