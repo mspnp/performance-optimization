@@ -1,0 +1,33 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{90A4A4C4-B1E2-4946-812B-C1E67C9B444A}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\packages.config = .nuget\packages.config
+	EndProjectSection
+EndProject
+Project("{CC5FD16D-436D-48AD-A40C-5A424C6E3E79}") = "AzureCloudService", "AzureCloudService\AzureCloudService.ccproj", "{BBB1D325-FC62-45E1-AEE2-6279C5E6808D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LockingApplicationdata.WebRole", "LockingApplicationdata.WebRole\LockingApplicationdata.WebRole.csproj", "{0722E27B-3F0D-4135-A2B0-0F08E8BEE1EA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BBB1D325-FC62-45E1-AEE2-6279C5E6808D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBB1D325-FC62-45E1-AEE2-6279C5E6808D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBB1D325-FC62-45E1-AEE2-6279C5E6808D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBB1D325-FC62-45E1-AEE2-6279C5E6808D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0722E27B-3F0D-4135-A2B0-0F08E8BEE1EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0722E27B-3F0D-4135-A2B0-0F08E8BEE1EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0722E27B-3F0D-4135-A2B0-0F08E8BEE1EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0722E27B-3F0D-4135-A2B0-0F08E8BEE1EA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
