@@ -633,7 +633,7 @@ Note that throttling can occur if your application’s IOPS or throughput exceed
 
 The Azure web portal enables you to monitor the overall I/O throughput of a virtual machine, but many APM tools provide information about the activity of individual disks. The example below shows disk performance information captured by using New Relic. The statistics gathered include the IOPS, enabling you to see how close the disk is to its performance limits. Notice that when the I/O utilization is at 100% the IOPS measurement is around 1500. This corresponds to the maximum throughput for a 4-striped RAID configuration based on Standard tier disks:
 
-![](Figures/New Relic Disk Activity.png)
+![](Figures/New-Relic-Disk-Activity.png)
 
 _Figure 46._
 
@@ -652,7 +652,9 @@ You can also use the following performance counters for the Physical Disk object
 
 * **% Idle Time**. This counter indicates the proportion of the time that the disk was in the idle state. A disk is considered idle when there are no pending requests. This counter is probably less useful than it appears. While the disk queue length is 1 or more, then the %idle time for that disk is 0. Therefore, you can only really use this counter to ascertain when the disk is not doing anything rather than how busy it is (use the queue length counters for that purpose). 
 	
-<a name="servicemetrics" href="#" xmlns:xlink="http://www.w3.org/1999/xlink"><span /></a># Service Metrics
+<a name="servicemetrics" href="#" xmlns:xlink="http://www.w3.org/1999/xlink"><span /></a>
+
+# Service Metrics
 
 Most Azure cloud applications and services depend on one or more other services to handle items such as storage, caching, and messaging. The performance of these dependent services can have a significant effect on the way in which your system works, so it is important to monitor these items.
 
@@ -671,7 +673,7 @@ Azure storage is used by many applications to store data, either as blobs or in 
 
 The Azure portal provides diagnostics that measure the end-to-end latency of requests for a storage account, and the average server latency for blobs. The end-to-end latency captures telemetry from client-side and includes any network overhead, whereas server latency illustrates only the server-side telemetry:
  
-![](Figures/Azure Portal Storage Metrics.png)
+![](Figures/Azure-Portal-Storage-Metrics.png)
 
 _Figure 47._
 
@@ -682,7 +684,7 @@ You should analyze the rate of data ingress and egress from storage. Azure stora
 
 You can view the rates of ingress and egress for each storage account by using the Azure portal, and you can also monitor the number of throttling errors that have occurred. Frequent throttling indicates a need for better partitioning to spread your transactions across multiple partitions, or that you should switch to a storage tier that provides increased throughput. 
  
-![](Figures/Azure Portal Storage Ingress and Egress.png)
+![](Figures/Azure-Portal-Storage-Ingress-and-Egress.png)
 
 _Figure 48._
 
@@ -691,7 +693,7 @@ _Figure 48._
 ### Azure SQL Database Connection Failures
 Frequent connection failures to a resource such as Azure SQL Database can indicate that either the database has become unavailable for some reason, or that connection resources have been exhausted. In either case, performance is likely to suffer. You can determine the health of the database quickly by viewing the page for the server in the Azure portal, as shown below:
  
-![](Figures/Azure Portal Database Availability.png)
+![](Figures/Azure-Portal-Database-Availability.png)
 
 _Figure 49._
 
@@ -701,7 +703,7 @@ Azure SQL Database servers are managed by Microsoft. A database that is unavaila
 
 Connection resources can become exhausted if an instance of an application tries to make too many concurrent connections, or the number of instances that are attempting to connect exceed the number of connections supported by the database or your application (your connection pool size might be too small). You can track the number of connections errors by using an APM that monitors interactions between your application and the database. The example below shows New Relic reporting a number of connection errors and the associated exception details. In this case, the application is consuming too many connections from the connection pool causing subsequent requests to time out.
  
-![](Figures/New Relic Error Details.jpg)
+![](Figures/New-Relic-Error-Details.jpg)
 
 _Figure 50._
 
@@ -712,7 +714,7 @@ Connection throttling can occur at the database if the rate at which requests ar
 ### Azure SQL Database DTU Rates
 Resources are allocated (and charged) to instances of Azure SQL Database in terms of Database Throughput Units, or DTUs. A DTU is a metric that combines CPU, memory, and I/O usage. You purchase Azure SQL Database capacity by selecting an appropriate performance tier. Different database performance tiers offer different quantities of DTUs, ranging from 5 DTUs at the Basic level up to 1750 DTUs at the Premium/P11 level. If an application attempts to exceed the DTU quota for the databases that it is using, connections may be throttled or rejected. You can track how an application is burning through DTUs by monitoring the DTU percentage metric for the database in the Azure portal. The following image shows how a burst in activity caused by a large number of connections affects the database resource utilization:
  
-![](Figures/Azure Portal Database DTU.png)
+![](Figures/Azure-Portal-Database-DTU.png)
 
 _Figure 51._
 
@@ -735,7 +737,7 @@ If this query returns a value less than 99.9% for any of the three resource dime
 
 You can also monitor these statistics from the Azure web portal:
  
-![](Figures/Azure Portal Database Stats.png)
+![](Figures/Azure-Portal-Database-Stats.png)
 
 _Figure 52._
 
@@ -744,7 +746,7 @@ _Figure 52._
 ### Query Performance
 Poorly performing database queries can affect throughput and latency significantly, and can account for excessive resource utilization. You can obtain information about queries from the dynamic management views, but you can see the same data visually by using Azure SQL Database Management portal. The Query Performance page displays cumulative statistics for queries executed against the database in the last hour, including the total amount of CPU time and I/O consumed by each query:
  
-![](Figures/Query Performance.png)
+![](Figures/Query-Performance.png)
 
 _Figure 53._
 
@@ -752,7 +754,7 @@ _Figure 53._
 
 You can drill down into queries that are consuming considerable resources to view the query execution plan. This data can help to identify why a query is running slowly, and can give a database designer information on how the query might be better phrased to improve performance. 
  
-![](Figures/Query Plan.png)
+![](Figures/Query-Plan.png)
 
 _Figure 54._
 
@@ -761,7 +763,7 @@ _Figure 54._
 ### High Volumes of Database Requests
 High volumes of traffic between the application and the database can also indicate a lack of caching. You should track the data retrieved by database requests to ascertain whether the same data is being continually retrieved or updated, and assess whether this data could be cached locally within the application (if the same sessions reuse the same data), or by using a shared cache (if the same data is referenced by multiple sessions from different users). The Query Performance page in the Azure SQL Database Management portal provides useful information in the form of the Run Count for each query:
  
-![](Figures/Query Performance Run Count.png)
+![](Figures/Query-Performance-Run-Count.png)
 
 _Figure 55._
 
@@ -794,7 +796,7 @@ Ingress is throttled to the amount of capacity provided by the number of through
 
 You can monitor the performance of an event hub by viewing the dashboard for the event hub in the Azure portal:
  
-![](Figures/Azure Portal Event Hub Dashboard.png)
+![](Figures/Azure-Portal-Event-Hub-Dashboard.png)
 
 _Figure 56._
 
@@ -802,7 +804,7 @@ _Figure 56._
 
 If you receive publishing rate exceptions or are expecting to see higher rate of egress, check how many throughput units you have purchased for the namespace in which the event hub was created. You can view this information by using the Scale tab in the Service Bus page of the Azure portal:
  
-![](Figures/Azure Portal Event Hub Throughput Units.png)
+![](Figures/Azure-Portal-Event-Hub-Throughput-Units.png)
 
 _Figure 57._
 
