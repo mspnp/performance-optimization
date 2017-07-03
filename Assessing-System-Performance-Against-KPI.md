@@ -81,7 +81,7 @@ Most modern browsers enable you to gather performance data covering client-side 
 
 [Microsoft AppInsights](http://azure.microsoft.com/documentation/articles/app-insights-get-started/) follows a similar approach. You manually embed calls to AppInsight API functions in the code that is executed in the browser when pages are viewed. Using functions such as [TrackPageView](#insertlink#) and [TrackEvent](#insertlink#) you can monitor the performance of individual browser sessions. You can then use the Azure portal to view this information in near real-time. Figure 4 shows an example:
  
-![](Figures/AppInsights page Views.png)
+![](Figures/AppInsights-page-Views.png)
 
 _Figure 4._
 
@@ -91,7 +91,7 @@ Many Application Performance Monitoring (APM) tools also support client-side bro
 
 > **Note**: The injected code might not work if the user's browser is located behind a firewall or proxy that does not have access to the New Relic CDN that hosts the data capture utility code, or if access to New Relic's public network is blocked.
  
-![](Figures/New Relic page Views.png)
+![](Figures/New-Relic-page-Views.png)
 
 _Figure 5._
 
@@ -111,7 +111,7 @@ The client-side code could be running in a variety of different devices and oper
 
 Figure 6 shows an example of this data captured by using New Relic. This figure shows the throughput measured in pages per minute (ppm), but other statistics are also available, including page load time and front-end load time.
  
-![](Figures/New Relic Browsers.png)
+![](Figures/New-Relic-Browsers.png)
 
 _Figure 6._
 
@@ -119,7 +119,7 @@ _Figure 6._
 
 Note that New Relic reports on different browsers. There may be a correlation with device type and operating; most Apple devices will likely run iOS and use the Safari browser, Android devices will most probably be using Chrome, and Windows devices are likely to be running Internet Explorer. There could be some exceptions though, and there might be other devices running different browsers. In this case, if you need to capture device information rather than simply recording which browser was used, then you may need to incorporate custom code that records device data into each page. Figure 7 shows an example using AppInsights to capture information about the client operating system:
  
-![](Figures/AppInsights Sessions by OS.png)
+![](Figures/AppInsights-Sessions-by-OS.png)
 
 _Figure 7._
 
@@ -194,7 +194,7 @@ In a similar manner, New Relic enables you to specify policies that can trip ale
 
 The image below shows the default transaction alert policy in New Relic. In this case, an alert is raised if the Apdex drops below 0.85 for 10 minutes, or below 0.7 for 5 minutes. Similarly, the alert is raised if the error rate exceeds 1% of requests in 10 minutes, or 5% in 3 minutes. Finally, the alert is also raised if the web application is deemed to be unresponsive (by pinging a defined health endpoint) for 1 minute.
  
-![](Figures/New Relic Alert Policy.png)
+![](Figures/New-Relic-Alert-Policy.png)
 
 _Figure 13._
 
@@ -203,7 +203,7 @@ _Figure 13._
 ### <a name=" businesstransactionsthatfail " href="#" xmlns:xlink="http://www.w3.org/1999/xlink"><span /></a>Business Transactions that Fail
 All business transactions should be monitored for failures. SLO alerting can indicate recurring problems over a specified period, but it is also important to track individual failures to determine their causes. Information about exceptions can be captured as they are thrown (the application might record them in the Windows Event log, or the APM can inject custom logging code as described earlier). The following figure illustrates how this information is reported by using New Relic. 
  
-![](Figures/New Relic Errors.png)
+![](Figures/New-Relic-Errors.png)
 
 _Figure 14._
 
@@ -211,7 +211,7 @@ _Figure 14._
 
 You can capture similar information by using AppInsights, and you can drill through the details to obtain the specific information about the causes of individual exceptions.
  
-![](Figures/AppInsights Failed Operations.png)
+![](Figures/AppInsights-Failed-Operations.png)
 
 _Figure 15._
 
@@ -279,7 +279,7 @@ Exceptions are a primary cause of frustration to users. They can indicate bugs i
 
 Returning to the New Relic overview screen (see below), it is apparent that something suddenly caused a substantial number of exceptions to occur. This resulted in a significant drop in performance (Apdex fell to 0). The throughput actually spiked at this point, but this was probably due to the errors causing operations to fail quickly:
  
-![](Figures/New Relic Overview Errors.jpg)
+![](Figures/New-Relic-Overview-Errors.jpg)
 
 _Figure 20._
 
@@ -387,7 +387,7 @@ The Azure web portal retains the performance data for 7 days. If you require acc
 
 The Websites Process Explorer in the Azure portal enables you to drill into the details of individual processes running on a web site highlighting correlations between the use of various system-level resources.
   
-![](Figures/Azure Portal Process Explorer.png)
+![](Figures/Azure-Portal-Process-Explorer.png)
 
 _Figure 29._
 
@@ -496,7 +496,7 @@ If network latency is high but network utilization is low, then the network is u
 ### Volume of Network Traffic
 Another frequent cause of latency is high volumes of network traffic. You should investigate the density of traffic directed to backend services. Many APM tools enable you to monitor the traffic directed towards a cloud service or web application. Figure 31 shows an example taken from New Relic illustrating the network traffic entering and exiting a web API service. The volume of traffic (~200Mb/sec worth data entering and exiting the service) results in high latency for clients consuming the service:
  
-![](Figures/network utilization new relic.jpg)
+![](Figures/network-utilization-new-relic.jpg)
 
 _Figure 34._
 
@@ -547,13 +547,13 @@ Chattiness is another common cause of network delays. Chattiness is the frequenc
 
 To help detect chattiness, all operations should include telemetry that captures the number of times an operation has been invoked, by whom, and when. The telemetry should also capture the size of network requests entering and leaving an operation. A large number of relatively small requests in a short period of time sent by the same client might indicate that the system could be optimized by combining operations together so that they can be invoked by a single request (this will require redesigning the relevant parts of the application and services used). As an example, Figure 22 below shows the telemetry data captured for a sample system that exposes a web API. Each API call makes one or more calls to a database implemented by using Azure SQL Database. During the monitoring period, throughput averaged 13,900 requests per minute. Figure 23 shows the database telemetry indicating that during the same period the system made in excess of 250,000 calls to the database per minute. These figures indicate that each web API call makes an average of nearly 18 database calls, highlighting possible chattiness in the web API.
  
-![](Figures/web api calls.jpg)
+![](Figures/web-api-calls.jpg)
 
 _Figure 39._
 
 **Throughput and response time for web API calls made to a sample system**
        
-![](Figures/database calls.jpg)
+![](Figures/database-calls.jpg)
 
 _Figure 40._
 
@@ -562,7 +562,7 @@ _Figure 40._
 ### CPU Utilization at the Server and Instance Level
 CPU utilization is a measure of how much work the machine is performing, and CPU availability is an indication of how much spare processor capacity the machine has available to handle additional load. You can capture this information for a specific server running your web service or cloud application by using an APM. Figure 38 shows the statistics gathered by using New Relic:
  
-![](Figures/New Relic CPU Usage.png)
+![](Figures/New-Relic-CPU-Usage.png)
 
 _Figure 41._
 
@@ -570,7 +570,7 @@ _Figure 41._
 
 The Azure web portal enables you to view the CPU data for individual instances of a service:
  
-![](Figures/Azure Portal CPU Usage.png)
+![](Figures/Azure-Portal-CPU-Usage.png)
 
 _Figure 42._
 
