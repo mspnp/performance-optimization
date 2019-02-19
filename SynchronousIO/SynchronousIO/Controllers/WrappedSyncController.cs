@@ -3,11 +3,12 @@
 
 using System.Threading.Tasks;
 using System.Web.Http;
+using Microsoft.AspNetCore.Mvc;
 using SynchronousIO.WebRole.Models;
 
 namespace SynchronousIO.WebRole.Controllers
 {
-    public class WrappedSyncController : ApiController
+    public class WrappedSyncController : ControllerBase
     {
         private readonly IUserProfileService _userProfileService;
 
