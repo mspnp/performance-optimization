@@ -36,7 +36,7 @@ namespace SynchronousIO
                 // Therefore, the synchronous Write method is fine.
                 writer.Write(loremIpsum);
             }
-
+            memoryStream.Position = 0;
             return memoryStream;
         }
     }
