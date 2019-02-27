@@ -3,12 +3,15 @@
     "tasks": [
         {
             "label": "build",
-            "command": "dotnet",
-            "type": "process",
-            "args": [
-                "build",
-                "${workspaceFolder}/SynchronousIO.csproj"
-            ],
+            "command": "dotnet build",
+            "type": "shell",
+            "group": {
+                "isDefault": true,
+                "kind": "build"
+            },
+            "presentation": {
+                "reveal": "silent"
+            },
             "problemMatcher": "$msCompile"
         }
     ]

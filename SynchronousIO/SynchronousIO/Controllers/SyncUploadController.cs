@@ -36,7 +36,7 @@ namespace SynchronousIO.WebRole.Controllers
             var blockBlob = container.GetBlockBlobReference("myblob");
 
             // Create or overwrite the "myblob" blob with contents from a local file.
-            using (var stream = new CreateFile().Get())
+            using (var stream = CreateFile.Get())
             {
                 blockBlob.UploadFromStream(stream);
             }
