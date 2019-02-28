@@ -3,19 +3,32 @@
 
 using System.IO;
 using System.Threading.Tasks;
-using System.Web.Hosting;
 using System.Web.Http;
-using Microsoft.Azure;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.WindowsAzure.Storage;
+using Microsoft.Extensions.Configuration;
+using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace SynchronousIO.WebRole.Controllers
 {
-    public class AsyncUploadController : ApiController
+    [ApiController]
+    [Route("api/[controller]")]
+    public class AsyncUploadController : ControllerBase
     {
+        private readonly IHostingEnvironment environment;
+        private readonly IConfiguration configuration;
+
+        public AsyncUploadController(IHostingEnvironment environment, IConfiguration configuration)
+        {
+            this.environment = environment;
+            this.configuration = configuration;
+        }
+
         [HttpGet]
         public async Task UploadFileAsync()
         {
-            var storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
+            var storageAccount = CloudStorageAccount.Parse(configuration.GetConnectionString("storage"));
             var blobClient = storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference("uploadedfiles");
             
@@ -24,9 +37,9 @@ namespace SynchronousIO.WebRole.Controllers
             var blockBlob = container.GetBlockBlobReference("myblob");
 
             // Create or overwrite the "myblob" blob with contents from a local file.
-            using (var fileStream = File.OpenRead(HostingEnvironment.MapPath("~/FileToUpload.txt")))
+            using (var stream = CreateFile.Get())
             {
-                await blockBlob.UploadFromStreamAsync(fileStream);
+                await blockBlob.UploadFromStreamAsync(stream);
             }
         }
     }

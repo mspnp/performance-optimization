@@ -190,3 +190,13 @@ ModelManifest.xml
 
 # Visual Studio 2015 cache/options directory
 .vs/
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# .NET Core
+artifacts/
+**/Properties/launchSettings.json
