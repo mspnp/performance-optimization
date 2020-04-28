@@ -10,8 +10,6 @@ The ImproperInstantiation sample code comprises the following items:
 
 * WebRole WebAPI project
 
-* [Detailed Documentation][docs]
-
 The WebRole WebAPI project contains four controllers:
 
 * `NewHttpClientInstancePerRequestController`
@@ -120,5 +118,4 @@ For details of the load testing strategy for this sample, see [Load Testing][Loa
 
 This project requires Azure SDK 2.5
 
-[docs]: docs/ImproperInstantiation.md
 [Load Testing]: docs/LoadTesting.md
