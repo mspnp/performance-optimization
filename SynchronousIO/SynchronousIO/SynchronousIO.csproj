@@ -10,7 +10,6 @@
     <PackageReference Include="Microsoft.AspNetCore.Razor.Design" Version="2.1.2" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Azure.Storage.Blob" Version="9.4.2" />
     <PackageReference Include="Microsoft.Azure.KeyVault.Core" Version="3.0.3" />
-    <PackageReference Include="Microsoft.Data.OData" Version="5.8.4" />
   </ItemGroup>
 
   <ItemGroup>
