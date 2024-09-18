@@ -1,16 +1,14 @@
 # Optimizing Performance for Cloud Applications
 
-![](pnp-logo.png)
+![p&p logo](pnp-logo.png)
 
 This repo contains sample code for a set of performance antipatterns.
 
-Documentation and guidance for these patterns can be found on the [Azure Architecture Center](https://docs.microsoft.com/azure/architecture/antipatterns/). For each antipattern, the documentation describes why the antipattern typically occurs, symptoms of the antipattern, and techniques for resolving the problem. The corresponding sample code shows (1) the problem and (2) a recommended way to fix the problem.
-
+Documentation and guidance for these patterns can be found on the [Azure Architecture Center](https://learn.microsoft.com/azure/architecture/antipatterns/). For each antipattern, the documentation describes why the antipattern typically occurs, symptoms of the antipattern, and techniques for resolving the problem. The corresponding sample code shows (1) the problem and (2) a recommended way to fix the problem.
 
 | Antipattern | Description | Load test |
 |-------------|-------------|-----------|
 | [Busy Database][BusyDatabase] | Offloading too much processing to a data store. | [Load testing Busy Database][BusyDatabase-LoadTesting] |
-| [Busy Front End][BusyFrontEnd] | Moving resource-intensive tasks onto background threads. | [Load testing Busy Front End][BusyFrontEnd-LoadTesting] |
 | [Chatty I/O][ChattyIO] | Continually sending many small network requests. | [Load testing Chatty I/O][ChattyIO-LoadTesting] |
 | [Extraneous Fetching][ExtraneousFetching] | Retrieving more data than is needed, resulting in unnecessary I/O. | [Load testing Extraneous Fetching][ExtraneousFetching-LoadTesting] |
 | [Improper Instantiation][ImproperInstantiation] | Repeatedly creating and destroying objects that are designed to be shared and reused. | [Load testing Improper Instantiation][ImproperInstantiation-LoadTesting] |
@@ -19,7 +17,6 @@ Documentation and guidance for these patterns can be found on the [Azure Archite
 | [Synchronous I/O][SynchronousIO] | Blocking the calling thread while I/O completes. | [Load testing Synchronous I/O][SynchronousIO-LoadTesting] |
 
 [BusyDatabase]: https://docs.microsoft.com/azure/architecture/antipatterns/busy-database/
-[BusyFrontEnd]: https://docs.microsoft.com/azure/architecture/antipatterns/busy-front-end/
 [ChattyIO]: https://docs.microsoft.com/azure/architecture/antipatterns/chatty-io/
 [ExtraneousFetching]: https://docs.microsoft.com/azure/architecture/antipatterns/extraneous-fetching/
 [ImproperInstantiation]: https://docs.microsoft.com/azure/architecture/antipatterns/improper-instantiation/
@@ -28,7 +25,6 @@ Documentation and guidance for these patterns can be found on the [Azure Archite
 [SynchronousIO]: https://docs.microsoft.com/azure/architecture/antipatterns/synchronous-io/
 
 [BusyDatabase-LoadTesting]: BusyDatabase/docs/LoadTesting.md
-[BusyFrontEnd-LoadTesting]: BusyFrontEnd/docs/LoadTesting.md
 [ChattyIO-LoadTesting]: ChattyIO/docs/LoadTesting.md
 [ExtraneousFetching-LoadTesting]: ExtraneousFetching/docs/LoadTesting.md
 [ImproperInstantiation-LoadTesting]: ImproperInstantiation/docs/LoadTesting.md
