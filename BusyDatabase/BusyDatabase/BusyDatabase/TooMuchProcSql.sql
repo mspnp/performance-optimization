@@ -1,9 +1,4 @@
-﻿-- Copyright (c) Microsoft. All rights reserved.
--- Licensed under the MIT license. See LICENSE file in the project root for full license information.
-
---DECLARE @TerritoryId INT
---SET @TerritoryId = 1
-
+﻿
 SELECT TOP 20
   soh.[SalesOrderNumber]  AS '@OrderNumber',
   soh.[Status]            AS '@Status',
@@ -21,14 +16,16 @@ SELECT TOP 20
                           AS '@ReviewRequired',
   (
   SELECT
-    c.[AccountNumber]     AS '@AccountNumber',
+    c.[CompanyName]     AS '@CompanyName',
     UPPER(LTRIM(RTRIM(REPLACE(
-    CONCAT( p.[Title], ' ', p.[FirstName], ' ', p.[MiddleName], ' ', p.[LastName], ' ', p.[Suffix]),
+    CONCAT( a.[City], ' ', a.[CountryRegion], ' ', a.[PostalCode], ' ', a.[StateProvince]),
     '  ', ' '))))
                           AS '@FullName'
-  FROM [Sales].[Customer] c
-    INNER JOIN [Person].[Person] p
-  ON c.[PersonID] = p.[BusinessEntityID]
+  FROM [SalesLT].[Customer] c
+    INNER JOIN [SalesLT].[CustomerAddress] p
+  ON c.[CustomerID] = p.[CustomerID]
+    INNER JOIN [SalesLT].[Address] a
+  ON a.[AddressID] = p.[AddressID] 
   WHERE c.[CustomerID] = soh.[CustomerID]
   FOR XML PATH ('Customer'), TYPE
   ),
@@ -44,13 +41,13 @@ SELECT TOP 20
     CASE WHEN (sod.[ProductID] >= 710) AND (sod.[ProductID] <= 720) AND (sod.[OrderQty] >= 5) THEN 'Y' ELSE 'N' END
                         AS '@InventoryCheckRequired'
 
-  FROM [Sales].[SalesOrderDetail] sod
+  FROM [SalesLT].[SalesOrderDetail] sod
   WHERE sod.[SalesOrderID] = soh.[SalesOrderID]
   ORDER BY sod.[SalesOrderDetailID]
   FOR XML PATH ('LineItem'), TYPE, ROOT('OrderLineItems')
   )
 
-FROM [Sales].[SalesOrderHeader] soh
-WHERE soh.[TerritoryId] = @TerritoryId
+FROM [SalesLT].[SalesOrderHeader] soh
+WHERE soh.CustomerID = @CustomerID
 ORDER BY soh.[TotalDue] DESC
 FOR XML PATH ('Order'), ROOT('Orders')
