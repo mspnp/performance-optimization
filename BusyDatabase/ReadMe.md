@@ -1,5 +1,7 @@
 # BusyDatabase Sample Code
 
+It is a sample implementation to ilustrate [Busy Database antipattern](https://learn.microsoft.com/azure/architecture/antipatterns/busy-database/)
+
 The BusyDatabase sample code comprises the following items:
 
 - BusyDatabase Application
@@ -45,7 +47,7 @@ Install the prerequisites and follow the steps to deploy and run the examples.
    az login
    az account set -s <Name or ID of subscription>
 
-   export USER=<Microsoft Entra Id user>
+   export USER=<Microsoft Entra Id user to connect the database>
    export USER_OBJECTID=<Microsoft Entra Id user's object id>
    export USER_TENANTID=<User's Tenant>
 
@@ -67,7 +69,7 @@ Install the prerequisites and follow the steps to deploy and run the examples.
                         userTenantId=${USER_TENANTID}
    ```
 
-1. Add database connection string
+1. Configure database connection string
 
    On appsettings.json you need to complete with your server and database name.
 
@@ -77,11 +79,12 @@ Install the prerequisites and follow the steps to deploy and run the examples.
 
 1. Authenticate with a Microsoft Entra identity
 
-   It uses [Active Directory Default](https://learn.microsoft.com/sql/connect/ado-net/sql/azure-active-directory-authentication?view=sql-server-ver16#setting-microsoft-entra-authentication) witch requires AZ Cli or Visual Studio autenticated.
+   It uses [Active Directory Default](https://learn.microsoft.com/sql/connect/ado-net/sql/azure-active-directory-authentication?view=sql-server-ver16#setting-microsoft-entra-authentication) which requires authentication via AZ CLI or Visual Studio.
 
-1. Enable your computer reach the Azure Database
+1. Enable your computer to reach the Azure Database:
 
-   Go to Database Server and in the Network Section allows your IP
+   - Go to the Database Server.
+   - In the Network section, allow your IP address.
 
 1. Run proyect locally
 
