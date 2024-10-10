@@ -2,58 +2,103 @@
 
 The BusyDatabase sample code comprises the following items:
 
-* BusyDatabase solution file
+- BusyDatabase Application
 
-* AzureCloudService
-
-* BusyDatabase WebAPI project
-
-* BusyDatabase.Support class library
-
-* [Detailed Documentation][docs]
+- Azure SQL database with [AdventureWorksLT sample](https://learn.microsoft.com/sql/samples/adventureworks-install-configure?view=sql-server-ver16&tabs=ssms#deploy-to-azure-sql-database)
 
 The BusyDatabase WebAPI project contains two controllers:
 
-* `TooMuchProcSqlController`
+- `TooMuchProcSqlController`
 
-* `LessProcSqlController`
+- `LessProcSqlController`
 
-The `Get` action of both controllers returns an XML formatted list of order details.
-The `TooMuchProcSqlController` runs the Transact-SQL statement defined in the
-TooMuchProcSql.sql file in the BusyDatabase.Support project to retrieve and format the
-data by using Azure SQL Database. The `LessProcSqlController` uses the simpler
-Transact-SQL query defined in the LessProcSql.sql file in the BusyDatabase.Support
-project to retrieve the data and uses the XML library of the .NET Framework to format
-the result.
+The `Get` action of both controllers returns an XML formatted list of order details.  
+The `TooMuchProcSqlController` runs the Transact-SQL statement defined in the TooMuchProcSql.sql file in the project to retrieve and format the data by using Azure SQL Database. The `LessProcSqlController` uses the simpler Transact-SQL query defined in the LessProcSql.sql file in the project to retrieve the data and uses .NET to format the result.
 
-## Configuring the project
+## :rocket: Deployment guide
 
-Both controllers use the [AdventureWorks2012][AdventureWorks2012] database stored by
-using Azure SQL Database. Create the database by using the Azure Management Portal and
-add the connection string to the `connectionString` app setting in the web.config file
-for the BusyDatabase WebAPI project.
+Install the prerequisites and follow the steps to deploy and run the examples.
 
-Note that the new Azure portal provides a simplified version of the database (AdventureWorksLT). The AdventureWorksLT database uses a different schema from that expected by this sample application which might not function correctly unless the full [AdventureWorks2012][AdventureWorks2012] database is installed.
+### Prerequisites
 
-## Deploying the project to Azure
+- Permission to create a new resource group and resources in an [Azure subscription](https://azure.com/free)
+- Unix-like shell. Also available in:
+  - [Azure Cloud Shell](https://shell.azure.com/)
+  - [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/windows/wsl/install)
+- [Git](https://git-scm.com/downloads)
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
+- Optionally, an IDE, like [Visual Studio](https://visualstudio.microsoft.com/downloads/) or [Visual Studio Code](https://code.visualstudio.com/).
 
-In Visual Studio Solution Explorer, right-click the AzureCloudService project and then
-click *Publish* to deploy the project to Azure.
+### Steps
 
-## Load testing the project
+1. Clone this repository to your workstation and navigate to the working directory.
 
-You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) the
-application.
-For details of the load testing strategy for this sample, see [Load Testing][Load Testing].
+   ```bash
+   git clone https://github.com/mspnp/performance-optimization
+   cd BusyDatabase
+   ```
 
-## Dependencies
+1. Log into Azure and create an empty resource group.
 
-This project requires:
+   ```bash
+   az login
+   az account set -s <Name or ID of subscription>
 
-* Azure SDK 2.5
+   export USER=<Microsoft Entra Id user>
+   export USER_OBJECTID=<Microsoft Entra Id user's object id>
+   export USER_TENANTID=<User's Tenant>
 
-* An instance of the [AdventureWorks2012] database
+   LOCATION=eastus
+   RESOURCEGROUP=rg-busy-database-${LOCATION}
 
-[docs]: docs/BusyDatabase.md
-[AdventureWorks2012]: https://msftdbprodsamples.codeplex.com/releases/view/37304
-[Load Testing]: docs/LoadTesting.md
+   az group create --name ${RESOURCEGROUP} --location ${LOCATION}
+
+   ```
+
+1. Deploy the supporting Azure resources.  
+   It will create a database that only allows Microsoft Entra ID users, including the AdventureWorksLT sample
+
+   ```bash
+   az deployment group create --resource-group ${RESOURCEGROUP}  \
+                        -f ./bicep/main.bicep  \
+                        -p user=${USER} \
+                        userObjectId=${USER_OBJECTID} \
+                        userTenantId=${USER_TENANTID}
+   ```
+
+1. Add database connection string
+
+   On appsettings.json you need to complete with your server and database name.
+
+   ```bash
+   "Server=tcp:<yourServer>.database.windows.net,1433;Database=<yourDatabase>;Authentication=ActiveDirectoryDefault; Encrypt=True;TrustServerCertificate=false;Connection Timeout=30;",
+   ```
+
+1. Authenticate with a Microsoft Entra identity
+
+   It uses [Active Directory Default](https://learn.microsoft.com/sql/connect/ado-net/sql/azure-active-directory-authentication?view=sql-server-ver16#setting-microsoft-entra-authentication) witch requires AZ Cli or Visual Studio autenticated.
+
+1. Enable your computer reach the Azure Database
+
+   Go to Database Server and in the Network Section allows your IP
+
+1. Run proyect locally
+
+   Execute the API and then you will be able to call both endpoints
+
+## :broom: Clean up resources
+
+Most of the Azure resources deployed in the prior steps will incur ongoing charges unless removed.
+
+```bash
+az group delete -n ${RESOURCEGROUP} -y
+```
+
+## Contributions
+
+Please see our [Contributor guide](./CONTRIBUTING.md).
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact <opencode@microsoft.com> with any additional questions or comments.
+
+With :heart: from Azure Patterns & Practices, [Azure Architecture Center](https://azure.com/architecture).

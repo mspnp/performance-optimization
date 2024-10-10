@@ -1,6 +1,0 @@
-@BusyDatabase_HostAddress = http://localhost:5167
-
-GET {{BusyDatabase_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

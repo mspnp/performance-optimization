@@ -1,25 +1,41 @@
+using BusyDatabase.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 
 namespace BusyDatabase.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class LessProcSqlController(ILogger<LessProcSqlController> _logger) : ControllerBase
+    public class TooMuchProcSqlController(ILogger<TooMuchProcSqlController> _logger, IQueryService _queryService, IConfiguration _configuration) : ControllerBase
     {
 
         [HttpGet("{id:int}")]
         [Produces("application/xml")]
         public async Task<IActionResult> Get(int id)
         {
-            // Example data to return
-            var exampleData = new
-            {
-                Id = id,
-                Name = "Sample Name",
-                Description = "Sample Description"
-            };
+            var query = await _queryService.GetAsync("TooMuchProcSql.sql");
 
-            return Ok(exampleData);
+            var connectionString = _configuration["connectionString"];
+            using (var connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@CustomerID", id);
+                    using (var reader = await command.ExecuteReaderAsync())
+                    {
+                        if (await reader.ReadAsync())
+                        {
+                            var xmlResult = reader.GetString(0);
+                            return Content(xmlResult, "application/xml");
+                        }
+                        else
+                        {
+                            return NotFound();
+                        }
+                    }
+                }
+            }
         }
     }
 }
