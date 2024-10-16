@@ -23,8 +23,8 @@ var uniqueName = uniqueString(resourceGroup().id)
 @description('The name of the SQL logical server.')
 var serverName = 'sqlserver-${uniqueName}'
 @description('The name of the SQL Database.')
-var sqlDBName = 'chattyIoDatabase-${uniqueName}'
-var logAnalyticsWorkspaceName = 'chattyIoDatabase-${uniqueName}'
+var sqlDBName = 'extraneosFeatching-${uniqueName}'
+var logAnalyticsWorkspaceName = 'extraneosFeatching-${uniqueName}'
 
 
 resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' = {
@@ -98,6 +98,25 @@ resource sqlVulnerabilityAssessment 'Microsoft.Sql/servers/sqlVulnerabilityAsses
   dependsOn: [
     auditingServerSettings
   ]
+}
+
+resource solutions_SQLAuditing_githubmetrics 'Microsoft.OperationsManagement/solutions@2015-11-01-preview' = {
+  name: 'SolutionSQLAuditing${logAnalyticsWorkspace.name}'
+  location: location
+  plan: {
+    name: 'SQLAuditing${sqlDB.name}'
+    promotionCode: ''
+    product: 'SQLAuditing'
+    publisher: 'Microsoft'
+  }
+  properties: {
+    workspaceResourceId: logAnalyticsWorkspace.id
+    containedResources: [
+      '${resourceId('Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspace.name)}/views/SQLSecurityInsights'
+      '${resourceId('Microsoft.OperationalInsights/workspaces', logAnalyticsWorkspace.name)}/views/SQLAccessToSensitiveData'
+    ]
+    referencedResources: []
+  }
 }
 
 resource sqlDB 'Microsoft.Sql/servers/databases@2023-08-01-preview' = {
