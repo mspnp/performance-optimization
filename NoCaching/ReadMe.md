@@ -1,120 +1,226 @@
 # NoCaching Sample Code
 
+It is a sample implementation to ilustrate [No Caching antipattern](https://learn.microsoft.com/azure/architecture/antipatterns/no-caching/)
+
 The NoCaching sample code comprises the following items:
 
-* NoCaching solution file
+- Azure SQL database with [AdventureWorksLT sample](https://learn.microsoft.com/sql/samples/adventureworks-install-configure?view=sql-server-ver16&tabs=ssms#deploy-to-azure-sql-database)
 
-* AzureCloudService
+The NoCaching Web API project contains two controllers:
 
-* NoCaching.WebRole WebAPI project
+- `NoCacheController`
 
-* NoCaching class library
+- `CacheController`
 
-* [Detailed Documentation][docs]
-
-The NoCaching.WebRole WebAPI project contains two controllers:
-
-* `NoCacheController`
-
-* `CacheController`
-
-The `NoCacheController` exposes a number of actions that retrieve data from the
-AdventureWorks2012 database. The information is fetched directly from the database
-(by using the Entity Framework) and is not cached. The following code snippet shows
-an example:
+The `NoCacheController` exposes a number of actions that retrieve data from the AdventureWorksLT database. The information is fetched directly from the database(by using the Entity Framework) and is not cached. The following code snippet shows an example:
 
 **C#**
 
-``` C#
-public async Task<IHttpActionResult> GetPerson(int id)
+```C#
+// Controller
+  [ApiController]
+  [Route("[controller]")]
+  public class NoCacheController(IQueryService _queryService) : ControllerBase
+  {
+      [HttpGet("products/{id}")]
+      public async Task<IActionResult> GetProduct(int id)
+      {
+          var product = await _queryService.GetProductAsync(id);
+          if (product == null)
+          {
+              return NotFound();
+          }
+          return Ok(product);
+      }
+
+      [HttpGet("productCategories/{productSubcategoryId}")]
+      public async Task<IActionResult> GetProductCategories(int productSubcategoryId)
+      {
+          var product = await _queryService.GetProductCategoryAsync(productSubcategoryId);
+          if (product == null)
+          {
+              return NotFound();
+          }
+          return Ok(product);
+      }
+  }
+// Service 
+public class QueryService(AdventureWorksProductContext _context) : IQueryService
 {
-    IPersonRepository repository = new PersonRepository();
-    var person = await repository.GetAsync(id);
-
-    if (person == null) return NotFound();
-    return Ok(person);
-}
-```
-
-The `CacheController` provides the same actions. The difference is that the code for
-these actions a different context class that implements the cache-aside pattern:
-
-**C#**
-
-``` C#
-public async Task<IHttpActionResult> GetPerson(int id)
-{
-    IPersonRepository repository = new CachedPersonRepository(new PersonRepository());
-    var person = await repository.GetAsync(id);
-
-    if (person == null) return NotFound();
-    return Ok(person);
-}
-```
-
-In this code snippet, the `CachedPersonRepository` class provides a wrapper around
-the `PersonRepository` class. The `CachedPersonRepository` class checks to see
-whether the requested information has been previously retrieved and cached, otherwise
-it uses a `PersonRepository` object to fetch the information from the database which
-is then added to the cache. The cache is implemented by using [Azure Redis Cache][AzureRedisCache]:
-
-**C#**
-
-``` C#
-public class CachedPersonRepository : IPersonRepository
-{
-    private readonly PersonRepository _innerRepository;
-
-    public CachedPersonRepository(PersonRepository innerRepository)
+    public async Task<ProductDTO> GetProductAsync(int id)
     {
-        _innerRepository = innerRepository;
+        var product = await _context.Products
+            .Where(p => p.ProductID == id)
+            .Select(x => new ProductDTO { Name = x.Name, ProductID = x.ProductID })
+            .FirstOrDefaultAsync();
+
+        return product;
     }
 
-    public async Task<Person> GetAsync(int id)
+    public async Task<ProductCategoryDTO> GetProductCategoryAsync(int subcategoryId)
     {
-        return await CacheService.GetAsync<Person>("p:" + id, () => _innerRepository.GetAsync(id)).ConfigureAwait(false);
+        var subcategories = await _context.ProductCategories
+                             .Include(x => x.Products)
+                             .Where(x => x.ProductCategoryID == subcategoryId)
+                             .Select(x => new ProductCategoryDTO
+                             {
+                                 ProductCategoryID = x.ProductCategoryID,
+                                 ParentProductCategoryID = x.ParentProductCategoryID,
+                                 Name = x.Name,
+                                 Rowguid = x.Rowguid,
+                                 ModifiedDate = x.ModifiedDate,
+                                 Products = x.Products.Select(p => new ProductDTO
+                                 {
+                                     ProductID = p.ProductID,
+                                     Name = p.Name
+                                 }).ToList()
+                             })
+                             .FirstOrDefaultAsync();
+        return subcategories;
     }
 }
 ```
 
-## Configuring the project
+The `CacheController` provides the same actions. The difference is that the code for these actions a different context class that implements the cache-aside pattern (using .Net [MemoryCache](https://learn.microsoft.com/aspnet/core/performance/caching/memory)):
 
-This project uses the [AdventureWorks2012][AdventureWorks2012] database stored by
-using Azure SQL Database. Create the database by using the Azure Management Portal
-and add the connection string to the `AdventureWorksConnectionString` setting in the
-ServiceConfiguration files for the AzureCloudService project.
+**C#**
 
-Note that the new Azure portal provides a simplified version of the database
-(AdventureWorksLT). The AdventureWorksLT database uses a different schema from that
-expected by this sample application which might not function correctly unless the
-full [AdventureWorks2012][AdventureWorks2012] database is installed.
+```C#
+// Controller
+ [ApiController]
+ [Route("[controller]")]
+ public class CacheController(ICacheQueryService _cacheQueryService) : ControllerBase
+ {
+     [HttpGet("products/{id}")]
+     public async Task<IActionResult> GetProduct(int id)
+     {
+         var product = await _cacheQueryService.GetProductAsync(id);
+         if (product == null)
+         {
+             return NotFound();
+         }
+         return Ok(product);
+     }
 
-This project also requires an instance of [Azure Redis Cache][AdventureWorks2012].
-Create the cache by using the new Azure Portal and add the connection settings to the
-`RedisConfiguration` setting in the ServiceConfiguration files
+     [HttpGet("productCategories/{productSubcategoryId}")]
+     public async Task<IActionResult> GetProductCategories(int productSubcategoryId)
+     {
+         var product = await _cacheQueryService.GetProductCategoryAsync(productSubcategoryId);
+         if (product == null)
+         {
+             return NotFound();
+         }
+         return Ok(product);
+     }
+ }
+// Service that caches the database requests
+ public class CacheQueryService(IMemoryCache _memoryCache, IQueryService _queryService) : ICacheQueryService
+ {
+     public async Task<ProductDTO> GetProductAsync(int id)
+     {
+         return await _memoryCache.GetOrCreateAsync($"product-{id}", async entry =>
+         {
+             entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(60));
+             return await _queryService.GetProductAsync(id);
+         });
+     }
 
-## Deploying the project to Azure
+     public async Task<ProductCategoryDTO> GetProductCategoryAsync(int subcategoryId)
+     {
+         return await _memoryCache.GetOrCreateAsync($"productCategory-{subcategoryId}", async entry =>
+         {
+             entry.SetAbsoluteExpiration(TimeSpan.FromMinutes(60));
+             return await _queryService.GetProductCategoryAsync(subcategoryId);
+         });
+     }
+ }
+```
 
-In Visual Studio Solution Explorer, right-click the AzureCloudService project and
-then click *Publish* to deploy the project to Azure.
+## :rocket: Deployment guide
 
-## Load testing the project
+Install the prerequisites and follow the steps to deploy and run the examples.
 
-You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) the
-application.
-For details of the load testing strategy for this sample, see [Load Testing][Load Testing].
+### Prerequisites
 
-## Dependencies
+- Permission to create a new resource group and resources in an [Azure subscription](https://azure.com/free)
+- Unix-like shell. Also available in:
+  - [Azure Cloud Shell](https://shell.azure.com/)
+  - [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/windows/wsl/install)
+- [Git](https://git-scm.com/downloads)
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
+- Optionally, an IDE, like [Visual Studio](https://visualstudio.microsoft.com/downloads/) or [Visual Studio Code](https://code.visualstudio.com/).
 
-This project requires:
+### Steps
 
-* Azure SDK 2.9
+1. Clone this repository to your workstation and navigate to the working directory.
 
-* An instance of the [AdventureWorks2012] database
+   ```bash
+   git clone https://github.com/mspnp/performance-optimization
+   cd NoCaching
+   ```
 
-* An instance of [Azure Redis Cache][AzureRedisCache]
+1. Log into Azure and create an empty resource group.
 
-[docs]: docs/NoCaching.md
-[AzureRedisCache]: http://azure.microsoft.com/services/cache/
-[AdventureWorks2012]: https://msftdbprodsamples.codeplex.com/releases/view/37304
-[Load Testing]: docs/LoadTesting.md
+   ```bash
+   az login
+   az account set -s <Name or ID of subscription>
+
+   export USER=<Microsoft Entra Id user to connect the database>
+   export USER_OBJECTID=<Microsoft Entra Id user's object id>
+   export USER_TENANTID=<User's Tenant>
+
+   LOCATION=eastus
+   RESOURCEGROUP=rg-no-caching-${LOCATION}
+
+   az group create --name ${RESOURCEGROUP} --location ${LOCATION}
+
+   ```
+
+1. Deploy the supporting Azure resources.  
+   It will create a database that only allows Microsoft Entra ID users, including the AdventureWorksLT sample
+
+   ```bash
+   az deployment group create --resource-group ${RESOURCEGROUP}  \
+                        -f ./bicep/main.bicep  \
+                        -p user=${USER} \
+                        userObjectId=${USER_OBJECTID} \
+                        userTenantId=${USER_TENANTID}
+   ```
+
+1. Configure database connection string
+
+   On appsettings.json you need to complete with your server and database name.
+
+   ```bash
+   "Server=tcp:<yourServer>.database.windows.net,1433;Database=<yourDatabase>;Authentication=ActiveDirectoryDefault; Encrypt=True;TrustServerCertificate=false;Connection Timeout=30;",
+   ```
+
+1. Authenticate with a Microsoft Entra identity
+
+   It uses [Active Directory Default](https://learn.microsoft.com/sql/connect/ado-net/sql/azure-active-directory-authentication?view=sql-server-ver16#setting-microsoft-entra-authentication) which requires authentication via AZ CLI or Visual Studio.
+
+1. Enable your computer to reach the Azure Database:
+
+   - Go to the Database Server.
+   - In the Network section, allow your IP address.
+
+1. Run proyect locally
+
+   Execute the API and then you will be able to call both endpoints
+
+## :broom: Clean up resources
+
+Most of the Azure resources deployed in the prior steps will incur ongoing charges unless removed.
+
+```bash
+az group delete -n ${RESOURCEGROUP} -y
+```
+
+## Contributions
+
+Please see our [Contributor guide](./CONTRIBUTING.md).
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact <opencode@microsoft.com> with any additional questions or comments.
+
+With :heart: from Azure Patterns & Practices, [Azure Architecture Center](https://azure.com/architecture).
