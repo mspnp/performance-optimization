@@ -23,8 +23,8 @@ var uniqueName = uniqueString(resourceGroup().id)
 @description('The name of the SQL logical server.')
 var serverName = 'sqlserver-${uniqueName}'
 @description('The name of the SQL Database.')
-var sqlDBName = 'extraneosFeatching-${uniqueName}'
-var logAnalyticsWorkspaceName = 'extraneosFeatching-${uniqueName}'
+var sqlDBName = 'chattyio-${uniqueName}'
+var logAnalyticsWorkspaceName = 'chattyio-${uniqueName}'
 
 
 resource sqlServer 'Microsoft.Sql/servers@2023-08-01-preview' = {
