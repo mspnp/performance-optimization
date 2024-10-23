@@ -14,7 +14,7 @@ The ChattyIO WebAPI project contains two controllers:
 
 * `ChunkyProductController`
 
-The `GetProductsInSubCategoryAsync` action of the `ChattyProductController` retrieves the details of all products held, including sales order details, in the specified subcategory in the AdventureWorksLT database. The code connects to the database and fetches the details of the subcategory, the products in the subcategory, and the saless order details of each product as separate database requests before formatting the data and returning the result.
+The `GetProductsInSubCategoryAsync` action of the `ChattyProductController` retrieves detailed information about all products, including their sales order details, within a specified subcategory in the AdventureWorksLT database. The action connects to the database, retrieves the subcategory information, fetches the associated products, and obtains the sales order details for each product. These steps are performed as separate database requests before the data is formatted and returned as the result.  
 
 The `GetProductCategoryDetailsAsync` action of the `ChunkyProductController` performs a similar task except that it fetches the data from the database in a single request.
 
