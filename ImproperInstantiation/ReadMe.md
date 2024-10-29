@@ -35,12 +35,12 @@ However, the `NewServiceInstancePerRequestController` and `SingleServiceInstance
  }
 ```
 
-- The `SingleServiceInstanceController` delegates the class instantiation to [.NET dependency injection](https://learn.microsoft.com/aspnet/core/fundamentals/dependency-injection). In this case, a Singleton (only one instance is created) of `ExpensiveToCreateService` is added.
+- The `SingleServiceInstanceController` delegates the class instantiation to [.NET dependency injection](https://learn.microsoft.com/aspnet/core/fundamentals/dependency-injection) system. In this setup, a singleton instance (only one instance is created) of `ExpensiveToCreateService` is registered..
 
 **C#**
 
 ```C#
-// on Program.cs a line like
+// on Program.cs, a line like
 builder.Services.AddSingleton<IExpensiveToCreateService, ExpensiveToCreateService>();
 
 // The cotroller
@@ -84,12 +84,12 @@ public class NewHttpClientInstancePerRequestController(IConfiguration configurat
 
 There is an [issue](https://learn.microsoft.com/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests) where, when an `HttpClient` object is disposed, the underlying socket is not immediately released. Therefore, `HttpClient` is intended to be instantiated once and reused throughout the application's lifetime. Creating a new `HttpClient` instance for every request can exhaust the available sockets under heavy loads.
 
-- The `SingleHttpClientInstanceController` delegates the class instantiation to [.NET dependency injection](https://learn.microsoft.com/aspnet/core/fundamentals/dependency-injection). It use [HttpClientFactory](https://learn.microsoft.com/dotnet/core/extensions/httpclient-factory)
+- The `SingleHttpClientInstanceController` delegates the class instantiation to [.NET dependency injection](https://learn.microsoft.com/aspnet/core/fundamentals/dependency-injection) system. It uses [HttpClientFactory](https://learn.microsoft.com/dotnet/core/extensions/httpclient-factory).
 
 **C#**
 
 ```C#
-// on Program.cs a line like
+// on Program.cs, a line like
 builder.Services.AddHttpClient("api-usuario", c =>
 {
     c.BaseAddress = new Uri(builder.Configuration["api-usuario"]);
