@@ -1,121 +1,150 @@
 # ImproperInstantiation Sample Code
 
+It is a sample implementation to ilustrate [Improper Instantiation antipattern](https://learn.microsoft.com/en-us/azure/architecture/antipatterns/improper-instantiation/)
+
 The ImproperInstantiation sample code comprises the following items:
 
-* ImproperInstantiation solution file
+- ImproperInstantiation Web Api
 
-* AzureCloudService
+- User Profile Web Api
 
-* UserProfileServiceWebRole
+The ImproperInstantiation Web Api project contains four controllers:
 
-* WebRole WebAPI project
+- `NewHttpClientInstancePerRequestController`
 
-The WebRole WebAPI project contains four controllers:
+- `NewServiceInstancePerRequestController`
 
-* `NewHttpClientInstancePerRequestController`
+- `SingleHttpClientInstanceController`
 
-* `NewServiceInstancePerRequestController`
+- `SingleServiceInstanceController`
 
-* `SingleHttpClientInstanceController`
-
-* `SingleServiceInstanceController`
-
-The `NewServiceInstancePerRequestController` and `SingleServiceInstanceController` both call the
-`ExpensiveToCreateService.GetProductByIdAsync` method. The `ExpensiveToCreateService` class is 
+The `NewServiceInstancePerRequestController` and `SingleServiceInstanceController` both call the `ExpensiveToCreateService.GetProductByIdAsync` method. The `ExpensiveToCreateService` class is
 designed to support shared instances. This class uses a delay to simulate setup and configuration.
-However, the `NewServiceInstancePerRequestController` and `SingleServiceInstanceController` handle
-the lifetime of the `ExpensiveToCreateService` instance differently:
+However, the `NewServiceInstancePerRequestController` and `SingleServiceInstanceController` handle the lifetime of the `ExpensiveToCreateService` instance differently:
 
-* The `NewServiceInstancePerRequestController` creates a new instance of
-`ExpensiveToCreateService` for every call to
-`NewServiceInstancePerRequestController.GetProductAsync`:
+- The `NewServiceInstancePerRequestController` creates a new instance of `ExpensiveToCreateService` for every call to `NewServiceInstancePerRequestController.GetProductAsync`:
 
 **C#**
 
-``` C#
-public async Task<Product> GetProductAsync(string id)
-{
-    var expensiveToCreateService = new ExpensiveToCreateService();
-    return await expensiveToCreateService.GetProductByIdAsync(id);
-}
+```C#
+ [HttpGet("{id}")]
+ public async Task<IActionResult> GetProductAsync(string id)
+ {
+     var expensiveToCreateService = new ExpensiveToCreateService();
+     return Ok(await expensiveToCreateService.GetProductByIdAsync(id));
+ }
 ```
 
-* The `SingleServiceInstanceController` creates a static instance of `ExpensiveToCreateService`
-and uses it during the lifetime of the process:
+- The `SingleServiceInstanceController` delegates the class instantiation to [.NET dependency injection](https://learn.microsoft.com/aspnet/core/fundamentals/dependency-injection) system. In this setup, a singleton instance (only one instance is created) of `ExpensiveToCreateService` is registered..
 
 **C#**
 
-``` C#
-private static readonly ExpensiveToCreateService ExpensiveToCreateService;
+```C#
+// on Program.cs, a line like
+builder.Services.AddSingleton<IExpensiveToCreateService, ExpensiveToCreateService>();
 
-static SingleServiceInstanceController()
+// The cotroller
+[ApiController]
+[Route("[controller]")]
+public class SingleServiceInstanceController(IExpensiveToCreateService expensiveToCreateService) : ControllerBase
 {
-    ExpensiveToCreateService = new ExpensiveToCreateService();
-}
-
-public async Task<Product> GetProductAsync(string id)
-{
-    return await ExpensiveToCreateService.GetProductByIdAsync(id);
-}
-```
-
-
-
-The `NewHttpClientInstancePerRequestController` and `SingleHttpClientInstanceController` both use 
-an instance of the `HttpClient` to send requests to the `UserProfileServiceWebRole`. As with the 
-previous pair of controllers, they handle the lifetime of the `HttpClient` instance differently:
-
-* The `NewHttpClientInstancePerRequestController` creates a new instance of `HttpClient` and
-disposes it for every call to `NewHttpClientInstancePerRequestController.GetProductAsync`:
-
-**C#**
-
-``` C#
-public async Task<Product> GetProductAsync(string id)
-{
-    using (var httpClient = new HttpClient())
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetProductAsync(string id)
     {
-        var hostName = HttpContext.Current.Request.Url.Host;
-        var result = await httpClient.GetStringAsync(string.Format("http://{0}:8080/api/userprofile", hostName));
-
-        return new Product { Name = result };
+        return Ok(await expensiveToCreateService.GetProductByIdAsync(id));
     }
 }
 ```
 
-* The `SingleHttpClientInstanceController` creates a static instance of `HttpClient` and uses it
-during the lifetime of the controller:
+The `NewHttpClientInstancePerRequestController` and `SingleHttpClientInstanceController` both use an instance of the `HttpClient` to send requests to the `ImproperInstantiation.UserProfileService`. As with the
+previous pair of controllers, they handle the lifetime of the `HttpClient` instance differently:
+
+- The `NewHttpClientInstancePerRequestController` creates a new instance of `HttpClient` and disposes it for every call to `NewHttpClientInstancePerRequestController.GetProductAsync`:
 
 **C#**
 
-``` C#
-private static readonly HttpClient HttpClient;
-
-static SingleHttpClientInstanceController()
+```C#
+[ApiController]
+[Route("[controller]")]
+public class NewHttpClientInstancePerRequestController(IConfiguration configuration) : ControllerBase
 {
-    HttpClient = new HttpClient();
-}
 
-public async Task<Product> GetProductAsync(string id)
-{
-    var hostName = HttpContext.Current.Request.Url.Host;
-    var result = await HttpClient.GetStringAsync(string.Format("http://{0}:8080/api/userprofile", hostName));
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetProductAsync(string id)
+    {
+        using (var httpClient = new HttpClient())
+        {
+            var result = await httpClient.GetStringAsync($"{configuration["api-usuario"]}/UserProfile");
 
-    return new Product { Name = result };
+            return Ok(new Product { Name = result });
+        }
+    }
 }
 ```
 
-## Deploying the project to Azure
+There is an [issue](https://learn.microsoft.com/dotnet/architecture/microservices/implement-resilient-applications/use-httpclientfactory-to-implement-resilient-http-requests) where, when an `HttpClient` object is disposed, the underlying socket is not immediately released. Therefore, `HttpClient` is intended to be instantiated once and reused throughout the application's lifetime. Creating a new `HttpClient` instance for every request can exhaust the available sockets under heavy loads.
 
-In Visual Studio Solution Explorer, right-click the AzureCloudService project and then click *Publish* to deploy the project to Azure.
+- The `SingleHttpClientInstanceController` delegates the class instantiation to [.NET dependency injection](https://learn.microsoft.com/aspnet/core/fundamentals/dependency-injection) system. It uses [HttpClientFactory](https://learn.microsoft.com/dotnet/core/extensions/httpclient-factory).
 
-## Load testing the project
+**C#**
 
-You can use [Visual Studio Online to load test](http://www.visualstudio.com/en-us/get-started/load-test-your-app-vs.aspx) the application.
-For details of the load testing strategy for this sample, see [Load Testing][Load Testing].
+```C#
+// on Program.cs, a line like
+builder.Services.AddHttpClient("api-usuario", c =>
+{
+    c.BaseAddress = new Uri(builder.Configuration["api-usuario"]);
+});
 
-## Dependencies
+// The Controller
+[ApiController]
+[Route("[controller]")]
+public class SingleHttpClientInstanceController(IHttpClientFactory httpClientFactory) : ControllerBase
+{
 
-This project requires Azure SDK 2.5
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetProductAsync(string id)
+    {
+        var httpClient = httpClientFactory.CreateClient("api-usuario");
 
-[Load Testing]: docs/LoadTesting.md
+        var result = await httpClient.GetStringAsync("/UserProfile");
+
+        return Ok(new Product { Name = result });
+    }
+}
+```
+
+## :rocket: Deployment guide
+
+Install the prerequisites and follow the steps to deploy and run the examples.
+
+### Prerequisites
+
+- Permission to create a new resource group and resources in an [Azure subscription](https://azure.com/free)
+- Unix-like shell. Also available in:
+  - [Azure Cloud Shell](https://shell.azure.com/)
+  - [Windows Subsystem for Linux (WSL)](https://learn.microsoft.com/windows/wsl/install)
+- [Git](https://git-scm.com/downloads)
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli)
+- Optionally, an IDE, like [Visual Studio](https://visualstudio.microsoft.com/downloads/) or [Visual Studio Code](https://code.visualstudio.com/).
+
+### Steps
+
+1. Clone this repository to your workstation and navigate to the working directory.
+
+   ```bash
+   git clone https://github.com/mspnp/performance-optimization
+   cd ImproperInstantiation
+   ```
+
+1. Run proyect locally
+
+   Set both web APIs as startup projects. Run them, and you will then be able to call the endpoints.
+
+## Contributions
+
+Please see our [Contributor guide](./CONTRIBUTING.md).
+
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact <opencode@microsoft.com> with any additional questions or comments.
+
+With :heart: from Azure Patterns & Practices, [Azure Architecture Center](https://azure.com/architecture).
